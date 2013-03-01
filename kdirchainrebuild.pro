@@ -20,7 +20,6 @@ SOURCES += main.cpp \
     kdirectoryentry.cpp
 
 HEADERS  += \
-    fileitem.h \
     dirmodel.h \
     kdirlisterv2.h \
     kdirlisterv2_p.h \

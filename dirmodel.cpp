@@ -28,17 +28,20 @@
 #include "kdirectoryentry.h"
 #include "kdirlisterv2.h"
 
-class ParentSomething
+// The only reason i need this class is because i can't call the .parent()
+// function on a QModelIndex from within the ::parent() function.
+// I need to know the "parent" row.
+class ParentHelper
 {
 public:
-    ParentSomething(int r, int c)
+    ParentHelper(int r, int c)
         : row(r)
         , column(c)
     {}
 
     int row;
     int column;
-    ParentSomething *parent;
+    ParentHelper *parent;
 };
 
 
@@ -94,14 +97,62 @@ const QString &DirModel::url()
 
 QModelIndex DirModel::index(int row, int column, const QModelIndex &parent) const
 {
+//    qDebug() << "DirModel::index row:" << row << "column:" << column << "parent:" << parent;
+    if(parent.isValid()) {
+//        qDebug() << "--> DirModel::index parent:" << parent;
+        return createIndex(row, column, parent.internalPointer());
+
+    } else if(parent.row() == 0 && row >= 0) {
+
+//        qDebug() << "--> DirModel::Request sub dir:" << parent;
+
+
+    } else {
+        return createIndex(row, column, new ParentHelper(0, 0));
+    }
 }
 
 QModelIndex DirModel::parent(const QModelIndex &index) const
 {
+    QModelIndex mdlIndex;
+    if(index.isValid()) {
+
+//        qDebug() << "--> DirModel::parent 000";
+        // Get our ParentHelper, get the row/column and return it as a new index.
+        ParentHelper* idx = static_cast<ParentHelper*>(index.internalPointer());
+        if(idx) {
+//            qDebug() << "--> DirModel::parent 111";
+            mdlIndex = createIndex(idx->row, idx->column);
+        }
+    } else {
+        qDebug() << "--> DirModel::parent 222";
+//        mdlIndex = QModelIndex();
+    }
+
+//    qDebug() << "DirModel::parent return index:" << mdlIndex << "index:" << index;
+
+    return index;
 }
 
 int DirModel::rowCount(const QModelIndex &parent) const
 {
+    KDirectory* dir;
+
+    // When there is no valid parent, try to fetch the root item.
+    if(!parent.isValid()) {
+        dir = d->m_lister->directory(0);
+    } else {
+        // Try to get the Directory from the current row.
+        dir = d->m_lister->directory(parent.row());
+    }
+
+    // Check dir, if it exists, return whatever count it has. Otherwise 0.
+    if(!dir) {
+        return 0;
+    } else {
+        return dir->count();
+    }
+    qDebug() << "DirModel::rowCount parent:" << parent;
 }
 
 QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -146,6 +197,80 @@ QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role
 
 bool DirModel::hasChildren(const QModelIndex &parent) const
 {
+//    qDebug() << "DirModel::hasChildren parent:" << parent;
+
+    // If we are invalid we are at the root level and always have some children.
+    if(!parent.isValid()) {
+        return true;
+    } else {
+        // Lookup the actual item. If it is a folder, set this to true. Otherwise false.
+        ParentHelper* idx = static_cast<ParentHelper*>(parent.internalPointer());
+        if(!idx) {
+            return false;
+        } else {
+            KDirectory* dir = d->m_lister->directory(idx->row);
+            if(!dir) {
+                return false;
+            }
+            if(parent.row() < dir->count()) {
+                return dir->entries().at(parent.row()).isDir();
+            }
+        }
+        return false;
+    }
+}
+
+bool DirModel::canFetchMore(const QModelIndex &parent) const
+{
+    qDebug() << "DirModel::canFetchMore parent:" << parent;
+
+    if(parent.isValid()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void DirModel::fetchMore(const QModelIndex &parent)
+{
+
+    qDebug() << "DirModel::fetchMore parent:" << parent << "Name:" << data(parent, Qt::DisplayRole);
+    qDebug() << "DirModel::fetchMore parents parent:" << parent.parent();
+
+
+    QModelIndex parentTraversal = parent;
+    QString pathTillRoot;
+
+    do {
+
+        qDebug() << "parent traversal..";
+
+        QVariant currentName = data(parent, Qt::DisplayRole);
+        QString stringName("/");
+        if(currentName.canConvert(QVariant::String)) {
+            stringName.prepend(currentName.toString());
+            pathTillRoot.prepend(stringName);
+        }
+        parentTraversal = parent.parent();
+
+    } while(parentTraversal.isValid() && parent != parentTraversal);
+
+    ParentHelper* idx = static_cast<ParentHelper*>(parentTraversal.internalPointer());
+    if(!idx) {
+        qFatal("(ParentHelper) Failed to do parent lookup.");
+    }
+
+    KDirectory* rootDir = d->m_lister->directory(idx->row);
+    if(!rootDir) {
+        qFatal("(KDirectory) Failed to do parent lookup.");
+    }
+
+    QString newUrl = rootDir->url() + pathTillRoot;
+    d->m_lister->openUrl(newUrl);
+
+//    qDebug() << "--> root dir:" << rootDir->url();
+//    qDebug() << "--> pathTillRoot:" << pathTillRoot;
+
 }
 
 void DirModel::reload()
@@ -155,13 +280,15 @@ void DirModel::reload()
 
 QVariant DirModel::data(const QModelIndex &index, int role) const
 {
+//    qDebug() << "DirModel::data index:" << index;
+
     // We need to have a valid index. No valid index is no data.
     if(!index.isValid()) {
         return QVariant();
     }
 
     // Next we need to know the parent index. This needs to be know so that we can fetch the actual folder data.
-    ParentSomething* idx = static_cast<ParentSomething*>(index.internalPointer());
+    ParentHelper* idx = static_cast<ParentHelper*>(index.internalPointer());
     if(!idx) {
         return QVariant();
     }
@@ -243,7 +370,8 @@ void DirModelPrivate::itemsAdded(KDirectory *dir)
 
 void DirModelPrivate::folderCompleted(KDirectory *dir)
 {
-    qDebug() << "Rowcount:" << q->rowCount();
+    Q_UNUSED(dir)
+    qDebug() << "DirModelPrivate::folderCompleted";
 }
 
 void DirModelPrivate::slotClear()

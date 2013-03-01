@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 20111 Marco Martin <mart@kde.org>
+    Copyright (C) 2013 Mark Gaiser <markg85@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -114,6 +114,10 @@ public:
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
     virtual bool hasChildren(const QModelIndex &parent) const;
+
+    virtual bool canFetchMore(const QModelIndex &parent) const;
+
+    virtual void fetchMore(const QModelIndex &parent);
 
     Q_INVOKABLE void reload();
 
