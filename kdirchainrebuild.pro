@@ -8,13 +8,11 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = KDirModelBenchmark
+TARGET = kdirchainrebuild
 TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    CNaturalString.inl \
-    CNaturalString.cpp \
     dirmodel.cpp \
     kdirlisterv2.cpp \
     kdirlisterv2_p.cpp \
@@ -22,7 +20,6 @@ SOURCES += main.cpp \
     kdirectoryentry.cpp
 
 HEADERS  += \
-    CNaturalString.h \
     fileitem.h \
     dirmodel.h \
     kdirlisterv2.h \

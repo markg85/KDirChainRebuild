@@ -113,8 +113,6 @@ public:
     /// Reimplemented from QAbstractItemModel. Returns the column titles.
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     Q_INVOKABLE void reload();

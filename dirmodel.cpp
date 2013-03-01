@@ -94,55 +94,14 @@ const QString &DirModel::url()
 
 QModelIndex DirModel::index(int row, int column, const QModelIndex &parent) const
 {
-
-//    qDebug() << "row:" << row << "column:" << column << "parent:" << parent << "isValid:" << parent.isValid();
-//    qDebug() << "mmm:" << createIndex(row, column) << parent;
-
-    if(row >= 0 && column >= 0) {
-        // A valid row + column, but no valid parent. So the parent is root.
-        if(!parent.isValid()) {
-            return createIndex(row, column, new ParentSomething(0, 0));
-        } else {
-            return createIndex(row, column, new ParentSomething(parent.row(), parent.column()));
-        }
-    } else {
-        return QModelIndex();
-    }
 }
 
 QModelIndex DirModel::parent(const QModelIndex &index) const
 {
-    ParentSomething* idx = static_cast<ParentSomething*>(index.internalPointer());
-    if(idx) {
-
-        qDebug() << "ppp index:" << index << "row:" << idx->row << "col:" << idx->column;
-        return createIndex(idx->row, idx->column);
-    }
-    return QModelIndex();
 }
 
 int DirModel::rowCount(const QModelIndex &parent) const
 {
-    qDebug() << "DirModel::rowCount:" << parent;
-//    if(!parent.isValid()) {
-//        return 0;
-//    }
-
-    ParentSomething* idx = static_cast<ParentSomething*>(parent.internalPointer());
-    if(!idx) {
-        // No parent at all yet.. Try to get the root item.
-        idx = new ParentSomething(0, 0);
-    }
-
-    qDebug() << "DirModel::rowCount fetching directory with index (row):" << idx->row;
-
-    KDirectory* currentDir = d->m_lister->directory(idx->row);
-
-    if(currentDir) {
-        return currentDir->count();
-    } else {
-        return 0;
-    }
 }
 
 QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -185,22 +144,8 @@ QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role
     return QVariant();
 }
 
-Qt::ItemFlags DirModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid()) {
-        return 0;
-    }
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
 bool DirModel::hasChildren(const QModelIndex &parent) const
 {
-    qDebug() << "DirModel::hasChildren" << parent;
-    if(!parent.isValid()) {
-        return true;
-    }
-//    return true;
 }
 
 void DirModel::reload()
