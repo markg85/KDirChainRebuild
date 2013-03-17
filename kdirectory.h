@@ -25,6 +25,8 @@
 
 #include "kdirectoryentry.h"
 
+class KDirectoryPrivate;
+
 class KDirectory : public QObject
 {
     Q_OBJECT
@@ -44,10 +46,7 @@ public slots:
     void slotResult( KJob *job );
     
 private:
-    QString m_directory;
-    QList<KDirectoryEntry> m_dirEntries;
-    int m_count;
-
+    KDirectoryPrivate *const d;
 };
 
 #endif // KDIRECTORY_H

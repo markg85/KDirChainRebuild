@@ -18,30 +18,30 @@
 */
 
 #include "kdirectory.h"
+#include "kdirectoryprivate_p.h"
 
 #include <QDebug>
 
+
 KDirectory::KDirectory(const QString& directory, QObject *parent)
     : QObject(parent)
-    , m_directory(directory)
-    , m_dirEntries()
-    , m_count(0)
+    , d(new KDirectoryPrivate(this, directory))
 {
 }
 
 const QList<KDirectoryEntry> &KDirectory::entries()
 {
-    return m_dirEntries;
+    return d->m_dirEntries;
 }
 
 const QString &KDirectory::url()
 {
-    return m_directory;
+    return d->m_directory;
 }
 
 int KDirectory::count()
 {
-    return m_count;
+    return d->m_dirEntries.count();
 }
 
 void KDirectory::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries)
@@ -53,8 +53,7 @@ void KDirectory::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries)
             currentList.append(KDirectoryEntry(entry));
         }
 
-        m_dirEntries += currentList;
-        m_count = m_dirEntries.count();
+        d->m_dirEntries += currentList;
 
         emit entriesProcessed(this);
     } else {

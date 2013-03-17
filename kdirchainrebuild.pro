@@ -17,14 +17,16 @@ SOURCES += main.cpp \
     kdirlisterv2.cpp \
     kdirlisterv2_p.cpp \
     kdirectory.cpp \
-    kdirectoryentry.cpp
+    kdirectoryentry.cpp \
+    kdirectoryprivate_p.cpp
 
 HEADERS  += \
     dirmodel.h \
     kdirlisterv2.h \
     kdirlisterv2_p.h \
     kdirectory.h \
-    kdirectoryentry.h
+    kdirectoryentry.h \
+    kdirectoryprivate_p.h
 
 LIBS += -lkdecore -lkio -lkdeui -lgomp -L/home/mark/kde_programming/kdelibs_git_build/lib
 INCLUDEPATH += /usr/include/KDE
