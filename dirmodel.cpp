@@ -97,19 +97,17 @@ const QString &DirModel::url()
 
 QModelIndex DirModel::index(int row, int column, const QModelIndex &parent) const
 {
-//    qDebug() << "DirModel::index row:" << row << "column:" << column << "parent:" << parent;
+    QModelIndex returnIndex;
     if(parent.isValid()) {
-//        qDebug() << "--> DirModel::index parent:" << parent;
-        return createIndex(row, column, parent.internalPointer());
-
-    } else if(parent.row() == 0 && row >= 0) {
-
-//        qDebug() << "--> DirModel::Request sub dir:" << parent;
-
-
+        returnIndex = createIndex(row, column, parent.internalPointer());
+    } else if(row >= 0) {
+        returnIndex = createIndex(row, column, new ParentHelper(0, 0));
     } else {
-        return createIndex(row, column, new ParentHelper(0, 0));
+        returnIndex = QModelIndex();
+//        return createIndex(row, column, new ParentHelper(0, 0));
     }
+//    qDebug() << "DirModel::index row:" << row << "column:" << column << "returnIndex:" << returnIndex;
+    return returnIndex;
 }
 
 QModelIndex DirModel::parent(const QModelIndex &index) const
@@ -121,14 +119,9 @@ QModelIndex DirModel::parent(const QModelIndex &index) const
         // Get our ParentHelper, get the row/column and return it as a new index.
         ParentHelper* idx = static_cast<ParentHelper*>(index.internalPointer());
         if(idx) {
-//            qDebug() << "--> DirModel::parent 111";
             mdlIndex = createIndex(idx->row, idx->column);
         }
-    } else {
-        qDebug() << "--> DirModel::parent 222";
-//        mdlIndex = QModelIndex();
     }
-
 //    qDebug() << "DirModel::parent return index:" << mdlIndex << "index:" << index;
 
     return index;
@@ -147,12 +140,12 @@ int DirModel::rowCount(const QModelIndex &parent) const
     }
 
     // Check dir, if it exists, return whatever count it has. Otherwise 0.
+    qDebug() << "DirModel::rowCount parent:" << parent;
     if(!dir) {
         return 0;
     } else {
         return dir->count();
     }
-    qDebug() << "DirModel::rowCount parent:" << parent;
 }
 
 QVariant DirModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -222,9 +215,16 @@ bool DirModel::hasChildren(const QModelIndex &parent) const
 
 bool DirModel::canFetchMore(const QModelIndex &parent) const
 {
-    qDebug() << "DirModel::canFetchMore parent:" << parent;
+//    qDebug() << "DirModel::canFetchMore parent:" << parent;
 
     if(parent.isValid()) {
+        // This newDir... prevents calling "fetchMore" twice.
+        if(d->m_newDirJustRequested) {
+            d->m_newDirJustRequested = false;
+            return false;
+        }
+        d->m_newDirJustRequested = true;
+
         return true;
     } else {
         return false;
@@ -233,9 +233,8 @@ bool DirModel::canFetchMore(const QModelIndex &parent) const
 
 void DirModel::fetchMore(const QModelIndex &parent)
 {
-
-    qDebug() << "DirModel::fetchMore parent:" << parent << "Name:" << data(parent, Qt::DisplayRole);
-    qDebug() << "DirModel::fetchMore parents parent:" << parent.parent();
+//    qDebug() << "DirModel::fetchMore parent:" << parent << "Name:" << data(parent, Qt::DisplayRole);
+//    qDebug() << "DirModel::fetchMore parents parent:" << parent.parent();
 
 
     QModelIndex parentTraversal = parent;
@@ -243,7 +242,7 @@ void DirModel::fetchMore(const QModelIndex &parent)
 
     do {
 
-        qDebug() << "parent traversal..";
+//        qDebug() << "parent traversal..";
 
         QVariant currentName = data(parent, Qt::DisplayRole);
         QString stringName("/");
@@ -268,9 +267,8 @@ void DirModel::fetchMore(const QModelIndex &parent)
     QString newUrl = rootDir->url() + pathTillRoot;
     d->m_lister->openUrl(newUrl);
 
-//    qDebug() << "--> root dir:" << rootDir->url();
-//    qDebug() << "--> pathTillRoot:" << pathTillRoot;
-
+    qDebug() << "--> root dir:" << rootDir->url();
+    qDebug() << "--> pathTillRoot:" << pathTillRoot;
 }
 
 void DirModel::reload()
@@ -346,6 +344,7 @@ DirModelPrivate::DirModelPrivate(DirModel *model)
     : q(model)
     , m_lister(new KDirListerV2())
     , m_url()
+    , m_newDirJustRequested(false)
 {
     connect(m_lister, SIGNAL(directoryContentChanged(KDirectory*)), this, SLOT(itemsAdded(KDirectory*)));
     connect(m_lister, SIGNAL(completed(KDirectory*)), this, SLOT(folderCompleted(KDirectory*)));
@@ -355,15 +354,15 @@ DirModelPrivate::DirModelPrivate(DirModel *model)
 
 void DirModelPrivate::itemsAdded(KDirectory *dir)
 {
-    qDebug() << "DirModelPrivate::itemsAdded";
+//    qDebug() << "DirModelPrivate::itemsAdded";
     if(dir->count() > 0) {
 
-        qDebug() << "DirModelPrivate::itemsAdded IF";
+//        qDebug() << "DirModelPrivate::itemsAdded IF";
 
-//        q->beginInsertRows(QModelIndex(), 0, dir->count());
-//        q->endInsertRows();
+        q->beginInsertRows(QModelIndex(), 0, dir->count());
+        q->endInsertRows();
 
-        q->layoutChanged();
+//        q->layoutChanged();
         emit q->countChanged();
     }
 }
@@ -371,11 +370,12 @@ void DirModelPrivate::itemsAdded(KDirectory *dir)
 void DirModelPrivate::folderCompleted(KDirectory *dir)
 {
     Q_UNUSED(dir)
-    qDebug() << "DirModelPrivate::folderCompleted";
+//    qDebug() << "DirModelPrivate::folderCompleted";
 }
 
 void DirModelPrivate::slotClear()
 {
-//    q->beginResetModel();
-//    q->endResetModel();
+//    qDebug() << "DirModelPrivate::slotClear";
+    q->beginResetModel();
+    q->endResetModel();
 }

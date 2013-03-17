@@ -50,7 +50,7 @@ public:
     DirModel* q;
     KDirListerV2* m_lister;
     QString m_url;
-//    KDirectory* m_root;
+    bool m_newDirJustRequested;
 };
 
 /**

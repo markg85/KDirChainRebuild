@@ -50,6 +50,7 @@ void KDirListerV2Private::addUrl(QString url, KDirListerV2::OpenUrlFlags flags)
         removeUrlBookkeepingAndData(url);
     }
 
+    qDebug() << "Added new url:" << url;
     newUrl(url);
 }
 
