@@ -36,14 +36,15 @@ public:
     virtual const QList<KDirectoryEntry>& entries();
     virtual const QString& url();
     virtual int count();
+    virtual void setDetails(const QString& details);
+
+private slots:
+    virtual void entriesProcessed();
+    virtual void completed();
 
 signals:
     void entriesProcessed(KDirectory* dir);
     void completed(KDirectory* dir);
-    
-public slots:
-    void slotEntries( KIO::Job *job, const KIO::UDSEntryList &entries );
-    void slotResult( KJob *job );
     
 private:
     KDirectoryPrivate *const d;

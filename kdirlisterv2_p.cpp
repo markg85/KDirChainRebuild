@@ -22,9 +22,6 @@
 // Qt includes
 #include <QDebug>
 
-// KDE includes
-#include <KUrl>
-#include <kde_file.h>
 
 
 KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
@@ -34,12 +31,6 @@ KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     , m_details("0")
 
 {
-    /*
-    qDebug() << "KDirWatch method:" << m_watch->internalMethod();
-    connect(KDirWatch::self(), SIGNAL(dirty(QString)), this, SLOT(slotDirty(QString)));
-    connect(KDirWatch::self(), SIGNAL(created(QString)), this, SLOT(slotCreated(QString)));
-    connect(KDirWatch::self(), SIGNAL(deleted(QString)), this, SLOT(slotDeleted(QString)));
-    */
 }
 
 void KDirListerV2Private::addUrl(QString url, KDirListerV2::OpenUrlFlags flags)
@@ -56,34 +47,20 @@ void KDirListerV2Private::addUrl(QString url, KDirListerV2::OpenUrlFlags flags)
 
 void KDirListerV2Private::newUrl(QString url)
 {
-    // Sadly one KUrl..
-    KUrl goodUrl(url);
-
-    // Create the directory node object (stored later on in a list)
-    DirectoryNode node(goodUrl.url());
-
-    // Next we request a entry list from KIO for this URL.
-    // Thought: this "could" move to DirectoryNode as well? If yes, i probably need to move the "details" from below to that class as well.
-    node.m_job = KIO::listDir(goodUrl, KIO::HideProgressInfo);
-
-    // If any details are set, pass them along to the listener.
-    if(!m_details.isEmpty()) {
-        node.m_job->addMetaData("details", m_details);
-    }
+    KDirectory* dir = new KDirectory(url);
+    dir->setDetails(m_details);
 
     // Add node to list. This list will stay and will only get shorter (dir removed) if the physical directory is removed
     // Or if some cache mechanism kicks in that decided this dir is useless weight.
-    m_dirs.append(node);
+    m_dirs.append(dir);
     int index = m_dirs.count() - 1;
 
     // The only additional bookkeeping we have (from url -> index. the list itself is the index -> node which contains the url as well)
-    m_urlToIndex.insert(goodUrl.url(), index);
+    m_urlToIndex.insert(dir->url(), index);
 
     // And we make some connections
-    connect(node.m_job, SIGNAL(entries(KIO::Job*,KIO::UDSEntryList)), node.m_dir, SLOT(slotEntries(KIO::Job*,KIO::UDSEntryList)));
-    connect(node.m_job, SIGNAL(result(KJob*)), node.m_dir, SLOT(slotResult(KJob*)));
-    connect(node.m_dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
-    connect(node.m_dir, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
+    connect(dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
+    connect(dir, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
 }
 
 void KDirListerV2Private::removeUrlBookkeepingAndData(QString url)
@@ -101,7 +78,7 @@ const QString KDirListerV2Private::indexToUrl(int index)
 {
     // Assumption: if the index fits in the list, the object must be there and be valid. Empty is fine, but NOT 0 AKA segfault.
     if(index < m_dirs.size()) {
-        return m_dirs.at(index).m_dir->url();
+        return m_dirs.at(index)->url();
     } else {
         return QString();
     }
@@ -129,7 +106,7 @@ KDirectory *KDirListerV2Private::directory(const int index)
 {
     // Assumption: if the index fits in the list, the object must be there and be valid. Empty is fine, but NOT 0 AKA segfault.
     if(index < m_dirs.size()) {
-        return m_dirs.at(index).m_dir;
+        return m_dirs.at(index);
     } else {
         return 0;
     }

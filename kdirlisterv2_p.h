@@ -32,27 +32,6 @@
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 
-class DirectoryNode
-{
-public:
-    DirectoryNode(const QString& url)
-        : m_job(0)
-        , m_watch(KDirWatch::self())
-        , m_dir(new KDirectory(url))
-    {
-        m_watch->addDir(url);
-    }
-
-    // Store the ListJob object (mainly for signals/slots)
-    KIO::ListJob * m_job;
-
-    // This calls KDirWatch::self() so it is the same pointer in every DirectoryNode instance.
-    KDirWatch* m_watch;
-
-    // Contains the actual directory details (url, count, files/folders...)
-    KDirectory* m_dir;
-};
-
 class KDirListerV2Private : public QObject
 {
     Q_OBJECT
@@ -83,7 +62,7 @@ public slots:
 
 private:
     KDirListerV2* q;
-    QList<DirectoryNode> m_dirs;
+    QList<KDirectory*> m_dirs;
     QHash<QString, int> m_urlToIndex;
 
 

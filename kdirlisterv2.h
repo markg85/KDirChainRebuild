@@ -67,6 +67,7 @@ public:
      */
     virtual bool openUrl(const QString& url, OpenUrlFlags flags = NoFlags);
 
+    // This propagated all the way back to KDirectory
     virtual void setDetails(const QString& details);
 
     /**

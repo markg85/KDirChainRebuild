@@ -20,13 +20,16 @@
 #include "kdirectory.h"
 #include "kdirectoryprivate_p.h"
 
-#include <QDebug>
+
 
 
 KDirectory::KDirectory(const QString& directory, QObject *parent)
     : QObject(parent)
     , d(new KDirectoryPrivate(this, directory))
 {
+    // I sadly have to catch the signals and re-emit them with the current KDirectory object. I don't know of a better way (yet).
+    connect(d, SIGNAL(entriesProcessed()), this, SLOT(entriesProcessed()));
+    connect(d, SIGNAL(completed()), this, SLOT(completed()));
 }
 
 const QList<KDirectoryEntry> &KDirectory::entries()
@@ -44,41 +47,17 @@ int KDirectory::count()
     return d->m_dirEntries.count();
 }
 
-void KDirectory::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries)
+void KDirectory::setDetails(const QString &details)
 {
-    if(entries.count() > 0) {
-        QList<KDirectoryEntry> currentList;
-
-        foreach(const KIO::UDSEntry entry, entries) {
-            currentList.append(KDirectoryEntry(entry));
-        }
-
-        d->m_dirEntries += currentList;
-
-        emit entriesProcessed(this);
-    } else {
-        qDebug() << "Entries are not added because the KDirectory object doesn't exist or no entries where received. Entries received:" << entries.count();
-    }
-
-//    foreach(KDirectoryEntry entry, m_dirEntries) {
-//        qDebug() << "------------------------------";
-//        qDebug() << "Entry:" << &entry;
-//        qDebug() << "Name:" << entry.name();
-//        qDebug() << "Basename:" << entry.basename();
-//        qDebug() << "Extension:" << entry.extension();
-//        qDebug() << "IconName:" << entry.iconName();
-//        qDebug() << "MimeComment:" << entry.mimeComment();
-//        qDebug() << "------------------------------";
-//    }
-
-    qDebug() << "Entries! Count:" << entries.count();
-
+    d->m_details = details;
 }
 
-void KDirectory::slotResult(KJob *job)
+void KDirectory::entriesProcessed()
 {
-    Q_UNUSED(job)
+    emit entriesProcessed(this);
+}
 
-    // Thought: since we're emitting it directly, perhaps just remove this slot completely and emit the signal from KDirListerV2?
+void KDirectory::completed()
+{
     emit completed(this);
 }

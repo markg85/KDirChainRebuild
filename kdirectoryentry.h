@@ -24,6 +24,7 @@
 #include <QBitArray>
 
 #include <kio/udsentry.h>
+#include <kde_file.h>
 
 class KDirectoryEntryPrivate;
 
