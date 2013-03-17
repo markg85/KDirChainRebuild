@@ -36,6 +36,11 @@ void KDirectoryPrivate::setDetails(const QString &details)
     }
 }
 
+const QList<KDirectoryEntry> &KDirectoryPrivate::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
+{
+
+}
+
 void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries)
 {
     if(entries.count() > 0) {

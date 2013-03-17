@@ -17,6 +17,7 @@ class KDirectoryPrivate : public QObject
 public:
     explicit KDirectoryPrivate(KDirectory* dir, const QString& directory);
     void setDetails(const QString& details);
+    const QList<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort);
     
     // Pointer to the actual KDirectory object.
     KDirectory* q;
