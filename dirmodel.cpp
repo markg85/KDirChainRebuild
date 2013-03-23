@@ -139,6 +139,9 @@ int DirModel::rowCount(const QModelIndex &parent) const
         dir = d->m_lister->directory(parent.row());
     }
 
+    dir->setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+    dir->setSorting(QDir::DirsFirst);
+
     // Check dir, if it exists, return whatever count it has. Otherwise 0.
     qDebug() << "DirModel::rowCount parent:" << parent;
     if(!dir) {
@@ -206,7 +209,7 @@ bool DirModel::hasChildren(const QModelIndex &parent) const
                 return false;
             }
             if(parent.row() < dir->count()) {
-                return dir->entries().at(parent.row()).isDir();
+                return dir->entryLookup(parent.row()).isDir();
             }
         }
         return false;
@@ -298,7 +301,7 @@ QVariant DirModel::data(const QModelIndex &index, int role) const
     }
 
     // Now we need to have the actual file data. If the directory is valid, this will very likely be valid as well.
-    KDirectoryEntry entry = dir->entries().at(index.row());
+    KDirectoryEntry entry = dir->entryLookup(index.row());
 
     switch(role) {
     case Qt::DisplayRole: {

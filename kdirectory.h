@@ -36,6 +36,7 @@ public:
     
     virtual const QList<KDirectoryEntry>& entries();
     virtual const QList<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort); // following the Qt naming for QDir
+    virtual const KDirectoryEntry& entryLookup(int index);
     virtual const QString& url();
     virtual int count();
     virtual void setDetails(const QString& details);

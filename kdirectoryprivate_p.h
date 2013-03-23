@@ -2,6 +2,7 @@
 #define KDIRECTORYPRIVATE_P_H
 
 #include <QObject>
+#include <QDir>
 
 // KDE includes
 #include <KDirWatch>
@@ -18,7 +19,18 @@ public:
     explicit KDirectoryPrivate(KDirectory* dir, const QString& directory);
     void setDetails(const QString& details);
     const QList<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort);
+    const KDirectoryEntry& entryLookup(int index);
+    int count();
     
+    QDir::Filters filter();
+    void setFilter(QDir::Filters filters);
+    QDir::SortFlags sorting();
+    void setSorting(QDir::SortFlags sort);
+
+    bool keepEntryAccordingToFilter(KDirectoryEntry entry);
+    void processSortFilters();
+
+
     // Pointer to the actual KDirectory object.
     KDirectory* q;
 
@@ -27,12 +39,18 @@ public:
 
     // A list of all entries in this directory.
     QList<KDirectoryEntry> m_dirEntries;
+    QList<KDirectoryEntry> m_fileEntries;
+    QList<KDirectoryEntry> m_allEntries;
+    KIO::UDSEntryList m_disabledEntries;
 
     KIO::ListJob * m_job;
 
     KDirWatch* m_watch;
 
     QString m_details;
+
+    QDir::SortFlags m_sortFlags;
+    QDir::Filters m_filterFlags;
 
 
 signals:

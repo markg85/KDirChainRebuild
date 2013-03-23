@@ -42,6 +42,11 @@ const QList<KDirectoryEntry> &KDirectory::entryInfoList(QDir::Filters filters, Q
     return d->entryInfoList(filters, sort);
 }
 
+const KDirectoryEntry &KDirectory::entryLookup(int index)
+{
+    return d->entryLookup(index);
+}
+
 const QString &KDirectory::url()
 {
     return d->m_directory;
@@ -49,7 +54,7 @@ const QString &KDirectory::url()
 
 int KDirectory::count()
 {
-    return d->m_dirEntries.count();
+    return d->count();
 }
 
 void KDirectory::setDetails(const QString &details)
@@ -59,18 +64,22 @@ void KDirectory::setDetails(const QString &details)
 
 QDir::Filters KDirectory::filter()
 {
+    return d->filter();
 }
 
 void KDirectory::setFilter(QDir::Filters filters)
 {
+    d->setFilter(filters);
 }
 
 QDir::SortFlags KDirectory::sorting()
 {
+    return d->sorting();
 }
 
 void KDirectory::setSorting(QDir::SortFlags sort)
 {
+    d->setSorting(sort);
 }
 
 void KDirectory::entriesProcessed()
