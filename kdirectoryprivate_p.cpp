@@ -131,7 +131,7 @@ bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
     return false;
 }
 
-void KDirectoryPrivate::processSortFilters()
+void KDirectoryPrivate::processSortFlags()
 {
     if(m_sortFlags & QDir::DirsFirst) {
 
@@ -184,7 +184,7 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
         }
 
         // Apply the sorting filters
-        processSortFilters();
+        processSortFlags();
 
 
         emit entriesProcessed();

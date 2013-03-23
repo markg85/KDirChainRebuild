@@ -28,7 +28,7 @@ public:
     void setSorting(QDir::SortFlags sort);
 
     bool keepEntryAccordingToFilter(KDirectoryEntry entry);
-    void processSortFilters();
+    void processSortFlags();
 
 
     // Pointer to the actual KDirectory object.
