@@ -203,8 +203,7 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
 //        qDebug() << "------------------------------";
 //    }
 
-    qDebug() << "Entries! Count:" << m_allEntries.count();
-    qDebug() << "Entries! Count:" << entries.count();
+    qDebug() << "Entries! Count with filter:" << m_allEntries.count() << "count without filter:" << entries.count();
 }
 
 void KDirectoryPrivate::slotResult(KJob *job)
