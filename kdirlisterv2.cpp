@@ -42,23 +42,3 @@ void KDirListerV2::setDetails(const QString &details)
 {
     d->m_details = details;
 }
-
-const QString KDirListerV2::indexToUrl(int index)
-{
-    return d->indexToUrl(index);
-}
-
-int KDirListerV2::urlToIndex(const QString &url)
-{
-    return d->urlToIndex(url);
-}
-
-bool KDirListerV2::indexExists(const int index)
-{
-    return d->indexExists(index);
-}
-
-KDirectory *KDirListerV2::directory(const int index)
-{
-    return d->directory(index);
-}

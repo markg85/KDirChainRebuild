@@ -158,13 +158,13 @@ int DirModel::rowCount(const QModelIndex &parent) const
     }
 
     // If the directoryIndex exists in the dirlister then return whatever entry count it has. Otherwise 0 will be returned.
-    if(d->m_lister->indexExists(directoryIndex)) {
-        KDirectory* dir = d->m_lister->directory(directoryIndex);
-        dir->setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
-        dir->setSorting(QDir::DirsFirst);
+//    if(d->m_lister->indexExists(directoryIndex)) {
+//        KDirectory* dir = d->m_lister->directory(directoryIndex);
+//        dir->setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+//        dir->setSorting(QDir::DirsFirst);
 
-        return dir->count();
-    }
+//        return dir->count();
+//    }
     return 0;
 }
 
@@ -219,10 +219,10 @@ bool DirModel::hasChildren(const QModelIndex &parent) const
         ParentHelper* idx = static_cast<ParentHelper*>(parent.internalPointer());
 
         qDebug() << "--> dirlister valid index trying with row number:" << idx->m_modelRow;
-        if(idx && d->m_lister->indexExists(idx->m_modelRow)) {
-            KDirectory* dir = d->m_lister->directory(idx->m_modelRow);
-            return dir->entryLookup(parent.row()).isDir();
-        }
+//        if(idx && d->m_lister->indexExists(idx->m_modelRow)) {
+//            KDirectory* dir = d->m_lister->directory(idx->m_modelRow);
+//            return dir->entryLookup(parent.row()).isDir();
+//        }
     }
 
     return false;
@@ -263,7 +263,8 @@ QVariant DirModel::data(const QModelIndex &index, int role) const
     }
 
     // Fetch the actual directory object. This contains all data.
-    KDirectory* dir = d->m_lister->directory(idx->m_modelRow);
+    //KDirectory* dir = d->m_lister->directory(idx->m_modelRow);
+    KDirectory* dir;
     if(!dir || dir->count() <= index.row()) {
         return QVariant();
     }

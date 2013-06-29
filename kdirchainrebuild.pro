@@ -26,7 +26,10 @@ HEADERS  += \
     kdirlisterv2_p.h \
     kdirectory.h \
     kdirectoryentry.h \
-    kdirectoryprivate_p.h
+    kdirectoryprivate_p.h \
+    alt-lru/AltLRU.hpp \
+    alt-lru/AltLRU_Types.hpp \
+    alt-lru/AltLRU_CacheEntry.hpp
 
 LIBS += -lkdecore -lkio -lkdeui -lgomp -L/home/mark/kde_programming/kdelibs_git_build/lib
 INCLUDEPATH += /usr/include/KDE

@@ -26,10 +26,9 @@
 
 KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     : q(dirLister)
-    , m_dirs()
     , m_urlToIndex()
+    , m_lruCache(10)
     , m_details("0")
-
 {
 }
 
@@ -37,8 +36,9 @@ void KDirListerV2Private::addUrl(QString url, KDirListerV2::OpenUrlFlags flags)
 {
     // We take a different path if we want to reload a url that is currently being monitored.
     // Otherwise we add a new url
-    if(m_urlToIndex.contains(url) && flags.testFlag(KDirListerV2::Reload)) {
-        removeUrlBookkeepingAndData(url);
+    if(m_lruCache.get(url.toStdString()) && flags.testFlag(KDirListerV2::Reload)) {
+        // Remove URL from m_lruCache.
+        m_lruCache.remove(url.toStdString());
     }
 
     qDebug() << "Added new url:" << url;
@@ -52,64 +52,9 @@ void KDirListerV2Private::newUrl(QString url)
 
     // Add node to list. This list will stay and will only get shorter (dir removed) if the physical directory is removed
     // Or if some cache mechanism kicks in that decided this dir is useless weight.
-    m_dirs.append(dir);
-    int index = m_dirs.count() - 1;
-
-    // The only additional bookkeeping we have (from url -> index. the list itself is the index -> node which contains the url as well)
-    m_urlToIndex.insert(dir->url(), index);
+    m_lruCache.set(url.toStdString(), dir);
 
     // And we make some connections
     connect(dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
     connect(dir, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
-}
-
-void KDirListerV2Private::removeUrlBookkeepingAndData(QString url)
-{
-    int index = urlToIndex(url);
-    if(index < -1) {
-        qFatal("Requested a non existing index to be removed!");
-    }
-
-    // Disabled for now. Some caching mechanism should be used to remove obsolete entries.
-    //m_dirs.removeAt(index);
-
-    m_urlToIndex.remove(url);
-}
-
-const QString KDirListerV2Private::indexToUrl(int index)
-{
-    // Assumption: if the index fits in the list, the object must be there and be valid. Empty is fine, but NOT 0 AKA segfault.
-    if(index < m_dirs.size()) {
-        return m_dirs.at(index)->url();
-    } else {
-        return QString();
-    }
-}
-
-// Return -100 because QModelIndex is -1 when invalid.. And this will likely be used together with Qt models.
-int KDirListerV2Private::urlToIndex(const QString &url)
-{
-    if(m_urlToIndex.contains(url)) {
-        return m_urlToIndex.value(url);
-    }
-    return -100;
-}
-
-bool KDirListerV2Private::indexExists(const int index)
-{
-    if(index < m_dirs.size() && index >= 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-KDirectory *KDirListerV2Private::directory(const int index)
-{
-    // Assumption: if the index fits in the list, the object must be there and be valid. Empty is fine, but NOT 0 AKA segfault.
-    if(index < m_dirs.size()) {
-        return m_dirs.at(index);
-    } else {
-        return 0;
-    }
 }

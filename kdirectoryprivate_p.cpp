@@ -210,6 +210,8 @@ void KDirectoryPrivate::slotResult(KJob *job)
 {
     Q_UNUSED(job)
 
+    qDebug() << "Done....";
+
     // Thought: since we're emitting it directly, perhaps just remove this slot completely and emit the signal from KDirListerV2?
     emit completed();
 

@@ -67,22 +67,8 @@ public:
      */
     virtual bool openUrl(const QString& url, OpenUrlFlags flags = NoFlags);
 
-    // This propagated all the way back to KDirectory
+    // This propagates all the way back to KDirectory
     virtual void setDetails(const QString& details);
-
-    /**
-     * This function is a convenience function to return the string (folder) that blongs to an index.
-     * This makes it very easy to use this class in a model.
-     *
-     * @brief indexToUrl
-     * @param index
-     * @return
-     */
-    virtual const QString indexToUrl(int index);
-    virtual int urlToIndex(const QString& url);
-    virtual bool indexExists(const int index);
-    virtual KDirectory* directory(const int index);
-
     
 signals:
     /**

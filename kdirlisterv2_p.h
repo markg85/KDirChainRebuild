@@ -29,6 +29,9 @@
 #include <KDirWatch>
 #include <KIO/Job>
 
+// ALT-LRU
+#include "alt-lru/AltLRU.hpp"
+
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 
@@ -40,13 +43,6 @@ public:
 
     void addUrl(QString url, KDirListerV2::OpenUrlFlags flags);
     void newUrl(QString url);
-    void removeUrlBookkeepingAndData(QString url);
-
-    // This function is a convenient function for models.
-    const QString indexToUrl(int index);
-    int urlToIndex(const QString& url);
-    bool indexExists(const int index);
-    KDirectory* directory(const int index);
 
     
 signals:
@@ -62,8 +58,8 @@ public slots:
 
 private:
     KDirListerV2* q;
-    QVector<KDirectory*> m_dirs;
     QHash<QString, int> m_urlToIndex;
+    AltLRU<KDirectory*> m_lruCache;
 
 
 // Just for those values that don't need a function.. Remember, we are in a private class here anyway!
