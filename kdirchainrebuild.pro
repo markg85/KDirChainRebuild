@@ -30,4 +30,4 @@ HEADERS  += \
 
 LIBS += -lkdecore -lkio -lkdeui -lgomp -L/home/mark/kde_programming/kdelibs_git_build/lib
 INCLUDEPATH += /usr/include/KDE
-QMAKE_CXXFLAGS += -fopenmp -D_GLIBCXX_PARALLEL
+QMAKE_CXXFLAGS += -fopenmp -D_GLIBCXX_PARALLEL -std=c++11
