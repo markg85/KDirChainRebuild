@@ -23,7 +23,6 @@
 #include <QDebug>
 
 
-
 KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     : q(dirLister)
     , m_urlToIndex()
@@ -57,4 +56,17 @@ void KDirListerV2Private::newUrl(QString url)
     // And we make some connections
     connect(dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
     connect(dir, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
+    connect(dir, SIGNAL(completed(KDirectory*)), this, SLOT(printLRUStats()));
+}
+
+void KDirListerV2Private::printLRUStats()
+{
+    qDebug() << "--------------- LRU STATISTICS ---------------";
+    qDebug() << "Count: " << m_lruCache.count();
+    qDebug() << "stat_cache_hits: " << m_lruCache.stat_cache_hits;
+    qDebug() << "stat_cache_miss: " << m_lruCache.stat_cache_miss;
+    qDebug() << "stat_cache_get: " << m_lruCache.stat_cache_get;
+    qDebug() << "stat_cache_set: " << m_lruCache.stat_cache_set;
+    qDebug() << "stat_cache_out: " << m_lruCache.stat_cache_out;
+    qDebug() << "--------------- LRU STATISTICS ---------------";
 }

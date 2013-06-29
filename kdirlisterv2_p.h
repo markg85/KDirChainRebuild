@@ -30,6 +30,7 @@
 #include <KIO/Job>
 
 // ALT-LRU
+#define ALTLRU_HITINFO
 #include "alt-lru/AltLRU.hpp"
 
 #include "kdirlisterv2.h"
@@ -44,12 +45,14 @@ public:
     void addUrl(QString url, KDirListerV2::OpenUrlFlags flags);
     void newUrl(QString url);
 
+
     
 signals:
     void directoryContentChanged(KDirectory* directoryContent);
     void completed(KDirectory* directoryContent);
 
 public slots:
+    void printLRUStats();
     /*
     void slotDirty(const QString& entry);
     void slotCreated(const QString& entry);
