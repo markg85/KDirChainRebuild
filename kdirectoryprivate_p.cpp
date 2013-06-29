@@ -41,7 +41,7 @@ void KDirectoryPrivate::setDetails(const QString &details)
     }
 }
 
-const QList<KDirectoryEntry> &KDirectoryPrivate::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
+const QVector<KDirectoryEntry> &KDirectoryPrivate::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
 {
     // A LOT more has to be checked here before something is returned..
     return m_dirEntries;
@@ -154,8 +154,8 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
 
         // If DirsFirst or DirsLast is provided as sort flag then we need to create two different lists. One for the files, one for the folders.
         if(m_sortFlags & QDir::DirsFirst || m_sortFlags & QDir::DirsLast) {
-            QList<KDirectoryEntry> dirEntries;
-            QList<KDirectoryEntry> fileEntries;
+            QVector<KDirectoryEntry> dirEntries;
+            QVector<KDirectoryEntry> fileEntries;
             foreach(const KIO::UDSEntry entry, entries) {
                 KDirectoryEntry newEntry(entry);
                 if(keepEntryAccordingToFilter(newEntry)) {
@@ -171,7 +171,7 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
             m_dirEntries += dirEntries;
             m_fileEntries += fileEntries;
         } else {
-            QList<KDirectoryEntry> allEntries;
+            QVector<KDirectoryEntry> allEntries;
             foreach(const KIO::UDSEntry entry, entries) {
                 KDirectoryEntry newEntry(entry);
                 if(keepEntryAccordingToFilter(newEntry)) {

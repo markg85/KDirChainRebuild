@@ -70,7 +70,9 @@ void KDirListerV2Private::removeUrlBookkeepingAndData(QString url)
         qFatal("Requested a non existing index to be removed!");
     }
 
-    m_dirs.removeAt(index);
+    // Disabled for now. Some caching mechanism should be used to remove obsolete entries.
+    //m_dirs.removeAt(index);
+
     m_urlToIndex.remove(url);
 }
 

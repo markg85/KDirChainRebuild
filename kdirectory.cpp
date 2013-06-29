@@ -32,12 +32,12 @@ KDirectory::KDirectory(const QString& directory, QObject *parent)
     connect(d, SIGNAL(completed()), this, SLOT(completed()));
 }
 
-const QList<KDirectoryEntry> &KDirectory::entries()
+const QVector<KDirectoryEntry> &KDirectory::entries()
 {
     return d->m_dirEntries;
 }
 
-const QList<KDirectoryEntry> &KDirectory::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
+const QVector<KDirectoryEntry> &KDirectory::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
 {
     return d->entryInfoList(filters, sort);
 }

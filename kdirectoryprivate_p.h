@@ -18,7 +18,7 @@ class KDirectoryPrivate : public QObject
 public:
     explicit KDirectoryPrivate(KDirectory* dir, const QString& directory);
     void setDetails(const QString& details);
-    const QList<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort);
+    const QVector<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort);
     const KDirectoryEntry& entryLookup(int index);
     int count();
     
@@ -38,9 +38,9 @@ public:
     QString m_directory;
 
     // A list of all entries in this directory.
-    QList<KDirectoryEntry> m_dirEntries;
-    QList<KDirectoryEntry> m_fileEntries;
-    QList<KDirectoryEntry> m_allEntries;
+    QVector<KDirectoryEntry> m_dirEntries;
+    QVector<KDirectoryEntry> m_fileEntries;
+    QVector<KDirectoryEntry> m_allEntries;
     KIO::UDSEntryList m_disabledEntries;
 
     KIO::ListJob * m_job;

@@ -2,7 +2,6 @@
 
 #include <QTreeView>
 #include <QDebug>
-#include <QList>
 
 #include <KDirModel>
 #include "dirmodel.h"

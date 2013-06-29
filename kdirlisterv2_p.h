@@ -62,7 +62,7 @@ public slots:
 
 private:
     KDirListerV2* q;
-    QList<KDirectory*> m_dirs;
+    QVector<KDirectory*> m_dirs;
     QHash<QString, int> m_urlToIndex;
 
 

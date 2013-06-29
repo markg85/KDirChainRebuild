@@ -34,8 +34,8 @@ class KDirectory : public QObject
 public:
     explicit KDirectory(const QString& directory, QObject *parent = 0);
     
-    virtual const QList<KDirectoryEntry>& entries();
-    virtual const QList<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort); // following the Qt naming for QDir
+    virtual const QVector<KDirectoryEntry>& entries();
+    virtual const QVector<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort); // following the Qt naming for QDir
     virtual const KDirectoryEntry& entryLookup(int index);
     virtual const QString& url();
     virtual int count();
@@ -57,5 +57,7 @@ signals:
 private:
     KDirectoryPrivate *const d;
 };
+
+Q_DECLARE_TYPEINFO(KDirectory, Q_MOVABLE_TYPE);
 
 #endif // KDIRECTORY_H

@@ -121,15 +121,15 @@ public:
     FullStatData* m_statData;
 };
 
+KDirectoryEntry::KDirectoryEntry()
+    : d(new KDirectoryEntryPrivate())
+{
+}
+
 KDirectoryEntry::KDirectoryEntry(const KIO::UDSEntry &entry, const QString &details)
     : d(new KDirectoryEntryPrivate())
 {
-    // Details comes from the directory lister. If it's 0 then we only have very few details in the entry object.
-    if(details == "0") {
-        d->parseUDSEntryBare(entry);
-    } else {
-        d->parseUDSEntryFull(entry);
-    }
+    setUDSEntry(entry, details);
 }
 
 const QString &KDirectoryEntry::name()
@@ -167,6 +167,16 @@ const QString KDirectoryEntry::mimeComment()
         mime = KMimeType::findByPath(name(), 0, true);
     }
     return mime->comment();
+}
+
+void KDirectoryEntry::setUDSEntry(const KIO::UDSEntry &entry, const QString &details)
+{
+    // Details comes from the directory lister. If it's 0 then we only have very few details in the entry object.
+    if(details == "0") {
+        d->parseUDSEntryBare(entry);
+    } else {
+        d->parseUDSEntryFull(entry);
+    }
 }
 
 bool KDirectoryEntry::isLink() const
