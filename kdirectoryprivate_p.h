@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDir>
+#include <QVector>
 
 // KDE includes
 #include <KDirWatch>

@@ -1,47 +1,49 @@
-#include <QApplication>
-
-#include <QTreeView>
+#include <QCoreApplication>
+//#include <QTreeView>
 #include <QDebug>
 
-#include <KDirModel>
-#include "dirmodel.h"
+
+//#include <KDirModel>
+//#include "dirmodel.h"
 #include "kdirlisterv2.h"
 #include "kdirectoryentry.h"
 
 
-#include <KDirLister>
+//#include <KDirLister>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QCoreApplication a(argc, argv);
 
-    QString url("~/test/");
+    QString url("file:///home/kde-devel/");
+//    QString url("smb:///nootdorp-server/");
 //    QString url("/home/mark/");
 
 //    KDirLister lister;
 //    lister.openUrl(url);
 
-//    KUrl homeFolder(url);
+//    QUrl homeFolder(url);
 
 //    KDirModel model;
 //    model.setDirLister(&lister);
 
 
-    DirModel model;
-    model.openUrl(url);
+//    DirModel model;
+//    model.openUrl(url);
+    qDebug() << "aaabbbccc";
 
-//    KDirListerV2 lister;
-//    lister.setDetails("0");
-//    lister.openUrl(url);
+    KDirListerV2 lister;
+    lister.setDetails("0");
+    lister.openUrl(url);
+//    lister.openUrl("~");
+
 
 //    QObject::connect(&lister, SIGNAL(completed(KDirectory*)), qApp, SLOT(quit()));
 
 
-    QTreeView* tree = new QTreeView();
-    tree->setModel(&model);
-    tree->show();
-
-
+//    QTreeView* tree = new QTreeView();
+//    tree->setModel(&model);
+//    tree->show();
 
 
     return a.exec();

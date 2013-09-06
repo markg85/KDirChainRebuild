@@ -1,8 +1,6 @@
 #include "kdirectoryprivate_p.h"
 
-// Only required for KIO::listDir
-#include <KUrl>
-
+#include <QUrl>
 #include <QDebug>
 
 KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
@@ -19,7 +17,7 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   , m_sortFlags()
   , m_filterFlags(QDir::NoFilter)
 {
-    KUrl goodUrl(m_directory);
+    QUrl goodUrl(m_directory);
     m_directory = goodUrl.url();
     m_job = KIO::listDir(goodUrl, KIO::HideProgressInfo);
 
@@ -52,6 +50,7 @@ const KDirectoryEntry &KDirectoryPrivate::entryLookup(int index)
     if(index < m_allEntries.count()) {
         return m_allEntries.at(index);
     }
+    return KDirectoryEntry();
 }
 
 int KDirectoryPrivate::count()

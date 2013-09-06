@@ -31,6 +31,15 @@ HEADERS  += \
     alt-lru/AltLRU_Types.hpp \
     alt-lru/AltLRU_CacheEntry.hpp
 
-LIBS += -lkdecore -lkio -lkdeui -lgomp -L/home/mark/kde_programming/kdelibs_git_build/lib
-INCLUDEPATH += /usr/include/KDE
+# should be the path to your KF5 libs folder
+LIBS += -L/home/mark/kde_programming/kf5/lib64
+
+# these are always needed regardless of the above path
+LIBS += -lkdecore -lkio -lkiocore -lkdeui -lgomp -lKCoreAddons -lki18n
+
+# include paths to KDE includes, You should not need to set those once KF5 is released.
+INCLUDEPATH += /home/mark/kde_programming/kf5/include
+INCLUDEPATH += /home/mark/kde_programming/kf5/include/KDE
+
+# Some compile flags
 QMAKE_CXXFLAGS += -fopenmp -D_GLIBCXX_PARALLEL -std=c++11

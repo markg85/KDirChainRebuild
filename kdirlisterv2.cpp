@@ -36,6 +36,8 @@ bool KDirListerV2::openUrl(const QString &url, OpenUrlFlags flags)
 
     // Whatever the URL or Flags might be, pass it along to the private class. It will determine what to do.
     d->addUrl(url, flags);
+
+    return true;
 }
 
 void KDirListerV2::setDetails(const QString &details)

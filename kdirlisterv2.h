@@ -53,7 +53,7 @@ public:
      * Run the directory lister on the given url.
      *
      * This method causes KDirLister to emit _all_ the items of @p _url, in any case.
-     * Depending on _flags, either clear() or clear(const KUrl &) will be
+     * Depending on _flags, either clear() or clear(const QUrl &) will be
      * emitted first.
      *
      * The newItems() signal may be emitted more than once to supply you

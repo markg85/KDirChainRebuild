@@ -19,9 +19,10 @@
 
 #include "kdirectoryentry.h"
 
+// System includes
 #include <sys/stat.h>
-#include <KMimeType>
 
+// Qt includes
 #include <QDebug>
 
 class KDirectoryEntryPrivate
@@ -83,14 +84,14 @@ public:
 
     const QString basename()
     {
-        int dotPosition = m_name.lastIndexOf(QString("."));
+        int dotPosition = m_name.lastIndexOf(QStringLiteral("."));
         return m_name.left(dotPosition);
     }
 
     const QString extension()
     {
-        if(m_name[0] != '.') {
-            int lastDot = m_name.lastIndexOf(QString("."));
+        if(m_name[0] != QChar('.')) {
+            int lastDot = m_name.lastIndexOf(QStringLiteral("."));
 
             if(lastDot > 0) {
                 int dotPosition = m_name.length() - lastDot - 1;
@@ -149,6 +150,9 @@ const QString KDirectoryEntry::extension()
 
 const QString KDirectoryEntry::iconName()
 {
+    // Replace with QMimeData
+
+    /*
     KMimeType::Ptr mime;
     if(isDir()) {
         mime = KMimeType::findByPath("/", 0, true);
@@ -156,10 +160,15 @@ const QString KDirectoryEntry::iconName()
         mime = KMimeType::findByPath(name(), 0, true);
     }
     return mime->iconName();
+    */
+    return QString();
 }
 
 const QString KDirectoryEntry::mimeComment()
 {
+    // Replace with QMimeData
+
+    /*
     KMimeType::Ptr mime;
     if(isDir()) {
         mime = KMimeType::findByPath("/", 0, true);
@@ -167,6 +176,8 @@ const QString KDirectoryEntry::mimeComment()
         mime = KMimeType::findByPath(name(), 0, true);
     }
     return mime->comment();
+    */
+    return QString();
 }
 
 void KDirectoryEntry::setUDSEntry(const KIO::UDSEntry &entry, const QString &details)
