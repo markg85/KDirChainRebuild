@@ -24,14 +24,7 @@ add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Quick_DEFINITIONS} ${Qt5Qml_DEFIN
 
 set (QT_MIN_VERSION "5.2.0")
 
-find_package(kdeqt5staging REQUIRED NO_MODULE)
-
-# WHY do i need so many dependencies? Crazy, huh?
-find_package(KF5 MODULE REQUIRED COMPONENTS CMake Compiler InstallDirs
-                                            ItemModels KWidgetsAddons KWindowSystem KCodecs KCoreAddons
-                                            KConfig KAuth KDBusAddons KI18n KGuiAddons KConfigWidgets
-                                            KService ItemViews KNotifications KIconThemes KCompletion KJobWidgets
-                                            KIO)
+find_package(KF5 MODULE REQUIRED COMPONENTS CMake Compiler InstallDirs KBookmarks XmlGui KIO)
 
 #message("KIO lib:::: ${kio_LIBRARY}")
 #message("KCoreAddons_LIBRARIES:::: ${KCoreAddons_LIBRARIES}")
@@ -64,17 +57,8 @@ set(kdirchainrebuild_SRCS
 add_executable(kdirchainrebuild ${kdirchainrebuild_SRCS})
 
 target_link_libraries(kdirchainrebuild
-  kdeqt5staging
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
   kio
   KF5::KIOCore
-  KF5::KIOWidgets
   kdecore
   kdeui
-  kdeqt5staging
-  KF5::KI18n
-  ${KCoreAddons_LIBRARIES}
-
 )
