@@ -45,14 +45,10 @@ public:
     QDir::SortFlags sorting();
     void setSorting(QDir::SortFlags sort);
 
-private slots:
-    virtual void entriesProcessed();
-    virtual void completed();
-
 signals:
     void entriesProcessed(KDirectory* dir);
     void completed(KDirectory* dir);
-    
+
 private:
     KDirectoryPrivate *const d;
 };

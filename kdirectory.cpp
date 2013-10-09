@@ -28,8 +28,10 @@ KDirectory::KDirectory(const QString& directory, QObject *parent)
     , d(new KDirectoryPrivate(this, directory))
 {
     // I sadly have to catch the signals and re-emit them with the current KDirectory object. I don't know of a better way (yet).
-    connect(d, SIGNAL(entriesProcessed()), this, SLOT(entriesProcessed()));
-    connect(d, SIGNAL(completed()), this, SLOT(completed()));
+//    connect(d, SIGNAL(entriesProcessed()), this, SLOT(entriesProcessed()));
+//    connect(d, SIGNAL(completed()), this, SLOT(completed()));
+    connect(d, &KDirectoryPrivate::entriesProcessed, [&](){ emit entriesProcessed(this); });
+    connect(d, &KDirectoryPrivate::completed, [&](){ emit completed(this); });
 }
 
 const QVector<KDirectoryEntry> &KDirectory::entries()
@@ -75,14 +77,4 @@ QDir::SortFlags KDirectory::sorting()
 void KDirectory::setSorting(QDir::SortFlags sort)
 {
     d->setSorting(sort);
-}
-
-void KDirectory::entriesProcessed()
-{
-    emit entriesProcessed(this);
-}
-
-void KDirectory::completed()
-{
-    emit completed(this);
 }
