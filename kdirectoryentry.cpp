@@ -57,7 +57,7 @@ public:
     {
         m_fullDataAvailable = false;
         m_name = entry.stringValue(KIO::UDSEntry::UDS_NAME);
-        m_fileMode = entry.numberValue( KIO::UDSEntry::UDS_FILE_TYPE );
+        m_fileMode = entry.numberValue(KIO::UDSEntry::UDS_FILE_TYPE);
     }
 
     void parseUDSEntryFull(const KIO::UDSEntry& entry)

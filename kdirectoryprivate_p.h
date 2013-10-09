@@ -19,8 +19,7 @@ class KDirectoryPrivate : public QObject
 public:
     explicit KDirectoryPrivate(KDirectory* dir, const QString& directory);
     void setDetails(const QString& details);
-    const QVector<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort);
-    const KDirectoryEntry& entryLookup(int index);
+    const KDirectoryEntry& entry(int index);
     int count();
     
     QDir::Filters filter();
@@ -53,14 +52,13 @@ public:
     QDir::SortFlags m_sortFlags;
     QDir::Filters m_filterFlags;
 
-
 signals:
     void entriesProcessed();
     void completed();
     
 public slots:
-    void slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries);
-    void slotResult(KJob *job);
+    void slotEntries(KIO::Job *, const KIO::UDSEntryList &entries);
+    void slotResult(KJob *);
 };
 
 #endif // KDIRECTORYPRIVATE_P_H

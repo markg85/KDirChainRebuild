@@ -35,8 +35,7 @@ public:
     explicit KDirectory(const QString& directory, QObject *parent = 0);
     
     virtual const QVector<KDirectoryEntry>& entries();
-    virtual const QVector<KDirectoryEntry>& entryInfoList(QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort); // following the Qt naming for QDir
-    virtual const KDirectoryEntry& entryLookup(int index);
+    virtual const KDirectoryEntry& entry(int index);
     virtual const QString& url();
     virtual int count();
     virtual void setDetails(const QString& details);

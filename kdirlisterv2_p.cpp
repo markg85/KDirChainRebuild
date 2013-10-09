@@ -27,31 +27,41 @@ KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     : q(dirLister)
     , m_urlToIndex()
     , m_lruCache(10)
-    , m_details("0")
 {
 }
 
 void KDirListerV2Private::addUrl(QString url, KDirListerV2::OpenUrlFlags flags)
 {
-    // We take a different path if we want to reload a url that is currently being monitored.
-    // Otherwise we add a new url
-    if(m_lruCache.get(url.toStdString()) && flags.testFlag(KDirListerV2::Reload)) {
-        // Remove URL from m_lruCache.
-        m_lruCache.remove(url.toStdString());
-    }
+    KDirListerV2::DirectoryFetchDetails dirFetchDetails;
+    dirFetchDetails.url = url;
+    dirFetchDetails.openFlags = flags;
 
-    qDebug() << "Added new url:" << url;
-    newUrl(url);
+    addUrl(dirFetchDetails);
 }
 
-void KDirListerV2Private::newUrl(QString url)
+void KDirListerV2Private::addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails)
 {
-    KDirectory* dir = new KDirectory(url);
-    dir->setDetails(m_details);
+    // We take a different path if we want to reload a url that is currently being monitored.
+    // Otherwise we add a new url
+    if(m_lruCache.get(dirFetchDetails.url.toStdString()) && dirFetchDetails.openFlags.testFlag(KDirListerV2::Reload)) {
+        // Remove URL from m_lruCache.
+        m_lruCache.remove(dirFetchDetails.url.toStdString());
+    }
+
+    qDebug() << "Added new url:" << dirFetchDetails.url;
+    newUrl(dirFetchDetails);
+}
+
+void KDirListerV2Private::newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails)
+{
+    KDirectory* dir = new KDirectory(dirFetchDetails.url);
+    dir->setSorting(dirFetchDetails.sorting);
+    dir->setFilter(dirFetchDetails.filters);
+    dir->setDetails(dirFetchDetails.details);
 
     // Add node to list. This list will stay and will only get shorter (dir removed) if the physical directory is removed
     // Or if some cache mechanism kicks in that decided this dir is useless weight.
-    m_lruCache.set(url.toStdString(), dir);
+    m_lruCache.set(dirFetchDetails.url.toStdString(), dir);
 
     // And we make some connections
     connect(dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));

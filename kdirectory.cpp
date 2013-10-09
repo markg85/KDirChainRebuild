@@ -37,14 +37,9 @@ const QVector<KDirectoryEntry> &KDirectory::entries()
     return d->m_dirEntries;
 }
 
-const QVector<KDirectoryEntry> &KDirectory::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
+const KDirectoryEntry &KDirectory::entry(int index)
 {
-    return d->entryInfoList(filters, sort);
-}
-
-const KDirectoryEntry &KDirectory::entryLookup(int index)
-{
-    return d->entryLookup(index);
+    return d->entry(index);
 }
 
 const QString &KDirectory::url()
@@ -59,7 +54,7 @@ int KDirectory::count()
 
 void KDirectory::setDetails(const QString &details)
 {
-    d->m_details = details;
+    d->setDetails(details);
 }
 
 QDir::Filters KDirectory::filter()

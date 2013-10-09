@@ -21,6 +21,7 @@
 #define KDIRLISTERV2_H
 
 #include <QObject>
+#include <QDir>
 #include "kdirectory.h"
 
 class KDirListerV2Private;
@@ -29,7 +30,6 @@ class KDirListerV2 : public QObject
 {
     Q_OBJECT
 public:
-
     enum OpenUrlFlag
     {
       NoFlags = 0x0,   ///< No additional flags specified.
@@ -46,6 +46,15 @@ public:
     };
 
     Q_DECLARE_FLAGS(OpenUrlFlags, OpenUrlFlag)
+
+    struct DirectoryFetchDetails {
+        QString url;
+        QString details = "0";
+        QDir::Filters filters = QDir::NoFilter;
+        QDir::SortFlags sorting = QDir::NoSort;
+        KDirListerV2::OpenUrlFlags openFlags = OpenUrlFlag::NoFlags;
+    };
+
 
     explicit KDirListerV2(QObject *parent = 0);
 
@@ -67,8 +76,7 @@ public:
      */
     virtual bool openUrl(const QString& url, OpenUrlFlags flags = NoFlags);
 
-    // This propagates all the way back to KDirectory
-    virtual void setDetails(const QString& details);
+    virtual bool openUrl(DirectoryFetchDetails dirFetchDetails);
     
 signals:
     /**
@@ -88,7 +96,6 @@ signals:
      * @param items
      */
     void completed(KDirectory* directoryContent);
-    void clear();
     
 public slots:
     

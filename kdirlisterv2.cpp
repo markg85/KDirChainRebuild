@@ -31,16 +31,15 @@ KDirListerV2::KDirListerV2(QObject *parent)
 
 bool KDirListerV2::openUrl(const QString &url, OpenUrlFlags flags)
 {
-    // Just a helper emit for models to indicate that the current view can be cleared since new data will drip in.
-    emit clear();
-
     // Whatever the URL or Flags might be, pass it along to the private class. It will determine what to do.
     d->addUrl(url, flags);
 
     return true;
 }
 
-void KDirListerV2::setDetails(const QString &details)
+bool KDirListerV2::openUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails)
 {
-    d->m_details = details;
+    d->addUrl(dirFetchDetails);
+
+    return true;
 }

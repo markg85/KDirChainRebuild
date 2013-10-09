@@ -32,7 +32,7 @@ class KDirectoryEntry
 {
 public:
     KDirectoryEntry(); // Keeps QVector happy.
-    KDirectoryEntry(const KIO::UDSEntry& entry, const QString& details = QStringLiteral("0"));
+    KDirectoryEntry(const KIO::UDSEntry& entry, const QString& details = "0");
     virtual ~KDirectoryEntry(){}
 
     virtual const QString& name();
@@ -42,7 +42,7 @@ public:
     const QString mimeComment();
 
     // Should be used when constructing without an USEEntry. If an UDSEntry is already present then the data will be overwritten!
-    virtual void setUDSEntry(const KIO::UDSEntry& entry, const QString& details = QStringLiteral("0"));
+    virtual void setUDSEntry(const KIO::UDSEntry& entry, const QString& details = "0");
 
     /**
      * Returns true if this item represents a link in the UNIX sense of

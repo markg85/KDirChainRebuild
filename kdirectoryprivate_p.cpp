@@ -14,7 +14,7 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   , m_job(0)
   , m_watch(KDirWatch::self())
   , m_details()
-  , m_sortFlags()
+  , m_sortFlags(QDir::NoSort)
   , m_filterFlags(QDir::NoFilter)
 {
     QUrl goodUrl(m_directory);
@@ -39,15 +39,9 @@ void KDirectoryPrivate::setDetails(const QString &details)
     }
 }
 
-const QVector<KDirectoryEntry> &KDirectoryPrivate::entryInfoList(QDir::Filters filters, QDir::SortFlags sort)
+const KDirectoryEntry &KDirectoryPrivate::entry(int index)
 {
-    // A LOT more has to be checked here before something is returned..
-    return m_dirEntries;
-}
-
-const KDirectoryEntry &KDirectoryPrivate::entryLookup(int index)
-{
-    if(index < m_allEntries.count()) {
+    if(index >= 0 && index < m_allEntries.count()) {
         return m_allEntries.at(index);
     }
     return KDirectoryEntry();
@@ -81,7 +75,7 @@ void KDirectoryPrivate::setSorting(QDir::SortFlags sort)
 bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
 {
     // The NoFilter flag rules. If that flag is set all other flags will be ignored.
-    if(m_filterFlags.testFlag(QDir::NoFilter)) {
+    if(m_filterFlags == QDir::NoFilter) {
         return true;
     }
 
@@ -112,7 +106,7 @@ bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
         return false;
     }
 
-    qDebug() << "name: " << entry.name() << "Flags:" << m_filterFlags;
+    //qDebug() << "name: " << entry.name() << "Flags:" << m_filterFlags;
 
     // The following flags (if set and if the entry matches it) want to keep the current entry
     if(m_filterFlags & QDir::Dirs) {
@@ -132,6 +126,11 @@ bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
 
 void KDirectoryPrivate::processSortFlags()
 {
+    // If we have no sort filter, abort!
+    if(m_sortFlags == QDir::NoSort) {
+        return;
+    }
+
     if(m_sortFlags & QDir::DirsFirst) {
 
         // For now we simply merge the two lists to one..
@@ -147,12 +146,12 @@ void KDirectoryPrivate::processSortFlags()
     }
 }
 
-void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entries)
+void KDirectoryPrivate::slotEntries(KIO::Job *, const KIO::UDSEntryList &entries)
 {
     if(entries.count() > 0) {
 
-        // If DirsFirst or DirsLast is provided as sort flag then we need to create two different lists. One for the files, one for the folders.
-        if(m_sortFlags & QDir::DirsFirst || m_sortFlags & QDir::DirsLast) {
+        // Any filter can cause "some" items (matching the filter) to not be shown.
+        if(m_filterFlags != QDir::NoFilter) {
             QVector<KDirectoryEntry> dirEntries;
             QVector<KDirectoryEntry> fileEntries;
             foreach(const KIO::UDSEntry entry, entries) {
@@ -185,13 +184,12 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
         // Apply the sorting filters
         processSortFlags();
 
-
         emit entriesProcessed();
     } else {
         qDebug() << "Entries are not added because the KDirectory object doesn't exist or no entries where received. Entries received:" << entries.count();
     }
 
-//    foreach(KDirectoryEntry entry, m_dirEntries) {
+//    foreach(KDirectoryEntry entry, m_allEntries) {
 //        qDebug() << "------------------------------";
 //        qDebug() << "Entry:" << &entry;
 //        qDebug() << "Name:" << entry.name();
@@ -202,12 +200,14 @@ void KDirectoryPrivate::slotEntries(KIO::Job *job, const KIO::UDSEntryList &entr
 //        qDebug() << "------------------------------";
 //    }
 
-    qDebug() << "Entries! Count with filter:" << m_allEntries.count() << "count without filter:" << entries.count();
+//    qDebug() << "Entries! Count with filter:" << m_allEntries.count() << "count without filter:" << entries.count();
 }
 
-void KDirectoryPrivate::slotResult(KJob *job)
+void KDirectoryPrivate::slotResult(KJob *)
 {
-    Q_UNUSED(job)
+    qDebug() << "Dir entries:" << m_dirEntries.count();
+    qDebug() << "File entries:" << m_fileEntries.count();
+    qDebug() << "Total entries:" << m_allEntries.count();
 
     // Thought: since we're emitting it directly, perhaps just remove this slot completely and emit the signal from KDirListerV2?
     emit completed();

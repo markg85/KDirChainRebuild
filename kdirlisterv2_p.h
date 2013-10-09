@@ -43,9 +43,8 @@ public:
     explicit KDirListerV2Private(KDirListerV2* dirLister);
 
     void addUrl(QString url, KDirListerV2::OpenUrlFlags flags);
-    void newUrl(QString url);
-
-
+    void addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
+    void newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
     
 signals:
     void directoryContentChanged(KDirectory* directoryContent);
@@ -53,21 +52,15 @@ signals:
 
 public slots:
     void printLRUStats();
-    /*
-    void slotDirty(const QString& entry);
-    void slotCreated(const QString& entry);
-    void slotDeleted(const QString& entry);
-    */
 
 private:
     KDirListerV2* q;
     QHash<QString, int> m_urlToIndex;
     AltLRU<KDirectory*> m_lruCache;
 
-
 // Just for those values that don't need a function.. Remember, we are in a private class here anyway!
 public:
-    QString m_details;
+
 };
 
 #endif // KDIRLISTERV2_P_H
