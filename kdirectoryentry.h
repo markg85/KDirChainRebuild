@@ -31,15 +31,21 @@ class KDirectoryEntryPrivate;
 class KDirectoryEntry
 {
 public:
+
+    enum DataState {
+        PlainData,
+        FullData
+    };
+
     KDirectoryEntry(); // Keeps QVector happy.
     KDirectoryEntry(const KIO::UDSEntry& entry, const QString& details = "0");
     virtual ~KDirectoryEntry(){}
 
-    virtual const QString& name();
-    const QString basename();
-    const QString extension();
-    const QString iconName();
-    const QString mimeComment();
+    const QString name() const;
+    const QString basename() const;
+    const QString extension() const;
+    const QString iconName() const;
+    const QString mimeComment() const;
 
     // Should be used when constructing without an USEEntry. If an UDSEntry is already present then the data will be overwritten!
     virtual void setUDSEntry(const KIO::UDSEntry& entry, const QString& details = "0");
@@ -84,6 +90,8 @@ public:
      * @return true if the file is hidden.
      */
     bool isHidden() const;
+
+    bool entryDetailsLoaded() const;
 
 
 private:
