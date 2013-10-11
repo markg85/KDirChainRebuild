@@ -45,9 +45,38 @@ public:
     QDir::SortFlags sorting();
     void setSorting(QDir::SortFlags sort);
 
+    /**
+     * Loads the entry details and passes it to the KDirectoryEntry that needs the information.
+     * Be aware that this function is executing a (slow) stat call!
+     * @param int id the id of the file to load. This is the QVector index id.
+     */
+    void loadEntryDetails(int id);
+
 signals:
+    /**
+     * New entries in this folder have been processed.
+     * @param KDirectory* directory pointer to the current directory. This pointer is given
+     *        because you're likely to use multiple KDirectory objects so you wouldn't easily
+     *        know which KDirectory object spawned this signal.
+     */
     void entriesProcessed(KDirectory* dir);
+
+    /**
+     * Done loading entries.
+     * @param KDirectory* directory pointer to the current directory. This pointer is given
+     *        because you're likely to use multiple KDirectory objects so you wouldn't easily
+     *        know which KDirectory object spawned this signal.
+     */
     void completed(KDirectory* dir);
+
+    /**
+     * Done loading entries.
+     * @param KDirectory* directory pointer to the current directory. This pointer is given
+     *        because you're likely to use multiple KDirectory objects so you wouldn't easily
+     *        know which KDirectory object spawned this signal.
+     * @param int id is the id that you can use to get the KDirectoryEntry object (entry(id)).
+     */
+    void entryDetailsLoaded(KDirectory* dir, int id);
 
 private:
     KDirectoryPrivate *const d;

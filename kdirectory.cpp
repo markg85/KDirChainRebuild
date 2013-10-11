@@ -32,6 +32,7 @@ KDirectory::KDirectory(const QString& directory, QObject *parent)
 //    connect(d, SIGNAL(completed()), this, SLOT(completed()));
     connect(d, &KDirectoryPrivate::entriesProcessed, [&](){ emit entriesProcessed(this); });
     connect(d, &KDirectoryPrivate::completed, [&](){ emit completed(this); });
+    connect(d, &KDirectoryPrivate::entryDetailsLoaded, [&](int id){ emit entryDetailsLoaded(this, id); });
 }
 
 const QVector<KDirectoryEntry> &KDirectory::entries()
@@ -77,4 +78,9 @@ QDir::SortFlags KDirectory::sorting()
 void KDirectory::setSorting(QDir::SortFlags sort)
 {
     d->setSorting(sort);
+}
+
+void KDirectory::loadEntryDetails(int id)
+{
+    d->loadEntryDetails(id);
 }
