@@ -3,6 +3,8 @@
 #include <QUrl>
 #include <QDebug>
 
+#include <KIO/StatJob>
+
 KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   : QObject(dir)
   , q(dir)
@@ -26,9 +28,8 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
         m_job->addMetaData("details", m_details);
     }
 
-    connect(m_job, SIGNAL(entries(KIO::Job*,KIO::UDSEntryList)), this, SLOT(slotEntries(KIO::Job*,KIO::UDSEntryList)));
-    connect(m_job, SIGNAL(result(KJob*)), this, SLOT(slotResult(KJob*)));
-
+    connect(m_job, &KIO::ListJob::entries, this, &KDirectoryPrivate::slotEntries);
+    connect(m_job, &KJob::result, this, &KDirectoryPrivate::slotResult);
 }
 
 void KDirectoryPrivate::setDetails(const QString &details)
@@ -143,6 +144,34 @@ void KDirectoryPrivate::processSortFlags()
 
     } else {
 
+    }
+}
+
+void KDirectoryPrivate::loadEntryDetails(int id)
+{
+    if(id >= 0 && id < m_allEntries.count()) {
+        QUrl newUrl = QUrl(m_directory);
+
+        QString name = m_allEntries.at(id).name();
+        if(m_allEntries.at(id).isDir()) {
+            name += QDir::separator();
+        }
+        newUrl.setPath(newUrl.path() + QDir::separator() + name);
+
+        KIO::StatJob* sjob = KIO::stat(newUrl, KIO::HideProgressInfo);
+        connect(sjob, &KIO::StatJob::result, [&](){
+            if(sjob->error()) {
+                // failed to stat this file..
+                qDebug() << "Failed to stat the file:" << newUrl.url();
+            } else {
+                m_allEntries[id].setUDSEntry(sjob->statResult(), "2");
+                if(m_allEntries[id].entryDetailsLoaded()) {
+                    emit entryDetailsLoaded(id);
+                } else {
+                    qDebug() << "Details where loaded, but failed to actually set in the KDirectoryEntry object.";
+                }
+            }
+        });
     }
 }
 

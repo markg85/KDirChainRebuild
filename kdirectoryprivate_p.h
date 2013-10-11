@@ -30,11 +30,14 @@ public:
     bool keepEntryAccordingToFilter(KDirectoryEntry entry);
     void processSortFlags();
 
+    void loadEntryDetails(int id);
 
     // Pointer to the actual KDirectory object.
     KDirectory* q;
 
     // The full path to the current directory including the current directory name.
+    // It's a QString, but can be directly inserted in a QUrl. This string has the format:
+    // <protocol>://<path>
     QString m_directory;
 
     // A list of all entries in this directory.
@@ -55,6 +58,7 @@ public:
 signals:
     void entriesProcessed();
     void completed();
+    void entryDetailsLoaded(int id);
     
 public slots:
     void slotEntries(KIO::Job *, const KIO::UDSEntryList &entries);
