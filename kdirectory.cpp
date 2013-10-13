@@ -37,7 +37,7 @@ KDirectory::KDirectory(const QString& directory, QObject *parent)
 
 const QVector<KDirectoryEntry> &KDirectory::entries()
 {
-    return d->m_dirEntries;
+    return d->m_filteredEntries;
 }
 
 const KDirectoryEntry &KDirectory::entry(int index)

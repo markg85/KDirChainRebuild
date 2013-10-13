@@ -29,6 +29,7 @@ public:
 
     bool keepEntryAccordingToFilter(KDirectoryEntry entry);
     void processSortFlags();
+    void processFilterFlags(const KIO::UDSEntryList &entries);
 
     void loadEntryDetails(int id);
 
@@ -41,10 +42,8 @@ public:
     QString m_directory;
 
     // A list of all entries in this directory.
-    QVector<KDirectoryEntry> m_dirEntries;
-    QVector<KDirectoryEntry> m_fileEntries;
-    QVector<KDirectoryEntry> m_allEntries;
-    KIO::UDSEntryList m_disabledEntries;
+    QVector<KDirectoryEntry> m_filteredEntries;
+    QVector<KDirectoryEntry> m_unusedEntries;
 
     KIO::ListJob * m_job;
 

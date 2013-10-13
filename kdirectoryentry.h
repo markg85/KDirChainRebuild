@@ -85,6 +85,10 @@ public:
      */
     bool isWritable() const;
 
+    bool isExecutable() const;
+    bool isModified() const;
+    bool isSystem() const;
+
     /**
      * Checks whether the file is hidden.
      * @return true if the file is hidden.

@@ -20,6 +20,8 @@
 #include "kdirectoryentry.h"
 
 // Qt includes
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QDebug>
 #include <qplatformdefs.h>
 
@@ -44,6 +46,11 @@ public:
     // If not call KDirectory::loadEntryDetails to load the details and verify that
     // the details are actually loaded by calling KDirectoryEntry::entryDetailsLoaded.
 
+    const QString name()
+    {
+        return m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
+    }
+
     const QString basename()
     {
         const QString name = m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
@@ -65,7 +72,6 @@ public:
                 int dotPosition = name.length() - lastDot - 1;
                 return name.right(dotPosition);
             }
-
         }
         return QString();
     }
@@ -87,6 +93,22 @@ public:
         return false;
     }
 
+    bool isExecutable()
+    {
+        return false;
+    }
+
+    bool isModified()
+    {
+        return false;
+    }
+
+    bool isSystem()
+    {
+        return false;
+    }
+
+
     bool isHidden()
     {
         const QString fname = m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
@@ -100,6 +122,37 @@ public:
     bool isDir()
     {
         return (m_entry.numberValue(KIO::UDSEntry::UDS_FILE_TYPE) & QT_STAT_MASK) == QT_STAT_DIR;
+    }
+
+    const QMimeType mimeType(const QString& ext)
+    {
+        // This could be optimized!
+        // We should perhaps have a singlethon where we register the extension with the mime object.
+        // That does require some bookkeeping.. For now we keep it "dumb"
+
+        QMimeDatabase db;
+        QMimeType mime = db.mimeTypeForFile(ext, QMimeDatabase::MatchExtension);
+        return mime;
+    }
+
+    const QString iconName()
+    {
+        const QMimeType& mime = mimeType(extension());
+
+        if(mime.isValid()) {
+            return mime.iconName();
+        }
+        return QString();
+    }
+
+    const QString mimeComment()
+    {
+        const QMimeType& mime = mimeType(extension());
+
+        if(mime.isValid()) {
+            return mime.comment();
+        }
+        return QString();
     }
 
     bool m_dataState;
@@ -119,7 +172,7 @@ KDirectoryEntry::KDirectoryEntry(const KIO::UDSEntry &entry, const QString &deta
 
 const QString KDirectoryEntry::name() const
 {
-    return d->m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
+    return d->name();
 }
 
 const QString KDirectoryEntry::basename() const
@@ -134,34 +187,14 @@ const QString KDirectoryEntry::extension() const
 
 const QString KDirectoryEntry::iconName() const
 {
-    // Replace with QMimeData
 
-    /*
-    KMimeType::Ptr mime;
-    if(isDir()) {
-        mime = KMimeType::findByPath("/", 0, true);
-    } else {
-        mime = KMimeType::findByPath(name(), 0, true);
-    }
-    return mime->iconName();
-    */
-    return QString();
+    return d->iconName();
 }
 
 const QString KDirectoryEntry::mimeComment() const
 {
-    // Replace with QMimeData
 
-    /*
-    KMimeType::Ptr mime;
-    if(isDir()) {
-        mime = KMimeType::findByPath("/", 0, true);
-    } else {
-        mime = KMimeType::findByPath(name(), 0, true);
-    }
-    return mime->comment();
-    */
-    return QString();
+    return d->mimeComment();
 }
 
 void KDirectoryEntry::setUDSEntry(const KIO::UDSEntry &entry, const QString &details)
@@ -198,6 +231,21 @@ bool KDirectoryEntry::isReadable() const
 bool KDirectoryEntry::isWritable() const
 {
     return d->isWritable();
+}
+
+bool KDirectoryEntry::isExecutable() const
+{
+    return d->isExecutable();
+}
+
+bool KDirectoryEntry::isModified() const
+{
+    return d->isModified();
+}
+
+bool KDirectoryEntry::isSystem() const
+{
+    return d->isSystem();
 }
 
 bool KDirectoryEntry::isHidden() const
