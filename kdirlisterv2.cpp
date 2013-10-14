@@ -24,7 +24,7 @@ KDirListerV2::KDirListerV2(QObject *parent)
     : QObject(parent)
     , d(new KDirListerV2Private(this))
 {
-    // Forward signams from the private class to the public class
+    // Forward signals from the private class to the public class
     connect(d, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
     connect(d, SIGNAL(directoryContentChanged(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
 }
