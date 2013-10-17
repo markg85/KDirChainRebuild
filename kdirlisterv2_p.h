@@ -45,6 +45,7 @@ public:
     void addUrl(QString url, KDirListerV2::OpenUrlFlags flags);
     void addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
     void newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
+    bool isListing(const QString& url);
     
 signals:
     void directoryContentChanged(KDirectory* directoryContent);

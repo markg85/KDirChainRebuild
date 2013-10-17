@@ -43,3 +43,8 @@ bool KDirListerV2::openUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails)
 
     return true;
 }
+
+bool KDirListerV2::isListing(const QString &url)
+{
+    return d->isListing(url);
+}

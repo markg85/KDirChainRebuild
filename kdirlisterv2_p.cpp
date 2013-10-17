@@ -69,6 +69,14 @@ void KDirListerV2Private::newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDet
     connect(dir, SIGNAL(completed(KDirectory*)), this, SLOT(printLRUStats()));
 }
 
+bool KDirListerV2Private::isListing(const QString &url)
+{
+    if(m_lruCache.get(url.toStdString())) {
+        return true;
+    }
+    return false;
+}
+
 void KDirListerV2Private::printLRUStats()
 {
     qDebug() << "--------------- LRU STATISTICS ---------------";

@@ -77,6 +77,8 @@ public:
     virtual bool openUrl(const QString& url, OpenUrlFlags flags = NoFlags);
 
     virtual bool openUrl(DirectoryFetchDetails dirFetchDetails);
+
+    virtual bool isListing(const QString& url);
     
 signals:
     /**
