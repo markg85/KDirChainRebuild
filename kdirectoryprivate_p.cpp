@@ -40,15 +40,15 @@ void KDirectoryPrivate::setDetails(const QString &details)
 
 const KDirectoryEntry &KDirectoryPrivate::entry(int index)
 {
-    if(index >= 0 && index < m_unusedEntries.count()) {
-        return m_unusedEntries.at(index);
+    if(index >= 0 && index < m_filteredEntries.count()) {
+        return m_filteredEntries.at(index);
     }
     return KDirectoryEntry();
 }
 
 int KDirectoryPrivate::count()
 {
-    return m_unusedEntries.count();
+    return m_filteredEntries.count();
 }
 
 QDir::Filters KDirectoryPrivate::filter()
@@ -202,6 +202,9 @@ void KDirectoryPrivate::loadEntryDetails(int id)
 void KDirectoryPrivate::slotEntries(KIO::Job *, const KIO::UDSEntryList &entries)
 {
     if(entries.count() > 0) {
+
+//        qDebug() << "Entries received:" << entries.count();
+
         // Apply filters. Count just so that we filter the last # of entries that we received though this function
         processFilterFlags(entries);
 

@@ -50,7 +50,7 @@ const QString &KDirectory::url()
 
 int KDirectory::count()
 {
-    return d->count();
+    return entries().count();
 }
 
 void KDirectory::setDetails(const QString &details)
