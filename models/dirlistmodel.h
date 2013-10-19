@@ -19,4 +19,48 @@
 
 #ifndef DIRLISTMODEL_H
 #define DIRLISTMODEL_H
+
+#include <QAbstractListModel>
+#include "kdirlisterv2.h"
+#include "kdirectory.h"
+
+class DirListModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    enum Roles {
+        FileName = Qt::UserRole + 1,
+        BaseName,
+        Extension
+    };
+
+    /**
+     * @param parent parent qobject
+     */
+    explicit DirListModel(QObject* parent = 0);
+    ~DirListModel();
+
+    void setPath(const QString& path);
+    const QString& path();
+
+    /// Reimplemented from QAbstractItemModel.
+    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+    /// Reimplemented from QAbstractItemModel.
+    virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
+    virtual QHash<int, QByteArray> roleNames() const;
+
+    void slotDirectoryContentChanged(KDirectory* dir);
+    void slotCompleted(KDirectory* dir);
+
+private:
+    KDirListerV2* m_lister;
+    KDirectory* m_dir;
+    QString m_path;
+    int m_currentRowCount;
+    bool m_doneLoading;
+};
+
+
 #endif
