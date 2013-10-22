@@ -105,7 +105,7 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
     m_currentRowCount = m_dir->count();
     endInsertRows();
 
-    qDebug() << "Count: " << m_dir->count();
+    //qDebug() << "Count: " << m_dir->count();
 }
 
 void DirListModel::slotCompleted(KDirectory *dir)
