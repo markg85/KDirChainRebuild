@@ -101,6 +101,8 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         m_dir = dir;
     }
 
+    qDebug() << "Emitting with start=" << m_currentRowCount << "; and end=" << m_dir->count() - 1;
+
     beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
     m_currentRowCount = m_dir->count();
     endInsertRows();
@@ -110,6 +112,9 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
 
 void DirListModel::slotCompleted(KDirectory *dir)
 {
-    slotDirectoryContentChanged(dir);
+    // If we have remaining entries in this last signal we need to process them.
+    if(dir->count() > m_currentRowCount) {
+        slotDirectoryContentChanged(dir);
+    }
     m_doneLoading = true;
 }
