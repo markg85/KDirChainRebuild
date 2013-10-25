@@ -30,9 +30,13 @@ class DirListModel : public QAbstractListModel
 
 public:
     enum Roles {
-        FileName = Qt::UserRole + 1,
+        Name = Qt::UserRole + 1,
         BaseName,
-        Extension
+        Extension,
+        MimeComment,
+        MimeIcon,
+        Thumbnail,
+        Size
     };
 
     /**
@@ -49,7 +53,10 @@ public:
 
     /// Reimplemented from QAbstractItemModel.
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     virtual QHash<int, QByteArray> roleNames() const;
+    virtual QVariant headerName(int role) const;
 
     void slotDirectoryContentChanged(KDirectory* dir);
     void slotCompleted(KDirectory* dir);

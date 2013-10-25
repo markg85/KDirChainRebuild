@@ -66,19 +66,43 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
 
         KDirectoryEntry entry = m_dir->entry(index.row());
 
-        //qDebug() << index.row() << entry.name();
+        if(role == Qt::DisplayRole) {
 
-        switch (role) {
-        case Qt::DisplayRole:
-            return QVariant(entry.name());
-            break;
+            switch (index.column() + Qt::UserRole + 1) {
+            case Name:
+                return QVariant(entry.name());
+                break;
+            case BaseName:
+                return QVariant(entry.basename());
+                break;
+            case Extension:
+                return QVariant(entry.extension());
+                break;
+            case MimeComment:
+                return QVariant(entry.mimeComment());
+                break;
+            case MimeIcon:
+                return QVariant(entry.iconName());
+                break;
+            case Thumbnail:
+                // Should return a thumbnail of the file.
+                return QVariant("TO_BE_IMPLEMENTED");
+                break;
+            case Size:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.size());
+                break;
+            }
+
+        } else if (role == Qt::DecorationRole && index.column() == 0) {
+            // display the file icon. This is to be implemented.
         }
     }
 
     return QVariant();
 }
 
-int DirListModel::rowCount(const QModelIndex &parent) const
+int DirListModel::rowCount(const QModelIndex &) const
 {
     if(m_dir) {
         return m_currentRowCount;
@@ -86,19 +110,64 @@ int DirListModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
+int DirListModel::columnCount(const QModelIndex &) const
+{
+    return roleNames().count();
+}
+
+QVariant DirListModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        switch (role) {
+        case Qt::DisplayRole:
+            return headerName(section);
+        }
+    }
+    return QVariant();
+}
+
 QHash<int, QByteArray> DirListModel::roleNames() const
 {
     QHash<int, QByteArray> roleNames;
-    roleNames[FileName] = "fileName";
-    roleNames[BaseName] = "baseName";
-    roleNames[Extension] = "extension";
+    roleNames[Name]         = "name";
+    roleNames[BaseName]     = "baseName";
+    roleNames[Extension]    = "extension";
+    roleNames[MimeComment]  = "mimeComment";
+    roleNames[MimeIcon]     = "mimeIcon";
+    roleNames[Thumbnail]    = "thumbnail";
+    roleNames[Size]         = "size";
     return roleNames;
+}
+
+QVariant DirListModel::headerName(int role) const
+{
+    // NOTE! this _MUST_ be in the same order as the roleNames!
+    static QVector<QByteArray> headerNames {
+        "Name",
+        "Base name",
+        "Extension",
+        "MIME Comment",
+        "MIME Icon",
+        "Thumbnail",
+        "Size",
+    };
+
+    if(role < headerNames.count() && role >= 0) {
+        return headerNames.at(role);
+    } else {
+        return "UNKNOWN_HEADER_NAME";
+    }
 }
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
 {
     if(!m_dir && dir) {
         m_dir = dir;
+        connect(m_dir, &KDirectory::entryDetailsLoaded, [&](KDirectory*, int id){
+            // notify the view that the entry with "id" has changed data.
+            QModelIndex topLeft = createIndex(id, 0);
+            emit dataChanged(topLeft, topLeft);
+        });
     }
 
     qDebug() << "Emitting with start=" << m_currentRowCount << "; and end=" << m_dir->count() - 1;
