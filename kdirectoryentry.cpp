@@ -22,6 +22,7 @@
 // Qt includes
 #include <QMimeDatabase>
 #include <QMimeType>
+#include <QDir>
 #include <QDebug>
 #include <qplatformdefs.h>
 
@@ -130,8 +131,14 @@ public:
         // We should perhaps have a singlethon where we register the extension with the mime object.
         // That does require some bookkeeping.. For now we keep it "dumb"
 
+        QString fName = name();
+
+        if(isDir()) {
+            fName += QDir::separator();
+        }
+
         QMimeDatabase db;
-        QMimeType mime = db.mimeTypeForFile(name(), QMimeDatabase::MatchExtension);
+        QMimeType mime = db.mimeTypeForFile(fName, QMimeDatabase::MatchExtension);
         return mime;
     }
 
