@@ -56,9 +56,6 @@ public:
     const QString basename()
     {
         const QString name = m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
-//        m_fileMode = m_entry.numberValue(KIO::UDSEntry::UDS_FILE_TYPE);
-
-
         int dotPosition = name.lastIndexOf(QStringLiteral("."));
         return name.left(dotPosition);
     }
