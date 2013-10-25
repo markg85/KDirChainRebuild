@@ -22,9 +22,6 @@ add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Quick_DEFINITIONS} ${Qt5Qml_DEFIN
 # We do allow "signals and slots" instead of "Q_SIGNALS and Q_SLOTS".
 remove_definitions(-DQT_NO_KEYWORDS -DQT_NO_CAST_FROM_ASCII -DQT_NO_SIGNALS_SLOTS_KEYWORDS)
 
-# Change this path to your include folder/KDE.
-include_directories(/home/kde-devel/kf5/include/KDE)
-
 # C++11 support
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
