@@ -42,8 +42,9 @@ public:
     // Remember, every file is one instance of this class.
     // So we only call this function through KDirectoryEntry::loadEntryDetails which
     // should be called from outside this class in some parent class that does have
-    // QObject inheritance. In KDirectory would be ideal.
-    // External users of this class should first check of an entry ahs details loaded.
+    // QObject inheritance.
+    //
+    // External users of this class should first check if an entry ahs details loaded.
     // If not call KDirectory::loadEntryDetails to load the details and verify that
     // the details are actually loaded by calling KDirectoryEntry::entryDetailsLoaded.
 
