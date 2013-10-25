@@ -77,7 +77,7 @@ public:
 
     bool isReadable()
     {
-        if(m_dataState != KDirectoryEntry::DataState::FullData) {
+        if(m_dataState) {
             return false;
         }
 
@@ -89,21 +89,41 @@ public:
 
     bool isWritable()
     {
+        if(m_dataState) {
+            return false;
+        }
+
+        // To be implemented
         return false;
     }
 
     bool isExecutable()
     {
+        if(m_dataState) {
+            return false;
+        }
+
+        // To be implemented
         return false;
     }
 
     bool isModified()
     {
+        if(m_dataState) {
+            return false;
+        }
+
+        // To be implemented
         return false;
     }
 
     bool isSystem()
     {
+        if(m_dataState) {
+            return false;
+        }
+
+        // To be implemented
         return false;
     }
 
