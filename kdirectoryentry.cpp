@@ -65,7 +65,7 @@ public:
     {
         const QString name = m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
 
-        if(name[0] != QChar('.')) {
+        if(!name.isEmpty() && name[0] != QChar('.')) {
             int lastDot = name.lastIndexOf(QStringLiteral("."));
 
             if(lastDot > 0) {
@@ -124,20 +124,20 @@ public:
         return (m_entry.numberValue(KIO::UDSEntry::UDS_FILE_TYPE) & QT_STAT_MASK) == QT_STAT_DIR;
     }
 
-    const QMimeType mimeType(const QString& ext)
+    const QMimeType mimeType()
     {
         // This could be optimized!
         // We should perhaps have a singlethon where we register the extension with the mime object.
         // That does require some bookkeeping.. For now we keep it "dumb"
 
         QMimeDatabase db;
-        QMimeType mime = db.mimeTypeForFile(ext, QMimeDatabase::MatchExtension);
+        QMimeType mime = db.mimeTypeForFile(name(), QMimeDatabase::MatchExtension);
         return mime;
     }
 
     const QString iconName()
     {
-        const QMimeType& mime = mimeType(extension());
+        const QMimeType& mime = mimeType();
 
         if(mime.isValid()) {
             return mime.iconName();
@@ -147,12 +147,20 @@ public:
 
     const QString mimeComment()
     {
-        const QMimeType& mime = mimeType(extension());
+        const QMimeType& mime = mimeType();
 
         if(mime.isValid()) {
             return mime.comment();
         }
         return QString();
+    }
+
+    const int size()
+    {
+        if(!isDir() && m_dataState) {
+            return m_entry.numberValue(KIO::UDSEntry::UDS_SIZE);
+        }
+        return 0;
     }
 
     bool m_dataState;
@@ -195,6 +203,11 @@ const QString KDirectoryEntry::mimeComment() const
 {
 
     return d->mimeComment();
+}
+
+const int KDirectoryEntry::size() const
+{
+    return d->size();
 }
 
 void KDirectoryEntry::setUDSEntry(const KIO::UDSEntry &entry, const QString &details)

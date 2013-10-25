@@ -11,6 +11,7 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   , m_directory(directory)
   , m_filteredEntries()
   , m_unusedEntries()
+  , m_statInProgress()
   , m_job(0)
   , m_watch(KDirWatch::self())
   , m_details()
@@ -173,27 +174,35 @@ void KDirectoryPrivate::processFilterFlags(const KIO::UDSEntryList &entries)
 
 void KDirectoryPrivate::loadEntryDetails(int id)
 {
-    if(id >= 0 && id < m_unusedEntries.count()) {
-        QUrl newUrl = QUrl(m_directory);
+    // Prevent needless stat calls when a stat call for the requested file is currently in progress.
+    if(!m_statInProgress.contains(id)) {
+        m_statInProgress.append(id);
+    } else {
+        return;
+    }
 
-        QString name = m_unusedEntries.at(id).name();
-        if(m_unusedEntries.at(id).isDir()) {
-            name += QDir::separator();
-        }
-        newUrl.setPath(newUrl.path() + QDir::separator() + name);
+    if(id >= 0 && id < m_filteredEntries.count()) {
+        QUrl newUrl = QUrl(m_directory + QDir::separator() + m_filteredEntries.at(id).name());
 
         KIO::StatJob* sjob = KIO::stat(newUrl, KIO::HideProgressInfo);
-        connect(sjob, &KIO::StatJob::result, [&](){
-            if(sjob->error()) {
+        sjob->setProperty("id", id);
+        connect(sjob, &KIO::StatJob::result, [&](KJob* job){
+            KIO::StatJob* statJob = qobject_cast<KIO::StatJob*>(job);
+            if(statJob->error()) {
                 // failed to stat this file..
-                qDebug() << "Failed to stat the file:" << newUrl.url();
+                qDebug() << "Failed to stat the file:" << statJob->url();
             } else {
-                m_unusedEntries[id].setUDSEntry(sjob->statResult(), "2");
-                if(m_unusedEntries[id].entryDetailsLoaded()) {
+//                qDebug() << "Failed to stat the file:" << statJob->url() << "id:" << statJob->property("id").toInt();
+                int id = statJob->property("id").toInt();
+                m_filteredEntries[id].setUDSEntry(statJob->statResult(), "2");
+                if(m_filteredEntries[id].entryDetailsLoaded()) {
                     emit entryDetailsLoaded(id);
                 } else {
                     qDebug() << "Details where loaded, but failed to actually set in the KDirectoryEntry object.";
                 }
+
+                // Remove the id from m_statInProgress since we're now done stat calling this file.
+                m_statInProgress.removeOne(id);
             }
         });
     }

@@ -20,9 +20,6 @@
 #include "kdirectory.h"
 #include "kdirectoryprivate_p.h"
 
-
-
-
 KDirectory::KDirectory(const QString& directory, QObject *parent)
     : QObject(parent)
     , d(new KDirectoryPrivate(this, directory))

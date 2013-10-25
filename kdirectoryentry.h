@@ -46,6 +46,7 @@ public:
     const QString extension() const;
     const QString iconName() const;
     const QString mimeComment() const;
+    const int size() const;
 
     // Should be used when constructing without an USEEntry. If an UDSEntry is already present then the data will be overwritten!
     virtual void setUDSEntry(const KIO::UDSEntry& entry, const QString& details = "0");

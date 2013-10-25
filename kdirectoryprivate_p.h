@@ -44,6 +44,7 @@ public:
     // A list of all entries in this directory.
     QVector<KDirectoryEntry> m_filteredEntries;
     QVector<KDirectoryEntry> m_unusedEntries;
+    QList<int> m_statInProgress;
 
     KIO::ListJob * m_job;
 
