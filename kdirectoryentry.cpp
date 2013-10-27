@@ -167,19 +167,22 @@ public:
 
     const QMimeType mimeType()
     {
-        // This could be optimized!
-        // We should perhaps have a singlethon where we register the extension with the mime object.
-        // That does require some bookkeeping.. For now we keep it "dumb"
-
         QString fName = name();
-
+        QString ext = extension();
         if(isDir()) {
-            fName += QDir::separator();
+            fName = QDir::separator();
+            ext = ".directory";
         }
 
-        QMimeDatabase db;
-        QMimeType mime = db.mimeTypeForFile(fName, QMimeDatabase::MatchExtension);
-        return mime;
+        // This caching is based on the extension.
+        static QHash<QString, QMimeType> mimeCache;
+        if(!mimeCache.contains(ext)) {
+            QMimeDatabase db;
+            QMimeType mime = db.mimeTypeForFile(fName, QMimeDatabase::MatchExtension);
+            mimeCache.insert(ext, mime);
+        }
+
+        return mimeCache.value(ext);
     }
 
     const QString iconName()
