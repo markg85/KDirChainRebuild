@@ -37,6 +37,18 @@ public:
         FullData
     };
 
+    /**
+     * The timestamps associated with a file.
+     * - ModificationTime: the time the file's contents were last modified
+     * - AccessTime: the time the file was last accessed (last read or written to)
+     * - CreationTime: the time the file was created
+     */
+    enum FileTimes {
+        ModificationTime,
+        AccessTime,
+        CreationTime
+    };
+
     KDirectoryEntry(); // Keeps QVector happy.
     KDirectoryEntry(const KIO::UDSEntry& entry, const QString& details = "0");
     virtual ~KDirectoryEntry(){}
@@ -89,6 +101,14 @@ public:
     bool isExecutable() const;
     bool isModified() const;
     bool isSystem() const;
+
+    /**
+     * Requests the modification, access or creation time, depending on @p which.
+     * @param which the timestamp
+     * @return the time asked for, QDateTime() if not available
+     * @see timeString()
+     */
+    QDateTime time(FileTimes which) const;
 
     /**
      * Checks whether the file is hidden.

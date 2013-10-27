@@ -23,6 +23,7 @@
 #include <QMimeDatabase>
 #include <QMimeType>
 #include <QDir>
+#include <QDateTime>
 #include <QDebug>
 #include <qplatformdefs.h>
 
@@ -127,6 +128,27 @@ public:
         return false;
     }
 
+    QDateTime time(KDirectoryEntry::FileTimes which)
+    {
+        if(m_dataState) {
+            long long fieldVal = -1;
+            switch ( which ) {
+            case KDirectoryEntry::FileTimes::ModificationTime:
+                fieldVal = m_entry.numberValue( KIO::UDSEntry::UDS_MODIFICATION_TIME, -1 );
+                break;
+            case KDirectoryEntry::FileTimes::AccessTime:
+                fieldVal = m_entry.numberValue( KIO::UDSEntry::UDS_ACCESS_TIME, -1 );
+                break;
+            case KDirectoryEntry::FileTimes::CreationTime:
+                fieldVal = m_entry.numberValue( KIO::UDSEntry::UDS_CREATION_TIME, -1 );
+                break;
+            }
+            if (fieldVal != -1) {
+                return QDateTime::fromMSecsSinceEpoch(1000 *fieldVal);
+            }
+        }
+        return QDateTime();
+    }
 
     bool isHidden()
     {
@@ -284,6 +306,11 @@ bool KDirectoryEntry::isModified() const
 bool KDirectoryEntry::isSystem() const
 {
     return d->isSystem();
+}
+
+QDateTime KDirectoryEntry::time(KDirectoryEntry::FileTimes which) const
+{
+    return d->time(which);
 }
 
 bool KDirectoryEntry::isHidden() const
