@@ -32,12 +32,6 @@ class KDirectoryEntryPrivate;
 class KDirectoryEntry
 {
 public:
-
-    enum DataState {
-        PlainData,
-        FullData
-    };
-
     /**
      * The timestamps associated with a file.
      * - ModificationTime: the time the file's contents were last modified

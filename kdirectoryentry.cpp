@@ -32,7 +32,7 @@ class KDirectoryEntryPrivate
 {
 public:
     KDirectoryEntryPrivate()
-        : m_fullUDSEntryLoaded(KDirectoryEntry::DataState::PlainData)
+        : m_fullUDSEntryLoaded(false)
         , m_entry()
     {
     }
@@ -349,9 +349,5 @@ bool KDirectoryEntry::isHidden() const
 
 bool KDirectoryEntry::entryDetailsLoaded() const
 {
-    if(d->m_fullUDSEntryLoaded == KDirectoryEntry::DataState::FullData) {
-        return true;
-    } else {
-        return false;
-    }
+    return d->m_fullUDSEntryLoaded;
 }
