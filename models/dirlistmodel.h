@@ -39,7 +39,9 @@ public:
         Size,
         ModificationTime,
         AccessTime,
-        CreationTime
+        CreationTime,
+        User,
+        Group
     };
 
     /**

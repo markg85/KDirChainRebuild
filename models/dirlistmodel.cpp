@@ -104,6 +104,14 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
                 if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::CreationTime));
                 break;
+            case User:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.user());
+                break;
+            case Group:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.group());
+                break;
             }
 
         } else if (role == Qt::DecorationRole && index.column() == 0) {
@@ -152,6 +160,8 @@ QHash<int, QByteArray> DirListModel::roleNames() const
     roleNames[ModificationTime] = "modificationTime";
     roleNames[AccessTime]       = "accessTime";
     roleNames[CreationTime]     = "creationTime";
+    roleNames[User]             = "user";
+    roleNames[Group]            = "group";
 
     return roleNames;
 }
@@ -170,6 +180,8 @@ QVariant DirListModel::headerName(int role) const
         "Modification time",
         "Access time",
         "Creation time",
+        "User",
+        "Group",
     };
 
     // We want to use the roles as defined in the header.
