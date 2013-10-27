@@ -3,12 +3,10 @@
 #include <QDebug>
 #include <QUrl>
 
-
 #include "models/dirlistmodel.h"
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 #include "kdirectoryentry.h"
-//#include "simpleview.h"
 
 #include <QListView>
 #include <QTreeView>
@@ -48,36 +46,10 @@ int main(int argc, char *argv[])
     model.setPath(url);
 
     QObject::connect(&model, &QAbstractItemModel::rowsInserted, [&](QModelIndex index,int start,int end){
-        qDebug() << "On rows inserted: " << index.isValid() << start << end;
+        //qDebug() << "On rows inserted: " << index.isValid() << start << end;
     });
-
-    /*
-    int entryCount = 0;
-    QStringListModel *model = new QStringListModel();
-    QStringList list;
-
-    QTimer *timer = new QTimer();
-    QObject::connect(timer, &QTimer::timeout, [&](){
-        if(entryCount >= 5000) {
-            timer->stop();
-        } else {
-            for(int i = entryCount; i < entryCount + 200; i++) {
-                qDebug() << i;
-                list << QString::number(i) + ".txt";
-            }
-            model->insertRows(entryCount, 200);
-            entryCount += 200;
-        }
-    });
-
-    timer->start(100);
-
-    model->setStringList(list);
-    */
-
 
 //    QListView* view = new QListView();
-//    SimpleView* view = new SimpleView();
     QTreeView* view = new QTreeView();
     view->setModel(&model);
     view->show();
@@ -93,11 +65,6 @@ int main(int argc, char *argv[])
 //    lister.openUrl("~");
 
 //    QObject::connect(&lister, SIGNAL(completed(KDirectory*)), qApp, SLOT(quit()));
-
-
-//    QTreeView* tree = new QTreeView();
-//    tree->setModel(&model);
-//    tree->show();
 
     return a.exec();
 }
