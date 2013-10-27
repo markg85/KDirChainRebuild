@@ -32,7 +32,7 @@ class KDirectoryEntryPrivate
 {
 public:
     KDirectoryEntryPrivate()
-        : m_dataState(KDirectoryEntry::DataState::PlainData)
+        : m_fullUDSEntryLoaded(KDirectoryEntry::DataState::PlainData)
         , m_entry()
     {
     }
@@ -78,7 +78,7 @@ public:
 
     bool isReadable()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return false;
         }
 
@@ -90,7 +90,7 @@ public:
 
     bool isWritable()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return false;
         }
 
@@ -100,7 +100,7 @@ public:
 
     bool isExecutable()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return false;
         }
 
@@ -110,7 +110,7 @@ public:
 
     bool isModified()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return false;
         }
 
@@ -120,7 +120,7 @@ public:
 
     bool isSystem()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return false;
         }
 
@@ -130,7 +130,7 @@ public:
 
     QDateTime time(KDirectoryEntry::FileTimes which)
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             long long fieldVal = -1;
             switch ( which ) {
             case KDirectoryEntry::FileTimes::ModificationTime:
@@ -207,7 +207,7 @@ public:
 
     const KIO::filesize_t size()
     {
-        if(!isDir() && m_dataState) {
+        if(!isDir() && m_fullUDSEntryLoaded) {
             return m_entry.numberValue(KIO::UDSEntry::UDS_SIZE);
         }
         return 0;
@@ -215,7 +215,7 @@ public:
 
     const QString user()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return m_entry.stringValue(KIO::UDSEntry::UDS_USER);
         }
         return QString();
@@ -223,13 +223,13 @@ public:
 
     const QString group()
     {
-        if(m_dataState) {
+        if(m_fullUDSEntryLoaded) {
             return m_entry.stringValue(KIO::UDSEntry::UDS_GROUP);
         }
         return QString();
     }
 
-    bool m_dataState;
+    bool m_fullUDSEntryLoaded;
     KIO::UDSEntry m_entry;
 };
 
@@ -290,9 +290,9 @@ void KDirectoryEntry::setUDSEntry(const KIO::UDSEntry &entry, const QString &det
 {
     // Details comes from the directory lister. If it's 0 then we only have very few details in the entry object.
     if(details == "0") {
-        d->m_dataState = KDirectoryEntry::DataState::PlainData;
+        d->m_fullUDSEntryLoaded = false;
     } else {
-        d->m_dataState = KDirectoryEntry::DataState::FullData;
+        d->m_fullUDSEntryLoaded = true;
     }
     d->m_entry = entry;
 }
@@ -349,7 +349,7 @@ bool KDirectoryEntry::isHidden() const
 
 bool KDirectoryEntry::entryDetailsLoaded() const
 {
-    if(d->m_dataState == KDirectoryEntry::DataState::FullData) {
+    if(d->m_fullUDSEntryLoaded == KDirectoryEntry::DataState::FullData) {
         return true;
     } else {
         return false;
