@@ -210,6 +210,22 @@ public:
         return 0;
     }
 
+    const QString user()
+    {
+        if(m_dataState) {
+            return m_entry.stringValue(KIO::UDSEntry::UDS_USER);
+        }
+        return QString();
+    }
+
+    const QString group()
+    {
+        if(m_dataState) {
+            return m_entry.stringValue(KIO::UDSEntry::UDS_GROUP);
+        }
+        return QString();
+    }
+
     bool m_dataState;
     KIO::UDSEntry m_entry;
 };
@@ -228,6 +244,16 @@ KDirectoryEntry::KDirectoryEntry(const KIO::UDSEntry &entry, const QString &deta
 const QString KDirectoryEntry::name() const
 {
     return d->name();
+}
+
+const QString KDirectoryEntry::user() const
+{
+    return d->user();
+}
+
+const QString KDirectoryEntry::group() const
+{
+    return d->group();
 }
 
 const QString KDirectoryEntry::basename() const

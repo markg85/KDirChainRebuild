@@ -55,6 +55,18 @@ public:
     virtual ~KDirectoryEntry(){}
 
     const QString name() const;
+
+    /**
+     * Returns the owner of the file.
+     * @return the file's owner
+     */
+    const QString user() const;
+
+    /**
+     * Returns the group of the file.
+     * @return the file's group
+     */
+    const QString group() const;
     const QString basename() const;
     const QString extension() const;
     const QString iconName() const;
