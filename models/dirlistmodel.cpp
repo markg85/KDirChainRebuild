@@ -92,6 +92,18 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
                 if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.size());
                 break;
+            case ModificationTime:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.time(KDirectoryEntry::ModificationTime));
+                break;
+            case AccessTime:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.time(KDirectoryEntry::AccessTime));
+                break;
+            case CreationTime:
+                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                return QVariant(entry.time(KDirectoryEntry::CreationTime));
+                break;
             }
 
         } else if (role == Qt::DecorationRole && index.column() == 0) {
@@ -129,13 +141,17 @@ QVariant DirListModel::headerData(int section, Qt::Orientation orientation, int 
 QHash<int, QByteArray> DirListModel::roleNames() const
 {
     QHash<int, QByteArray> roleNames;
-    roleNames[Name]         = "name";
-    roleNames[BaseName]     = "baseName";
-    roleNames[Extension]    = "extension";
-    roleNames[MimeComment]  = "mimeComment";
-    roleNames[MimeIcon]     = "mimeIcon";
-    roleNames[Thumbnail]    = "thumbnail";
-    roleNames[Size]         = "size";
+    roleNames[Name]             = "name";
+    roleNames[BaseName]         = "baseName";
+    roleNames[Extension]        = "extension";
+    roleNames[MimeComment]      = "mimeComment";
+    roleNames[MimeIcon]         = "mimeIcon";
+    roleNames[Thumbnail]        = "thumbnail";
+    roleNames[Size]             = "size";
+    roleNames[ModificationTime] = "modificationTime";
+    roleNames[AccessTime]       = "accessTime";
+    roleNames[CreationTime]     = "creationTime";
+
     return roleNames;
 }
 
@@ -150,6 +166,9 @@ QVariant DirListModel::headerName(int role) const
         "MIME Icon",
         "Thumbnail",
         "Size",
+        "Modification time",
+        "Access time",
+        "Creation time",
     };
 
     if(role < headerNames.count() && role >= 0) {

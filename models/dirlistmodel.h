@@ -36,7 +36,10 @@ public:
         MimeComment,
         MimeIcon,
         Thumbnail,
-        Size
+        Size,
+        ModificationTime,
+        AccessTime,
+        CreationTime
     };
 
     /**
