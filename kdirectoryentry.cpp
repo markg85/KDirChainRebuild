@@ -202,7 +202,7 @@ public:
         return QString();
     }
 
-    const int size()
+    const KIO::filesize_t size()
     {
         if(!isDir() && m_dataState) {
             return m_entry.numberValue(KIO::UDSEntry::UDS_SIZE);
@@ -252,7 +252,7 @@ const QString KDirectoryEntry::mimeComment() const
     return d->mimeComment();
 }
 
-const int KDirectoryEntry::size() const
+const KIO::filesize_t KDirectoryEntry::size() const
 {
     return d->size();
 }
