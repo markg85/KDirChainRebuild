@@ -149,19 +149,20 @@ QVariant DirListModel::headerData(int section, Qt::Orientation orientation, int 
 
 QHash<int, QByteArray> DirListModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Name]             = "name";
-    roleNames[BaseName]         = "baseName";
-    roleNames[Extension]        = "extension";
-    roleNames[MimeComment]      = "mimeComment";
-    roleNames[MimeIcon]         = "mimeIcon";
-    roleNames[Thumbnail]        = "thumbnail";
-    roleNames[Size]             = "size";
-    roleNames[ModificationTime] = "modificationTime";
-    roleNames[AccessTime]       = "accessTime";
-    roleNames[CreationTime]     = "creationTime";
-    roleNames[User]             = "user";
-    roleNames[Group]            = "group";
+    static const QHash<int, QByteArray> roleNames {
+        {Name,              "name"},
+        {BaseName,          "baseName"},
+        {Extension,         "extension"},
+        {MimeComment,       "mimeComment"},
+        {MimeIcon,          "mimeIcon"},
+        {Thumbnail,         "thumbnail"},
+        {Size,              "size"},
+        {ModificationTime,  "modificationTime"},
+        {AccessTime,        "accessTime"},
+        {CreationTime,      "creationTime"},
+        {User,              "user"},
+        {Group,             "group"},
+    };
 
     return roleNames;
 }
@@ -169,7 +170,7 @@ QHash<int, QByteArray> DirListModel::roleNames() const
 QVariant DirListModel::headerName(int role) const
 {
     // NOTE! this _MUST_ be in the same order as the roleNames!
-    static QVector<QByteArray> headerNames {
+    static const QVector<QByteArray> headerNames {
         "Name",
         "Base name",
         "Extension",
