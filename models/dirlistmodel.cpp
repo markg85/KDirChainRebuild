@@ -132,7 +132,8 @@ QVariant DirListModel::headerData(int section, Qt::Orientation orientation, int 
     if (orientation == Qt::Horizontal) {
         switch (role) {
         case Qt::DisplayRole:
-            return headerName(section);
+            // Looks odd, but we want to use the role names as they are defined in the header.
+            return headerName(Qt::UserRole + 1 + section);
         }
     }
     return QVariant();
@@ -171,8 +172,11 @@ QVariant DirListModel::headerName(int role) const
         "Creation time",
     };
 
-    if(role < headerNames.count() && role >= 0) {
-        return headerNames.at(role);
+    // We want to use the roles as defined in the header.
+    const int newRole = role - (Qt::UserRole + 1);
+
+    if(newRole < headerNames.count() && newRole >= 0) {
+        return headerNames.at(newRole);
     } else {
         return "UNKNOWN_HEADER_NAME";
     }
