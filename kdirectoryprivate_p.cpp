@@ -11,6 +11,7 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   , m_directory(directory)
   , m_filteredEntries()
   , m_unusedEntries()
+  , m_emptyEntry()
   , m_statInProgress()
   , m_job(0)
   , m_watch(KDirWatch::self())
@@ -21,6 +22,7 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
     QUrl goodUrl(m_directory);
     m_directory = goodUrl.url();
     m_job = KIO::listDir(goodUrl, KIO::HideProgressInfo);
+    m_job->setUiDelegate(0);
 
     // If any details are set, pass them along to the listener.
     if(!m_details.isEmpty()) {
@@ -44,7 +46,7 @@ const KDirectoryEntry &KDirectoryPrivate::entry(int index)
     if(index >= 0 && index < m_filteredEntries.count()) {
         return m_filteredEntries.at(index);
     }
-    return KDirectoryEntry();
+    return m_emptyEntry;
 }
 
 int KDirectoryPrivate::count()
@@ -185,6 +187,7 @@ void KDirectoryPrivate::loadEntryDetails(int id)
         QUrl newUrl = QUrl(m_directory + QDir::separator() + m_filteredEntries.at(id).name());
 
         KIO::StatJob* sjob = KIO::stat(newUrl, KIO::HideProgressInfo);
+        sjob->setUiDelegate(0);
         sjob->setProperty("id", id);
         connect(sjob, &KIO::StatJob::result, [&](KJob* job){
             KIO::StatJob* statJob = qobject_cast<KIO::StatJob*>(job);
