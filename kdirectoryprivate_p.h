@@ -20,7 +20,6 @@ public:
     explicit KDirectoryPrivate(KDirectory* dir, const QString& directory);
     void setDetails(const QString& details);
     const KDirectoryEntry& entry(int index);
-    int count();
     
     QDir::Filters filter();
     void setFilter(QDir::Filters filters);
@@ -43,8 +42,11 @@ public:
 
     // A list of all entries in this directory.
     QVector<KDirectoryEntry> m_filteredEntries;
+    int m_filteredEntriesCount;
     QVector<KDirectoryEntry> m_unusedEntries;
     KDirectoryEntry m_emptyEntry;
+    KDirectoryEntry m_lastEntry;
+    int m_lastEntryId;
     QList<int> m_statInProgress;
 
     KIO::ListJob * m_job;

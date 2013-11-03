@@ -18,6 +18,7 @@
 */
 
 #include "kdirectoryentry.h"
+#include "staticmimetype.h"
 
 // Qt includes
 #include <QMimeDatabase>
@@ -165,7 +166,7 @@ public:
         return (m_entry.numberValue(KIO::UDSEntry::UDS_FILE_TYPE) & QT_STAT_MASK) == QT_STAT_DIR;
     }
 
-    const QMimeType mimeType()
+    const StaticMimeType mimeType()
     {
         QString fName = name();
         QString ext = extension();
@@ -175,11 +176,9 @@ public:
         }
 
         // This caching is based on the extension.
-        static QHash<QString, QMimeType> mimeCache;
+        static QHash<QString, StaticMimeType> mimeCache;
         if(!mimeCache.contains(ext)) {
-            QMimeDatabase db;
-            QMimeType mime = db.mimeTypeForFile(fName, QMimeDatabase::MatchExtension);
-            mimeCache.insert(ext, mime);
+            mimeCache.insert(ext, StaticMimeType(fName));
         }
 
         return mimeCache.value(ext);
@@ -187,22 +186,12 @@ public:
 
     const QString iconName()
     {
-        const QMimeType& mime = mimeType();
-
-        if(mime.isValid()) {
-            return mime.iconName();
-        }
-        return QString();
+        return mimeType().iconName;
     }
 
     const QString mimeComment()
     {
-        const QMimeType& mime = mimeType();
-
-        if(mime.isValid()) {
-            return mime.comment();
-        }
-        return QString();
+        return mimeType().comment;
     }
 
     const KIO::filesize_t size()

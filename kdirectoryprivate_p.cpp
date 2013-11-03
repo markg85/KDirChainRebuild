@@ -10,8 +10,11 @@ KDirectoryPrivate::KDirectoryPrivate(KDirectory *dir, const QString& directory)
   , q(dir)
   , m_directory(directory)
   , m_filteredEntries()
+  , m_filteredEntriesCount(0)
   , m_unusedEntries()
   , m_emptyEntry()
+  , m_lastEntry()
+  , m_lastEntryId(-1)
   , m_statInProgress()
   , m_job(0)
   , m_watch(KDirWatch::self())
@@ -43,15 +46,19 @@ void KDirectoryPrivate::setDetails(const QString &details)
 
 const KDirectoryEntry &KDirectoryPrivate::entry(int index)
 {
-    if(index >= 0 && index < m_filteredEntries.count()) {
-        return m_filteredEntries.at(index);
-    }
-    return m_emptyEntry;
-}
+    // No need to check of m_lastEntryId is within the m_filteredEntriesCount because it will only be set if it does
+    if(m_lastEntryId >= 0 && m_lastEntryId == index) {
+        return m_lastEntry;
+    } else if(index >= 0 && index < m_filteredEntriesCount) {
+        m_lastEntryId = index;
+        m_lastEntry = m_filteredEntries.at(index);
+        return m_lastEntry;
+    } else {
+        m_lastEntryId = -1;
 
-int KDirectoryPrivate::count()
-{
-    return m_filteredEntries.count();
+        // No known entry so we return the empty entry
+        return m_emptyEntry;
+    }
 }
 
 QDir::Filters KDirectoryPrivate::filter()
@@ -172,18 +179,20 @@ void KDirectoryPrivate::processFilterFlags(const KIO::UDSEntryList &entries)
             m_unusedEntries.append(e); // Hidden entries or for whatever reason not being used.
         }
     }
+    m_filteredEntriesCount = m_filteredEntries.count();
 }
 
 void KDirectoryPrivate::loadEntryDetails(int id)
 {
     // Prevent needless stat calls when a stat call for the requested file is currently in progress.
-    if(!m_statInProgress.contains(id)) {
-        m_statInProgress.append(id);
-    } else {
+    if(m_statInProgress.contains(id)) {
         return;
     }
 
-    if(id >= 0 && id < m_filteredEntries.count()) {
+    // If we end up here then details are fetched with an id that isn't in out m_statInProgress list yet.
+    m_statInProgress.append(id);
+
+    if(id >= 0 && id < m_filteredEntriesCount) {
         QUrl newUrl = QUrl(m_directory + QDir::separator() + m_filteredEntries.at(id).name());
 
         KIO::StatJob* sjob = KIO::stat(newUrl, KIO::HideProgressInfo);

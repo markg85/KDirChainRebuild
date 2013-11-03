@@ -47,7 +47,8 @@ const QString &KDirectory::url()
 
 int KDirectory::count()
 {
-    return entries().count();
+    // This value is updated within KDirectoryPrivate as soon as entries flow in and get processed.
+    return d->m_filteredEntriesCount;
 }
 
 void KDirectory::setDetails(const QString &details)
