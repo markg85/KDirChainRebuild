@@ -21,6 +21,7 @@
 #define DIRLISTMODEL_H
 
 #include <QAbstractListModel>
+#include <QVariant>
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 
@@ -69,8 +70,10 @@ public:
 private:
     KDirListerV2* m_lister;
     KDirectory* m_dir;
+    QVariant m_emptyVariant;
     QString m_path;
     int m_currentRowCount;
+    int m_roleCount; // Used for column count
     bool m_doneLoading;
 };
 

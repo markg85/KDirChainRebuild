@@ -26,11 +26,14 @@ DirListModel::DirListModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_lister(0)
     , m_dir()
+    , m_emptyVariant()
     , m_path()
     , m_currentRowCount(0)
+    , m_roleCount(0)
     , m_doneLoading(false)
 {
     m_lister = new KDirListerV2();
+    m_roleCount = roleNames().count(); // This initializes the roleNames hash and fills the m_roleCount.
 
     connect(m_lister, &KDirListerV2::directoryContentChanged, this, &DirListModel::slotDirectoryContentChanged);
     connect(m_lister, &KDirListerV2::completed, this, &DirListModel::slotCompleted);
@@ -64,9 +67,10 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     } else {
 
-        KDirectoryEntry entry = m_dir->entry(index.row());
 
         if(role == Qt::DisplayRole) {
+
+            const KDirectoryEntry& entry = m_dir->entry(index.row());
 
             switch (index.column() + Qt::UserRole + 1) {
             case Name:
@@ -119,7 +123,7 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QVariant();
+    return m_emptyVariant;
 }
 
 int DirListModel::rowCount(const QModelIndex &) const
@@ -132,7 +136,7 @@ int DirListModel::rowCount(const QModelIndex &) const
 
 int DirListModel::columnCount(const QModelIndex &) const
 {
-    return roleNames().count();
+    return m_roleCount;
 }
 
 QVariant DirListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -202,7 +206,8 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         connect(m_dir, &KDirectory::entryDetailsLoaded, [&](KDirectory*, int id){
             // notify the view that the entry with "id" has changed data.
             QModelIndex topLeft = createIndex(id, 0);
-            emit dataChanged(topLeft, topLeft);
+            QModelIndex bottomRight = createIndex(id, columnCount(topLeft));
+            emit dataChanged(topLeft, bottomRight);
         });
     }
 
