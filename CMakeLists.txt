@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.11)
 
 project(kdirchainrebuild)
 
-
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -13,7 +12,12 @@ set(CMAKE_AUTOMOC ON)
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
-find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core) # Not needed per se since this dependency is also dragged in through KIOCore
+# required for QML_INSTALL_DIR (among others)
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+
+
+find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml) # Needed for the kdirchainmodelplugin library
 find_package(KF5 MODULE REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO)
 
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
@@ -37,18 +41,33 @@ set(kdirchain_LIB_SRCS
   staticmimetype.cpp
 )
 
+set(kdirchainrebuild_SRCS
+  main.cpp
+)
+
+set(kdirchainmodelplugin_LIB_SRCS
+  qmlplugin/dirchainmodelplugin.cpp
+)
+
 add_library(kdirchain SHARED ${kdirchain_LIB_SRCS})
+add_library(kdirchainmodelplugin SHARED ${kdirchainmodelplugin_LIB_SRCS})
+
+install(FILES
+  ${kdirchain_LIB_INCLUDES}
+  DESTINATION ${INCLUDE_INSTALL_DIR}/kdirchain COMPONENT Devel
+)
 
 target_link_libraries(kdirchain
   KF5::KIOCore
 )
 
-set_target_properties(kdirchain PROPERTIES
-                                VERSION 0.0.1
+target_link_libraries(kdirchainmodelplugin
+  Qt5::Qml
+  kdirchain
 )
 
-set(kdirchainrebuild_SRCS
-  main.cpp
+set_target_properties(kdirchain PROPERTIES
+                                VERSION 0.0.1
 )
 
 add_executable(kdirchainrebuild ${kdirchainrebuild_SRCS})
@@ -57,3 +76,7 @@ target_link_libraries(kdirchainrebuild
   Qt5::Widgets
   kdirchain
 )
+
+install(TARGETS kdirchainmodelplugin DESTINATION ${QML_INSTALL_DIR}/kdirchainmodel)
+install(FILES qmlplugin/qmldir DESTINATION ${QML_INSTALL_DIR}/kdirchainmodel)
+install(TARGETS kdirchain EXPORT kdirchainTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
