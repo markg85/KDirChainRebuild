@@ -25,7 +25,7 @@ remove_definitions(-DQT_NO_KEYWORDS -DQT_NO_CAST_FROM_ASCII -DQT_NO_SIGNALS_SLOT
 # C++11 support
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(kdirchainrebuild_SRCS
+set(kdirchain_LIB_SRCS
   models/dirlistmodel.cpp
   models/dirtreemodel.cpp
   models/dirgroupedmodel.cpp
@@ -35,12 +35,25 @@ set(kdirchainrebuild_SRCS
   kdirlisterv2.cpp
   kdirlisterv2_p.cpp
   staticmimetype.cpp
+)
+
+add_library(kdirchain SHARED ${kdirchain_LIB_SRCS})
+
+target_link_libraries(kdirchain
+  KF5::KIOCore
+)
+
+set_target_properties(kdirchain PROPERTIES
+                                VERSION 0.0.1
+)
+
+set(kdirchainrebuild_SRCS
   main.cpp
 )
 
 add_executable(kdirchainrebuild ${kdirchainrebuild_SRCS})
 
 target_link_libraries(kdirchainrebuild
-    KF5::KIOCore
-    KF5::KIOWidgets
+  Qt5::Widgets
+  kdirchain
 )
