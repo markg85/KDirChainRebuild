@@ -34,6 +34,7 @@ set(kdirchainrebuild_SRCS
   kdirectoryprivate_p.cpp
   kdirlisterv2.cpp
   kdirlisterv2_p.cpp
+  staticmimetype.cpp
   main.cpp
 )
 
