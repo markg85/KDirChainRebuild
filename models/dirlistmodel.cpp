@@ -218,13 +218,9 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         });
     }
 
-    qDebug() << "Emitting with start=" << m_currentRowCount << "; and end=" << m_dir->count() - 1;
-
     beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
     m_currentRowCount = m_dir->count();
     endInsertRows();
-
-    //qDebug() << "Count: " << m_dir->count();
 }
 
 void DirListModel::slotCompleted(KDirectory *dir)
