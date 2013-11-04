@@ -18,7 +18,7 @@ include(KDECMakeSettings)
 
 
 find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml) # Needed for the kdirchainmodelplugin library
-find_package(KF5 MODULE REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO)
+find_package(KF5 CONFIG REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO)
 
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
 add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Quick_DEFINITIONS} ${Qt5Qml_DEFINITIONS})
