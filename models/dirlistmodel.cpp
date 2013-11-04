@@ -48,6 +48,7 @@ void DirListModel::setPath(const QString &path)
 {
     if(m_path != path) {
         m_path = path;
+        emit pathChanged();
     }
 
     if(!m_lister->isListing(m_path)) {
@@ -67,12 +68,18 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     } else {
 
+        int switchVal;
+        if(role > Qt::UserRole) {
+            switchVal = role;
+        } else {
+            switchVal = index.column() + Qt::UserRole + 1;
+        }
 
-        if(role == Qt::DisplayRole) {
+        if(role == Qt::DisplayRole || role > Qt::UserRole) {
 
             const KDirectoryEntry& entry = m_dir->entry(index.row());
 
-            switch (index.column() + Qt::UserRole + 1) {
+            switch (switchVal) {
             case Name:
                 return QVariant(entry.name());
                 break;
