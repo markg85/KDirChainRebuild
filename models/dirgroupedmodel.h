@@ -19,4 +19,58 @@
 
 #ifndef DIRGROUPEDMODEL_H
 #define DIRGROUPEDMODEL_H
+
+#include <QAbstractListModel>
+#include <QList>
+#include <QVector>
+#include <QVariant>
+#include "dirlistmodel.h"
+#include "dirgroupedproxymodel.h"
+#include "kdirlisterv2.h"
+#include "kdirectory.h"
+
+class DirGroupedModel : public QAbstractListModel
+{
+    Q_OBJECT
+    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(int groupby READ groupby WRITE setGroupby NOTIFY groupbyChanged)
+
+public:
+
+    /**
+     * @param parent parent qobject
+     */
+    explicit DirGroupedModel(QObject* parent = 0);
+    ~DirGroupedModel();
+
+    void setPath(const QString& path);
+    const QString& path();
+
+    DirListModel::Roles groupby();
+    void setGroupby(int role);
+
+    /// Reimplemented from QAbstractItemModel.
+    virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+    void slotDirectoryContentChanged(KDirectory* dir);
+    void slotCompleted(KDirectory* dir);
+
+    void regroup();
+
+    Q_INVOKABLE DirGroupedProxyModel* modelAtIndex(int index);
+
+signals:
+    void pathChanged();
+    void groupbyChanged();
+
+private:
+    DirListModel* m_listModel;
+    KDirListerV2* m_lister;
+    DirListModel::Roles m_groupby;
+    QVector<QVariant> m_distinctGroupKey; // The key you group in - mime for example - can and likely will occur multiple times. This vector just stores the same keys but without duplicates.
+    QList<DirGroupedProxyModel*> m_groupList; // This stores a DirListModel per grouped component. This is what views will use to display a "group".
+    int m_currentRowCount;
+    int m_currentEntryRowCount;
+};
+
 #endif

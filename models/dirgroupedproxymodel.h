@@ -17,15 +17,27 @@
 
 */
 
-#include "dirchainmodelplugin.h"
-#include <models/dirlistmodel.h>
-#include <models/dirgroupedmodel.h>
+#ifndef DIRGROUPEDPROXYMODEL_H
+#define DIRGROUPEDPROXYMODEL_H
 
-#include <QtQml>
+#include <QSortFilterProxyModel>
+#include "dirlistmodel.h"
 
-void DirchainModelPlugin::registerTypes(const char *uri)
+class DirGroupedProxyModel : public QSortFilterProxyModel
 {
-    Q_ASSERT(uri == QLatin1String("kdirchainmodel"));
-    qmlRegisterType<DirListModel>(uri, 1,0, "DirListModel");
-    qmlRegisterType<DirGroupedModel>(uri, 1,0, "DirGroupedModel");
-}
+    Q_OBJECT
+
+public:
+    DirGroupedProxyModel(QObject *parent = 0);
+    void setRoleFilter(DirListModel::Roles acceptedRole, QVariant value);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    DirListModel::Roles m_acceptedRole;
+    QVariant m_filterValue;
+
+};
+
+#endif

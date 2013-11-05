@@ -33,6 +33,7 @@ set(kdirchain_LIB_SRCS
   models/dirlistmodel.cpp
   models/dirtreemodel.cpp
   models/dirgroupedmodel.cpp
+  models/dirgroupedproxymodel.cpp
   kdirectory.cpp
   kdirectoryentry.cpp
   kdirectoryprivate_p.cpp
