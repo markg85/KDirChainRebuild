@@ -110,6 +110,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
             }
             break;
         case DirListModel::MimeComment:
+            if(!m_distinctGroupKey.contains(e.mimeComment()) && !newGroupKeys.contains(e.mimeComment())) {
+                newGroupKeys << e.mimeComment();
+            }
             break;
         case DirListModel::MimeIcon:
             if(!m_distinctGroupKey.contains(e.iconName()) && !newGroupKeys.contains(e.iconName())) {
