@@ -22,6 +22,7 @@
 
 #include <QAbstractListModel>
 #include <QVariant>
+#include "dirabstractmodel.h"
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 
@@ -29,6 +30,7 @@ class DirListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+    Q_ENUMS(Roles)
 
 public:
     enum Roles {
@@ -43,7 +45,8 @@ public:
         AccessTime,
         CreationTime,
         User,
-        Group
+        Group,
+        None // None is used by other models. Do not include this in header names, data, etc...
     };
 
     /**
@@ -66,6 +69,9 @@ public:
 
     void slotDirectoryContentChanged(KDirectory* dir);
     void slotCompleted(KDirectory* dir);
+
+    friend class DirGroupedProxyModel;
+    friend class DirGroupedModel;
 
 protected:
     virtual QHash<int, QByteArray> roleNames() const;

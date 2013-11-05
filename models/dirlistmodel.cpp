@@ -213,11 +213,10 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         connect(m_dir, &KDirectory::entryDetailsLoaded, [&](KDirectory*, int id){
             // notify the view that the entry with "id" has changed data.
             QModelIndex topLeft = createIndex(id, 0);
-            QModelIndex bottomRight = createIndex(id, columnCount(topLeft));
+            QModelIndex bottomRight = createIndex(id, m_roleCount - 1); // WHY -1? I have to do this if i hook it in a proxy. Why, i don't know.
             emit dataChanged(topLeft, bottomRight);
         });
     }
-
     beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
     m_currentRowCount = m_dir->count();
     endInsertRows();
