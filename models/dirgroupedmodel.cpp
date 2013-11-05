@@ -101,6 +101,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
         const KDirectoryEntry& e = dir->entry(i);
         switch (m_groupby) {
         case DirListModel::Name:
+            if(!m_distinctGroupKey.contains(e.name()) && !newGroupKeys.contains(e.name())) {
+                newGroupKeys << e.name();
+            }
             break;
         case DirListModel::BaseName:
             break;
