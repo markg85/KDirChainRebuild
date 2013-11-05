@@ -170,6 +170,13 @@ void DirGroupedModel::regroup()
 
 DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
 {
+    if(index == 0 && m_groupby == DirListModel::Roles::None && m_groupList.isEmpty()) {
+        DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
+        model->setRoleFilter(m_groupby, QVariant());
+        model->setSourceModel(m_listModel);
+        m_groupList << model;
+    }
+
     if(index >= 0 && index < m_groupList.count()) {
         return m_groupList.at(index);
     }
