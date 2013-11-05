@@ -105,6 +105,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
         case DirListModel::BaseName:
             break;
         case DirListModel::Extension:
+            if(!m_distinctGroupKey.contains(e.extension()) && !newGroupKeys.contains(e.extension())) {
+                newGroupKeys << e.extension();
+            }
             break;
         case DirListModel::MimeComment:
             break;
