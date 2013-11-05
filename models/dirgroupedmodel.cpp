@@ -153,6 +153,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
             }
             break;
         case DirListModel::Group:
+            if(!m_distinctGroupKey.contains(e.group()) && !newGroupKeys.contains(e.group())) {
+                newGroupKeys << e.group();
+            }
             break;
         }
     }
