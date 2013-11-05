@@ -138,6 +138,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
             }
             break;
         case DirListModel::AccessTime:
+            if(!m_distinctGroupKey.contains(e.time(KDirectoryEntry::FileTimes::AccessTime)) && !newGroupKeys.contains(e.time(KDirectoryEntry::FileTimes::AccessTime))) {
+                newGroupKeys << e.time(KDirectoryEntry::FileTimes::AccessTime);
+            }
             break;
         case DirListModel::CreationTime:
             break;
