@@ -122,6 +122,9 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
         case DirListModel::Thumbnail:
             break;
         case DirListModel::Size:
+            if(!m_distinctGroupKey.contains(e.size()) && !newGroupKeys.contains(e.size())) {
+                newGroupKeys << e.size();
+            }
             break;
         case DirListModel::ModificationTime:
             break;
