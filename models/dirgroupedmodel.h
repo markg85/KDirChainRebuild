@@ -55,6 +55,7 @@ public:
     void slotDirectoryContentChanged(KDirectory* dir);
     void slotCompleted(KDirectory* dir);
 
+    void processEntry(KDirectory *dir, int id);
     void regroup();
 
     Q_INVOKABLE DirGroupedProxyModel* modelAtIndex(int index);

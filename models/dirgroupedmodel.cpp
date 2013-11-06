@@ -95,87 +95,15 @@ QVariant DirGroupedModel::data(const QModelIndex &index, int role) const
 
 void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
 {
-    QVector<QVariant> newGroupKeys;
+    connect(dir, &KDirectory::entryDetailsLoaded, this, &DirGroupedModel::processEntry, Qt::UniqueConnection);
+
     int currentEntryCount = dir->entries().count();
     for(int i = m_currentEntryRowCount; i < currentEntryCount; i++) {
         const KDirectoryEntry& e = dir->entry(i);
-        switch (m_groupby) {
-        case DirListModel::Name:
-            if(!m_distinctGroupKey.contains(e.name()) && !newGroupKeys.contains(e.name())) {
-                newGroupKeys << e.name();
-            }
-            break;
-        case DirListModel::BaseName:
-            if(!m_distinctGroupKey.contains(e.basename()) && !newGroupKeys.contains(e.basename())) {
-                newGroupKeys << e.basename();
-            }
-            break;
-        case DirListModel::Extension:
-            if(!m_distinctGroupKey.contains(e.extension()) && !newGroupKeys.contains(e.extension())) {
-                newGroupKeys << e.extension();
-            }
-            break;
-        case DirListModel::MimeComment:
-            if(!m_distinctGroupKey.contains(e.mimeComment()) && !newGroupKeys.contains(e.mimeComment())) {
-                newGroupKeys << e.mimeComment();
-            }
-            break;
-        case DirListModel::MimeIcon:
-            if(!m_distinctGroupKey.contains(e.iconName()) && !newGroupKeys.contains(e.iconName())) {
-                newGroupKeys << e.iconName();
-            }
-            break;
-        case DirListModel::Thumbnail:
-            break;
-        case DirListModel::Size:
-            if(!m_distinctGroupKey.contains(e.size()) && !newGroupKeys.contains(e.size())) {
-                newGroupKeys << e.size();
-            }
-            break;
-        case DirListModel::ModificationTime:
-            if(!m_distinctGroupKey.contains(e.time(KDirectoryEntry::FileTimes::ModificationTime)) && !newGroupKeys.contains(e.time(KDirectoryEntry::FileTimes::ModificationTime))) {
-                newGroupKeys << e.time(KDirectoryEntry::FileTimes::ModificationTime);
-            }
-            break;
-        case DirListModel::AccessTime:
-            if(!m_distinctGroupKey.contains(e.time(KDirectoryEntry::FileTimes::AccessTime)) && !newGroupKeys.contains(e.time(KDirectoryEntry::FileTimes::AccessTime))) {
-                newGroupKeys << e.time(KDirectoryEntry::FileTimes::AccessTime);
-            }
-            break;
-        case DirListModel::CreationTime:
-            if(!m_distinctGroupKey.contains(e.time(KDirectoryEntry::FileTimes::CreationTime)) && !newGroupKeys.contains(e.time(KDirectoryEntry::FileTimes::CreationTime))) {
-                newGroupKeys << e.time(KDirectoryEntry::FileTimes::CreationTime);
-            }
-            break;
-        case DirListModel::User:
-            if(!m_distinctGroupKey.contains(e.user()) && !newGroupKeys.contains(e.user())) {
-                newGroupKeys << e.user();
-            }
-            break;
-        case DirListModel::Group:
-            if(!m_distinctGroupKey.contains(e.group()) && !newGroupKeys.contains(e.group())) {
-                newGroupKeys << e.group();
-            }
-            break;
-        }
+        processEntry(dir, i);
     }
 
-    if(newGroupKeys.count() > 0) {
-        int newRows = newGroupKeys.count() + m_distinctGroupKey.count() - 1;
-        beginInsertRows(QModelIndex(), 0, newRows);
-        foreach (const QVariant& val, newGroupKeys) {
-            DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
-            model->setRoleFilter(m_groupby, val);
-            model->setSourceModel(m_listModel);
-            m_groupList << model;
-            m_distinctGroupKey << val;
-        }
-        m_currentRowCount = m_distinctGroupKey.count();
-        endInsertRows();
-    }
     m_currentEntryRowCount = currentEntryCount;
-
-    qDebug() << "Row count: " << m_currentRowCount;
 }
 
 void DirGroupedModel::slotCompleted(KDirectory *dir)
@@ -183,6 +111,68 @@ void DirGroupedModel::slotCompleted(KDirectory *dir)
     // If we have remaining entries in this last signal we need to process them.
     if(dir->count() > m_currentEntryRowCount) {
         slotDirectoryContentChanged(dir);
+    }
+}
+
+void DirGroupedModel::processEntry(KDirectory *dir, int id)
+{
+    QVariant potentialNewGroupKey;
+    const KDirectoryEntry& e = dir->entry(id);
+    switch (m_groupby) {
+    case DirListModel::Name:
+        potentialNewGroupKey = e.name();
+        break;
+    case DirListModel::BaseName:
+        potentialNewGroupKey = e.basename();
+        break;
+    case DirListModel::Extension:
+        potentialNewGroupKey = e.extension();
+        break;
+    case DirListModel::MimeComment:
+        potentialNewGroupKey = e.mimeComment();
+        break;
+    case DirListModel::MimeIcon:
+        potentialNewGroupKey = e.iconName();
+        break;
+    case DirListModel::Thumbnail:
+        break;
+    case DirListModel::Size:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.size();
+        break;
+    case DirListModel::ModificationTime:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::ModificationTime);
+        break;
+    case DirListModel::AccessTime:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::AccessTime);
+        break;
+    case DirListModel::CreationTime:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::CreationTime);
+        break;
+    case DirListModel::User:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.user();
+        break;
+    case DirListModel::Group:
+        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        potentialNewGroupKey = e.group();
+        break;
+    }
+
+    // Specially don't check for potentialNewGroupKey.isNull() because you might very group on something where empty would be valid.
+    // For example, grouping on extension leaves out folders since they don't have an extension.
+    if(!m_distinctGroupKey.contains(potentialNewGroupKey)) {
+        beginInsertRows(QModelIndex(), m_currentRowCount, m_currentRowCount);
+        DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
+        model->setRoleFilter(m_groupby, potentialNewGroupKey);
+        model->setSourceModel(m_listModel);
+        m_groupList << model;
+        m_distinctGroupKey << potentialNewGroupKey;
+        m_currentRowCount = m_distinctGroupKey.count();
+        endInsertRows();
     }
 }
 
