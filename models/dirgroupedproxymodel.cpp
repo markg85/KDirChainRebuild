@@ -37,6 +37,13 @@ void DirGroupedProxyModel::setRoleFilter(DirListModel::Roles acceptedRole, QVari
     m_filterValue = value;
 }
 
+void DirGroupedProxyModel::sort(int column, Qt::SortOrder order)
+{
+    // We use the rolenames for sorting, translating back to column number for the actual sorting.
+    int calculatedColumn = column - (Qt::UserRole + 1);
+    QSortFilterProxyModel::sort(calculatedColumn, order);
+}
+
 bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     if(m_acceptedRole == DirListModel::None) {
