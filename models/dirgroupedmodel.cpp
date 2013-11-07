@@ -71,12 +71,7 @@ void DirGroupedModel::setGroupby(int role)
 
 int DirGroupedModel::rowCount(const QModelIndex &) const
 {
-    // If we supplied DirListModel::Roles::None then m_listModel is going to be returned as the "grouped" model. Jsut without grouping.
-    if(m_groupby == DirListModel::Roles::None) {
-        return 1;
-    } else {
-        return m_currentRowCount;
-    }
+    return m_currentRowCount;
 }
 
 QVariant DirGroupedModel::data(const QModelIndex &index, int role) const
@@ -96,6 +91,21 @@ QVariant DirGroupedModel::data(const QModelIndex &index, int role) const
 void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
 {
     connect(dir, &KDirectory::entryDetailsLoaded, this, &DirGroupedModel::processEntry, Qt::UniqueConnection);
+
+    // We don't need to figure out the groups if we're not using groups to begin with.
+    if(m_groupby == DirListModel::None) {
+        if(m_groupList.isEmpty()) {
+            beginInsertRows(QModelIndex(), m_currentRowCount, m_currentRowCount);
+            DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
+            model->setRoleFilter(m_groupby, QVariant());
+            model->setSourceModel(m_listModel);
+            m_groupList << model;
+            m_distinctGroupKey << QVariant();
+            m_currentRowCount = m_distinctGroupKey.count();
+            endInsertRows();
+        }
+        return;
+    }
 
     int currentEntryCount = dir->entries().count();
     for(int i = m_currentEntryRowCount; i < currentEntryCount; i++) {
@@ -186,6 +196,9 @@ void DirGroupedModel::regroup()
     m_groupList.clear();
     m_currentEntryRowCount = 0;
     slotDirectoryContentChanged(m_listModel->m_dir);
+
+    // Interesting! This seems to crash when grouping by file size. Don't know why.
+    emit layoutChanged();
 }
 
 DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
