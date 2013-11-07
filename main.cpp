@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QUrl>
 
+#include "models/dirgroupedmodel.h"
 #include "models/dirlistmodel.h"
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
@@ -29,9 +30,10 @@ int main(int argc, char *argv[])
     // because there is nothing running. Setting below value to fale prevents that from hapening.
     a.setQuitLockEnabled(false);
 
-    QString url("file:///home/kde-devel/50k_files/");
+//    QString url("file:///home/kde-devel/5000_files/");
+//    QString url("file:///home/kde-devel/50k_files/");
 //    QString url("file:///home/kde-devel/massive_folder_test/");
-//    QString url("file:///home/kde-devel/");
+    QString url("file:///home/kde-devel/");
 
 //    KDirLister lister;
 //    lister.openUrl(QUrl(url));
@@ -42,8 +44,10 @@ int main(int argc, char *argv[])
 //    QFileSystemModel model;
 //    model.setRootPath(QDir::currentPath());
 
-    DirListModel model;
+//    DirListModel model;
+    DirGroupedModel model;
     model.setPath(url);
+    model.setGroupby(DirListModel::MimeIcon);
 
     QObject::connect(&model, &QAbstractItemModel::rowsInserted, [&](QModelIndex index,int start,int end){
         //qDebug() << "On rows inserted: " << index.isValid() << start << end;
