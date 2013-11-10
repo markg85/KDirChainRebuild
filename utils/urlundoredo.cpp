@@ -25,7 +25,7 @@ UrlUndoRedo::UrlUndoRedo(QObject *parent)
 {
 }
 
-void UrlUndoRedo::addUrl(const QString &url)
+void UrlUndoRedo::add(const QString &url)
 {
     // Only remove the item after the m_currentUrlIndex
     if(m_currentUrlIndex < (m_urls.count() - 1)) {
@@ -43,7 +43,7 @@ void UrlUndoRedo::addUrl(const QString &url)
     }
 }
 
-void UrlUndoRedo::nextUrl()
+void UrlUndoRedo::next()
 {
     if((m_currentUrlIndex + 1) < m_urls.count()) {
         ++m_currentUrlIndex;
@@ -51,7 +51,7 @@ void UrlUndoRedo::nextUrl()
     }
 }
 
-void UrlUndoRedo::previousUrl()
+void UrlUndoRedo::previous()
 {
     if((m_currentUrlIndex - 1) < m_urls.count() && (m_currentUrlIndex - 1) >= 0) {
         --m_currentUrlIndex;

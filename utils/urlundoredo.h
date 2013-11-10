@@ -31,9 +31,9 @@ class UrlUndoRedo : public QObject
     Q_PROPERTY(bool hasPrevious READ hasPrevious NOTIFY currentUrlChanged)
 public:
     explicit UrlUndoRedo(QObject *parent = 0);
-    Q_INVOKABLE void addUrl(const QString& url);
-    Q_INVOKABLE void nextUrl();
-    Q_INVOKABLE void previousUrl();
+    Q_INVOKABLE void add(const QString& url);
+    Q_INVOKABLE void next();
+    Q_INVOKABLE void previous();
 
     QString currentUrl();
 
