@@ -17,7 +17,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 
 
-find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml) # Needed for the kdirchainmodelplugin library
+find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml Gui) # Needed for the kdirchainmodelplugin library
 find_package(KF5 CONFIG REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO)
 
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
@@ -35,6 +35,7 @@ set(kdirchain_LIB_SRCS
   models/dirgroupedmodel.cpp
   models/dirgroupedproxymodel.cpp
   utils/breadcrumburlmodel.cpp
+  utils/shortcut.cpp
   kdirectory.cpp
   kdirectoryentry.cpp
   kdirectoryprivate_p.cpp
@@ -60,6 +61,7 @@ install(FILES
 )
 
 target_link_libraries(kdirchain
+  Qt5::Gui # For QKeySequence
   KF5::KIOCore
 )
 

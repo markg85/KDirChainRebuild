@@ -23,6 +23,7 @@
 #include <models/dirgroupedproxymodel.h>
 
 #include <utils/breadcrumburlmodel.h>
+#include <utils/shortcut.h>
 
 #include <QtQml>
 
@@ -31,6 +32,9 @@ void DirchainModelPlugin::registerTypes(const char *uri)
     Q_ASSERT(uri == QLatin1String("kdirchainmodel"));
     qmlRegisterType<DirListModel>(uri, 1,0, "DirListModel");
     qmlRegisterType<DirGroupedModel>(uri, 1,0, "DirGroupedModel");
+
+    // Utils. QML Helper components. These should go into their own QML plugin library.
     qmlRegisterType<BreadcrumbUrlModel>(uri, 1,0, "BreadcrumbUrlModel");
+    qmlRegisterType<Shortcut>(uri, 1,0, "Shortcut");
     qmlRegisterType<DirGroupedProxyModel>();
 }
