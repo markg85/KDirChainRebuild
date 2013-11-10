@@ -36,6 +36,7 @@ set(kdirchain_LIB_SRCS
   models/dirgroupedproxymodel.cpp
   utils/breadcrumburlmodel.cpp
   utils/shortcut.cpp
+  utils/urlundoredo.cpp
   kdirectory.cpp
   kdirectoryentry.cpp
   kdirectoryprivate_p.cpp
