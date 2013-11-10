@@ -22,6 +22,8 @@
 #include <models/dirgroupedmodel.h>
 #include <models/dirgroupedproxymodel.h>
 
+#include <utils/breadcrumburlmodel.h>
+
 #include <QtQml>
 
 void DirchainModelPlugin::registerTypes(const char *uri)
@@ -29,5 +31,6 @@ void DirchainModelPlugin::registerTypes(const char *uri)
     Q_ASSERT(uri == QLatin1String("kdirchainmodel"));
     qmlRegisterType<DirListModel>(uri, 1,0, "DirListModel");
     qmlRegisterType<DirGroupedModel>(uri, 1,0, "DirGroupedModel");
+    qmlRegisterType<BreadcrumbUrlModel>(uri, 1,0, "BreadcrumbUrlModel");
     qmlRegisterType<DirGroupedProxyModel>();
 }
