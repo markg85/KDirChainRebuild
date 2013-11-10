@@ -54,6 +54,7 @@ void BreadcrumbUrlModel::append(QString str)
     if(!str.isEmpty()) {
         beginInsertRows(QModelIndex(), m_stringList.count(), m_stringList.count());
         m_stringList << str;
+        m_url.setPath(m_stringList.join(QDir::separator()));
         endInsertRows();
     }
 }
@@ -63,6 +64,7 @@ void BreadcrumbUrlModel::parent()
     if(m_stringList.count() > 0) {
         beginRemoveRows(QModelIndex(), m_stringList.count() - 1, m_stringList.count());
         m_stringList.removeLast();
+        m_url.setPath(m_stringList.join(QDir::separator()));
         endRemoveRows();
     }
 }
@@ -75,8 +77,29 @@ void BreadcrumbUrlModel::removeAfterIndex(int index)
         for(int i = m_stringList.count(); i > index; i--) {
             m_stringList.removeLast();
         }
+        m_url.setPath(m_stringList.join(QDir::separator()));
         endRemoveRows();
     }
+}
+
+QString BreadcrumbUrlModel::protocol()
+{
+    return m_url.scheme();
+}
+
+QString BreadcrumbUrlModel::username()
+{
+    return m_url.userName();
+}
+
+QString BreadcrumbUrlModel::password()
+{
+    return m_url.password();
+}
+
+int BreadcrumbUrlModel::port()
+{
+    return m_url.port();
 }
 
 int BreadcrumbUrlModel::rowCount(const QModelIndex &parent) const

@@ -48,6 +48,12 @@ public:
 
     Q_INVOKABLE void removeAfterIndex(int index);
 
+    // Expose some QUrl functions to QML.
+    Q_INVOKABLE QString protocol();
+    Q_INVOKABLE QString username();
+    Q_INVOKABLE QString password();
+    Q_INVOKABLE int port();
+
 
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
