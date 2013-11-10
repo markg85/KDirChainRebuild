@@ -67,6 +67,8 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     virtual QVariant headerName(int role) const;
 
+    void reload();
+
     void slotDirectoryContentChanged(KDirectory* dir);
     void slotCompleted(KDirectory* dir);
 

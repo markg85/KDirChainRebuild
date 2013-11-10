@@ -216,3 +216,14 @@ DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
     return 0;
 }
 
+void DirGroupedModel::reload()
+{
+    m_listModel->reload();
+    beginResetModel();
+    m_distinctGroupKey.clear();
+    m_groupList.clear();
+    m_currentRowCount = 0;
+    m_currentEntryRowCount = 0;
+    endResetModel();
+}
+

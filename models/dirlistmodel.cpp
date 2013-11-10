@@ -18,6 +18,7 @@
 */
 
 #include "dirlistmodel.h"
+#include "kdirlisterv2.h"
 #include <QModelIndex>
 #include <QDebug>
 
@@ -204,6 +205,14 @@ QVariant DirListModel::headerName(int role) const
     } else {
         return "UNKNOWN_HEADER_NAME";
     }
+}
+
+void DirListModel::reload()
+{
+    m_lister->openUrl(m_path, KDirListerV2::Reload);
+    beginResetModel();
+    m_currentRowCount = 0;
+    endResetModel();
 }
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)

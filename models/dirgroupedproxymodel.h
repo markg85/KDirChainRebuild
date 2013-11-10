@@ -31,6 +31,7 @@ public:
     DirGroupedProxyModel(QObject *parent = 0);
     void setRoleFilter(DirListModel::Roles acceptedRole, QVariant value);
     Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    Q_INVOKABLE void reload();
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;

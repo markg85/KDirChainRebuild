@@ -18,6 +18,7 @@
 */
 
 #include "dirgroupedproxymodel.h"
+#include "dirgroupedmodel.h"
 
 #include <QDebug>
 
@@ -42,6 +43,12 @@ void DirGroupedProxyModel::sort(int column, Qt::SortOrder order)
     // We use the rolenames for sorting, translating back to column number for the actual sorting.
     int calculatedColumn = column - (Qt::UserRole + 1);
     QSortFilterProxyModel::sort(calculatedColumn, order);
+}
+
+void DirGroupedProxyModel::reload()
+{
+    DirGroupedModel* model = qobject_cast<DirGroupedModel *>(sourceModel());
+    model->reload();
 }
 
 bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

@@ -59,6 +59,7 @@ public:
     void regroup();
 
     Q_INVOKABLE DirGroupedProxyModel* modelAtIndex(int index);
+    Q_INVOKABLE void reload();
 
 signals:
     void pathChanged();
