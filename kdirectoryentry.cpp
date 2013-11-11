@@ -59,6 +59,11 @@ public:
     {
         const QString name = m_entry.stringValue(KIO::UDSEntry::UDS_NAME);
         int dotPosition = name.lastIndexOf(QStringLiteral("."));
+
+        // If the first character is a dot then we have a file or folder that apparently wants to be hidden. Thread as basename.
+        if(dotPosition == 0) {
+            return name;
+        }
         return name.left(dotPosition);
     }
 
