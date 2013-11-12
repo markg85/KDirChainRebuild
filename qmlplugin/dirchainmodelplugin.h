@@ -20,6 +20,7 @@
 #ifndef DIRCHAINMODELPLUGIN_H
 #define DIRCHAINMODELPLUGIN_H
 
+#include <QQmlEngine>
 #include <QQmlExtensionPlugin>
 
 
@@ -30,6 +31,7 @@ class DirchainModelPlugin : public QQmlExtensionPlugin
 
 public:
     void registerTypes(const char *uri);
+    void initializeEngine(QQmlEngine *engine, const char *uri);
 };
 
 

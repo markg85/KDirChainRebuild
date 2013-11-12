@@ -25,6 +25,7 @@
 #include <utils/breadcrumburlmodel.h>
 #include <utils/urlundoredo.h>
 #include <utils/shortcut.h>
+#include <utils/mimeimageprovider.h>
 
 #include <QtQml>
 
@@ -39,4 +40,10 @@ void DirchainModelPlugin::registerTypes(const char *uri)
     qmlRegisterType<UrlUndoRedo>(uri, 1,0, "UrlUndoRedo");
     qmlRegisterType<Shortcut>(uri, 1,0, "Shortcut");
     qmlRegisterType<DirGroupedProxyModel>();
+}
+
+void DirchainModelPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
+{
+    QQmlExtensionPlugin::initializeEngine(engine, uri);
+    engine->addImageProvider(QLatin1String("mime"), new MimeImageProvider);
 }
