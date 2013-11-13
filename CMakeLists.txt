@@ -66,11 +66,11 @@ target_link_libraries(kdirchain
   Qt5::Gui # For QKeySequence
   Qt5::Quick # For QQuickImageProvider
   KF5::KIOCore
-  KF5::KIconThemes # For KIconLoader
 )
 
 target_link_libraries(kdirchainmodelplugin
   Qt5::Qml
+  KF5::KIconThemes # For KIconLoader
   kdirchain
 )
 
