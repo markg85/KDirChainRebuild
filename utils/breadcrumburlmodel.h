@@ -59,7 +59,6 @@ public:
     Q_INVOKABLE int port();
 
     // Undo/redo support. Adding it in here is much easier then having a seperate class for it.
-    Q_INVOKABLE void add(const QString& url);
     Q_INVOKABLE void next();
     Q_INVOKABLE void previous();
 

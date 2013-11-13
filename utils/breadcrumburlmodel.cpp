@@ -29,7 +29,6 @@ BreadcrumbUrlModel::BreadcrumbUrlModel(QObject *parent)
     , m_urls()
     , m_currentUrlIndex(0)
 {
-    connect(this, &BreadcrumbUrlModel::urlChanged, &BreadcrumbUrlModel::parseUrl);
 }
 
 BreadcrumbUrlModel::~BreadcrumbUrlModel()
@@ -51,13 +50,12 @@ void BreadcrumbUrlModel::setUrl(const QUrl &url)
     if(m_url != url) {
         m_urls.append(url.toString());
         m_currentUrlIndex = m_urls.count() - 1;
-        emit urlChanged();
+        parseUrl();
     }
 }
 
 const QString BreadcrumbUrlModel::url()
 {
-    m_url.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
     return m_url.toString();
 }
 
@@ -68,7 +66,7 @@ void BreadcrumbUrlModel::append(QString str)
         QUrl newUrl(m_url);
         newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
         setUrl(newUrl);
-        emit urlChanged();    }
+    }
 }
 
 void BreadcrumbUrlModel::parent()
@@ -78,7 +76,6 @@ void BreadcrumbUrlModel::parent()
         QUrl newUrl(m_url);
         newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
         setUrl(newUrl);
-        emit urlChanged();
     }
 }
 
@@ -93,7 +90,6 @@ void BreadcrumbUrlModel::removeAfterIndex(int index)
         QUrl newUrl(m_url);
         newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
         setUrl(newUrl);
-        emit urlChanged();
     }
 }
 
@@ -117,16 +113,11 @@ int BreadcrumbUrlModel::port()
     return m_url.port();
 }
 
-void BreadcrumbUrlModel::add(const QString &url)
-{
-
-}
-
 void BreadcrumbUrlModel::next()
 {
     if(hasNext()) {
         m_currentUrlIndex += 1;
-        emit urlChanged();
+        parseUrl();
     }
 }
 
@@ -134,7 +125,7 @@ void BreadcrumbUrlModel::previous()
 {
     if(hasPrevious()) {
         m_currentUrlIndex -= 1;
-        emit urlChanged();
+        parseUrl();
     }
 }
 
@@ -177,5 +168,6 @@ void BreadcrumbUrlModel::parseUrl()
 {
     m_url = m_urls.at(m_currentUrlIndex);
     m_stringList = m_url.path().split(QDir::separator(), QString::SkipEmptyParts);
+    emit urlChanged();
     emit layoutChanged();
 }
