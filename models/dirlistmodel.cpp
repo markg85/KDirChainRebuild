@@ -49,6 +49,9 @@ void DirListModel::setPath(const QString &path)
 {
     if(m_path != path) {
         m_path = path;
+        beginResetModel();
+        m_currentRowCount = 0;
+        endResetModel();
         emit pathChanged();
     }
 
@@ -217,7 +220,7 @@ void DirListModel::reload()
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
 {
-    if(!m_dir && dir) {
+    if(!m_dir && dir || dir != m_dir) {
         m_dir = dir;
         connect(m_dir, &KDirectory::entryDetailsLoaded, [&](KDirectory*, int id){
             // notify the view that the entry with "id" has changed data.
@@ -226,6 +229,7 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
             emit dataChanged(topLeft, bottomRight);
         });
     }
+
     beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
     m_currentRowCount = m_dir->count();
     endInsertRows();
