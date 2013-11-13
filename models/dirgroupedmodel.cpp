@@ -37,7 +37,7 @@ DirGroupedModel::DirGroupedModel(QObject *parent)
     connect(m_lister, &KDirListerV2::directoryContentChanged, this, &DirGroupedModel::slotDirectoryContentChanged);
     connect(m_lister, &KDirListerV2::completed, this, &DirGroupedModel::slotCompleted);
     connect(this, &DirGroupedModel::groupbyChanged, this, &DirGroupedModel::regroup);
-    connect(m_listModel, &DirListModel::pathChanged, [&](){ emit pathChanged();});
+    connect(m_listModel, &DirListModel::pathChanged, [&](){ emit pathChanged(); });
 }
 
 DirGroupedModel::~DirGroupedModel()
@@ -48,6 +48,7 @@ DirGroupedModel::~DirGroupedModel()
 void DirGroupedModel::setPath(const QString &path)
 {
     m_listModel->setPath(path);
+    regroup();
 }
 
 const QString &DirGroupedModel::path()
@@ -192,13 +193,15 @@ void DirGroupedModel::regroup()
         return;
     }
 
+    qDebug() << "Regroup called...";
+
+    beginResetModel();
     m_distinctGroupKey.clear();
     m_groupList.clear();
+    m_currentRowCount = 0;
     m_currentEntryRowCount = 0;
     slotDirectoryContentChanged(m_listModel->m_dir);
-
-    // Interesting! This seems to crash when grouping by file size. Don't know why.
-    emit layoutChanged();
+    endResetModel();
 }
 
 DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
@@ -219,11 +222,6 @@ DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
 void DirGroupedModel::reload()
 {
     m_listModel->reload();
-    beginResetModel();
-    m_distinctGroupKey.clear();
-    m_groupList.clear();
-    m_currentRowCount = 0;
-    m_currentEntryRowCount = 0;
-    endResetModel();
+    regroup();
 }
 

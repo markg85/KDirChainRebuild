@@ -57,6 +57,11 @@ void DirListModel::setPath(const QString &path)
 
     if(!m_lister->isListing(m_path)) {
         m_lister->openUrl(m_path);
+    } else {
+        beginResetModel();
+        m_dir = m_lister->directory(m_path);
+        m_currentRowCount = m_dir->entries().count();
+        endResetModel();
     }
 }
 
