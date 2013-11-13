@@ -28,6 +28,9 @@ class BreadcrumbUrlModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY urlChanged)
+    Q_PROPERTY(bool hasNext READ hasNext NOTIFY urlChanged)
+    Q_PROPERTY(bool hasPrevious READ hasPrevious NOTIFY urlChanged)
+
 
 public:
 
@@ -38,6 +41,7 @@ public:
     ~BreadcrumbUrlModel();
 
     void setUrl(const QString& url);
+    void setUrl(const QUrl& url);
     const QString url();
 
     // Append is meant to JUST append one new folder/file. Do NOT append multiple folders in one call.
@@ -54,6 +58,14 @@ public:
     Q_INVOKABLE QString password();
     Q_INVOKABLE int port();
 
+    // Undo/redo support. Adding it in here is much easier then having a seperate class for it.
+    Q_INVOKABLE void add(const QString& url);
+    Q_INVOKABLE void next();
+    Q_INVOKABLE void previous();
+
+    bool hasNext();
+    bool hasPrevious();
+
 
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -67,6 +79,8 @@ signals:
 private:
     QUrl m_url;
     QStringList m_stringList;
+    QStringList m_urls;
+    int m_currentUrlIndex;
 };
 
 #endif

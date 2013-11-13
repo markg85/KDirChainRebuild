@@ -26,6 +26,8 @@ BreadcrumbUrlModel::BreadcrumbUrlModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_url()
     , m_stringList()
+    , m_urls()
+    , m_currentUrlIndex(0)
 {
     connect(this, &BreadcrumbUrlModel::urlChanged, &BreadcrumbUrlModel::parseUrl);
 }
@@ -37,48 +39,61 @@ BreadcrumbUrlModel::~BreadcrumbUrlModel()
 
 void BreadcrumbUrlModel::setUrl(const QString &url)
 {
-    if(m_url != QUrl(url)) {
-        m_url = url;
+    setUrl(QUrl(url));
+}
+
+void BreadcrumbUrlModel::setUrl(const QUrl &url)
+{
+    while(m_urls.count() > m_currentUrlIndex + 1) {
+        m_urls.removeLast();
+    }
+
+    if(m_url != url) {
+        m_urls.append(url.toString());
+        m_currentUrlIndex = m_urls.count() - 1;
         emit urlChanged();
     }
 }
 
 const QString BreadcrumbUrlModel::url()
 {
-    m_url.setPath(m_stringList.join(QDir::separator()));
-    return m_url.toDisplayString();
+    m_url.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
+    return m_url.toString();
 }
 
 void BreadcrumbUrlModel::append(QString str)
 {
     if(!str.isEmpty()) {
-        beginInsertRows(QModelIndex(), m_stringList.count(), m_stringList.count());
         m_stringList << str;
-        m_url.setPath(m_stringList.join(QDir::separator()));
-        endInsertRows();
-    }
+        QUrl newUrl(m_url);
+        newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
+        setUrl(newUrl);
+        emit urlChanged();    }
 }
 
 void BreadcrumbUrlModel::parent()
 {
     if(m_stringList.count() > 0) {
-        beginRemoveRows(QModelIndex(), m_stringList.count() - 1, m_stringList.count());
         m_stringList.removeLast();
-        m_url.setPath(m_stringList.join(QDir::separator()));
-        endRemoveRows();
+        QUrl newUrl(m_url);
+        newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
+        setUrl(newUrl);
+        emit urlChanged();
     }
 }
 
 void BreadcrumbUrlModel::removeAfterIndex(int index)
 {
     index += 1; // Remember, remove everything _after_ the given index.
-    if(index >= 0 && index <= m_stringList.count()) {
-        beginRemoveRows(QModelIndex(), index, m_stringList.count());
+    if(index >= 0 && index < m_stringList.count()) {
         for(int i = m_stringList.count(); i > index; i--) {
             m_stringList.removeLast();
         }
-        m_url.setPath(m_stringList.join(QDir::separator()));
-        endRemoveRows();
+
+        QUrl newUrl(m_url);
+        newUrl.setPath(QDir::separator() + m_stringList.join(QDir::separator()));
+        setUrl(newUrl);
+        emit urlChanged();
     }
 }
 
@@ -102,6 +117,44 @@ int BreadcrumbUrlModel::port()
     return m_url.port();
 }
 
+void BreadcrumbUrlModel::add(const QString &url)
+{
+
+}
+
+void BreadcrumbUrlModel::next()
+{
+    if(hasNext()) {
+        m_currentUrlIndex += 1;
+        emit urlChanged();
+    }
+}
+
+void BreadcrumbUrlModel::previous()
+{
+    if(hasPrevious()) {
+        m_currentUrlIndex -= 1;
+        emit urlChanged();
+    }
+}
+
+bool BreadcrumbUrlModel::hasNext()
+{
+    // +1 because count is human countable (starting from 1) and index is machine countable (starting from 0)
+    if(m_urls.count() > (m_currentUrlIndex + 1)) {
+        return true;
+    }
+    return false;
+}
+
+bool BreadcrumbUrlModel::hasPrevious()
+{
+    if(m_currentUrlIndex > 0 && m_currentUrlIndex < m_urls.count()) {
+        return true;
+    }
+    return false;
+}
+
 int BreadcrumbUrlModel::rowCount(const QModelIndex &parent) const
 {
     return m_stringList.count();
@@ -122,6 +175,7 @@ QVariant BreadcrumbUrlModel::data(const QModelIndex &index, int role) const
 
 void BreadcrumbUrlModel::parseUrl()
 {
+    m_url = m_urls.at(m_currentUrlIndex);
     m_stringList = m_url.path().split(QDir::separator(), QString::SkipEmptyParts);
     emit layoutChanged();
 }
