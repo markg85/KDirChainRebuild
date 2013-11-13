@@ -22,7 +22,6 @@
 
 #include <QAbstractListModel>
 #include <QVariant>
-#include "dirabstractmodel.h"
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 
