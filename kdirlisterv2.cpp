@@ -48,3 +48,8 @@ bool KDirListerV2::isListing(const QString &url)
 {
     return d->isListing(url);
 }
+
+KDirectory *KDirListerV2::directory(const QString &url)
+{
+    return d->directory(url);
+}

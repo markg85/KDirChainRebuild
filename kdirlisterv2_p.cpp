@@ -26,7 +26,7 @@
 KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     : q(dirLister)
     , m_urlToIndex()
-    , m_lruCache(10)
+    , m_cache()
 {
 }
 
@@ -43,9 +43,9 @@ void KDirListerV2Private::addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDet
 {
     // We take a different path if we want to reload a url that is currently being monitored.
     // Otherwise we add a new url
-    if(m_lruCache.get(dirFetchDetails.url.toStdString()) && dirFetchDetails.openFlags.testFlag(KDirListerV2::Reload)) {
+    if(m_cache.contains(dirFetchDetails.url) && dirFetchDetails.openFlags.testFlag(KDirListerV2::Reload)) {
         // Remove URL from m_lruCache.
-        m_lruCache.remove(dirFetchDetails.url.toStdString());
+        m_cache.remove(dirFetchDetails.url);
     }
 
     qDebug() << "Added new url:" << dirFetchDetails.url;
@@ -61,30 +61,22 @@ void KDirListerV2Private::newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDet
 
     // Add node to list. This list will stay and will only get shorter (dir removed) if the physical directory is removed
     // Or if some cache mechanism kicks in that decided this dir is useless weight.
-    m_lruCache.set(dirFetchDetails.url.toStdString(), dir);
+    m_cache.insert(dirFetchDetails.url, dir);
 
     // And we make some connections
     connect(dir, SIGNAL(entriesProcessed(KDirectory*)), this, SIGNAL(directoryContentChanged(KDirectory*)));
     connect(dir, SIGNAL(completed(KDirectory*)), this, SIGNAL(completed(KDirectory*)));
-    connect(dir, SIGNAL(completed(KDirectory*)), this, SLOT(printLRUStats()));
 }
 
 bool KDirListerV2Private::isListing(const QString &url)
 {
-    if(m_lruCache.get(url.toStdString())) {
+    if(m_cache.contains(url)) {
         return true;
     }
     return false;
 }
 
-void KDirListerV2Private::printLRUStats()
+KDirectory *KDirListerV2Private::directory(const QString &url)
 {
-    qDebug() << "--------------- LRU STATISTICS ---------------";
-    qDebug() << "Count: " << m_lruCache.count();
-    qDebug() << "stat_cache_hits: " << m_lruCache.stat_cache_hits;
-    qDebug() << "stat_cache_miss: " << m_lruCache.stat_cache_miss;
-    qDebug() << "stat_cache_get: " << m_lruCache.stat_cache_get;
-    qDebug() << "stat_cache_set: " << m_lruCache.stat_cache_set;
-    qDebug() << "stat_cache_out: " << m_lruCache.stat_cache_out;
-    qDebug() << "--------------- LRU STATISTICS ---------------";
+    return m_cache[url];
 }

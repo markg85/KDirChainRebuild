@@ -79,6 +79,7 @@ public:
     virtual bool openUrl(DirectoryFetchDetails dirFetchDetails);
 
     virtual bool isListing(const QString& url);
+    virtual KDirectory* directory(const QString& url);
     
 signals:
     /**

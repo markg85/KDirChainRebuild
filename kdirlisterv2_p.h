@@ -24,14 +24,11 @@
 #include <QObject>
 #include <QStringList>
 #include <QHash>
+#include <QCache>
 
 // KDE includes
 #include <KDirWatch>
 #include <KIO/Job>
-
-// ALT-LRU
-#define ALTLRU_HITINFO
-#include "alt-lru/AltLRU.hpp"
 
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
@@ -46,18 +43,16 @@ public:
     void addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
     void newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDetails);
     bool isListing(const QString& url);
+    KDirectory* directory(const QString& url);
     
 signals:
     void directoryContentChanged(KDirectory* directoryContent);
     void completed(KDirectory* directoryContent);
 
-public slots:
-    void printLRUStats();
-
 private:
     KDirListerV2* q;
     QHash<QString, int> m_urlToIndex;
-    AltLRU<KDirectory*> m_lruCache;
+    QHash<QString, KDirectory*> m_cache;
 
 // Just for those values that don't need a function.. Remember, we are in a private class here anyway!
 public:
