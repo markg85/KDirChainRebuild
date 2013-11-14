@@ -47,13 +47,10 @@ signals:
     void directoryContentChanged(KDirectory* directoryContent);
     void completed(KDirectory* directoryContent);
 
-private:
-    KDirListerV2* q;
-    QHash<QString, KDirectory*> m_cache;
-
 // Just for those values that don't need a function.. Remember, we are in a private class here anyway!
 public:
-
+    KDirListerV2* q;
+    QHash<QString, KDirectory*> m_cache;
 };
 
 #endif // KDIRLISTERV2_P_H
