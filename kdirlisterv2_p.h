@@ -24,10 +24,8 @@
 #include <QObject>
 #include <QStringList>
 #include <QHash>
-#include <QCache>
 
 // KDE includes
-#include <KDirWatch>
 #include <KIO/Job>
 
 #include "kdirlisterv2.h"
