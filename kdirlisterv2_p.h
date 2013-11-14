@@ -51,7 +51,6 @@ signals:
 
 private:
     KDirListerV2* q;
-    QHash<QString, int> m_urlToIndex;
     QHash<QString, KDirectory*> m_cache;
 
 // Just for those values that don't need a function.. Remember, we are in a private class here anyway!

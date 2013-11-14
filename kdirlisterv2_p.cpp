@@ -25,7 +25,6 @@
 
 KDirListerV2Private::KDirListerV2Private(KDirListerV2* dirLister)
     : q(dirLister)
-    , m_urlToIndex()
     , m_cache()
 {
 }
