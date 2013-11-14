@@ -48,7 +48,7 @@ public:
     //
     // External users of this class should first check if an entry ahs details loaded.
     // If not call KDirectory::loadEntryDetails to load the details and verify that
-    // the details are actually loaded by calling KDirectoryEntry::entryDetailsLoaded.
+    // the details are actually loaded by calling KDirectoryEntry::entryDetailsChanged.
 
     const QString name()
     {
@@ -341,7 +341,7 @@ bool KDirectoryEntry::isHidden() const
     return d->isHidden();
 }
 
-bool KDirectoryEntry::entryDetailsLoaded() const
+bool KDirectoryEntry::entryDetailsChanged() const
 {
     return d->m_fullUDSEntryLoaded;
 }

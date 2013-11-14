@@ -27,7 +27,7 @@ KDirectory::KDirectory(const QString& directory, QObject *parent)
     // I sadly have to catch the signals and re-emit them with the current KDirectory object. I don't know of a better way (yet).
     connect(d, &KDirectoryPrivate::entriesProcessed, [&](){ emit entriesProcessed(this); });
     connect(d, &KDirectoryPrivate::completed, [&](){ emit completed(this); });
-    connect(d, &KDirectoryPrivate::entryDetailsLoaded, [&](int id){ emit entryDetailsLoaded(this, id); });
+    connect(d, &KDirectoryPrivate::entryDetailsChanged, [&](int id){ emit entryDetailsChanged(this, id); });
 }
 
 const QVector<KDirectoryEntry> &KDirectory::entries()

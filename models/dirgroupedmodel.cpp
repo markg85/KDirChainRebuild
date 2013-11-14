@@ -105,7 +105,7 @@ QVariant DirGroupedModel::data(const QModelIndex &index, int role) const
 
 void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
 {
-    connect(dir, &KDirectory::entryDetailsLoaded, this, &DirGroupedModel::processEntry, Qt::UniqueConnection);
+    connect(dir, &KDirectory::entryDetailsChanged, this, &DirGroupedModel::processEntry, Qt::UniqueConnection);
 
     // We don't need to figure out the groups if we're not using groups to begin with.
     if(m_groupby == DirListModel::None) {
@@ -169,27 +169,27 @@ void DirGroupedModel::processEntry(KDirectory *dir, int id)
     case DirListModel::Thumbnail:
         break;
     case DirListModel::Size:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.size();
         break;
     case DirListModel::ModificationTime:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::ModificationTime);
         break;
     case DirListModel::AccessTime:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::AccessTime);
         break;
     case DirListModel::CreationTime:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::CreationTime);
         break;
     case DirListModel::User:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.user();
         break;
     case DirListModel::Group:
-        if(!e.entryDetailsLoaded()) dir->loadEntryDetails(id);
+        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.group();
         break;
     }

@@ -117,27 +117,27 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
                 return QVariant("TO_BE_IMPLEMENTED");
                 break;
             case Size:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.size());
                 break;
             case ModificationTime:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::ModificationTime));
                 break;
             case AccessTime:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::AccessTime));
                 break;
             case CreationTime:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::CreationTime));
                 break;
             case User:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.user());
                 break;
             case Group:
-                if(!entry.entryDetailsLoaded()) m_dir->loadEntryDetails(index.row());
+                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.group());
                 break;
             }
@@ -235,7 +235,7 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
 {
     if(!m_dir && dir || dir != m_dir) {
         m_dir = dir;
-        connect(m_dir, &KDirectory::entryDetailsLoaded, [&](KDirectory*, int id){
+        connect(m_dir, &KDirectory::entryDetailsChanged, [&](KDirectory*, int id){
             // notify the view that the entry with "id" has changed data.
             QModelIndex topLeft = createIndex(id, 0);
             QModelIndex bottomRight = createIndex(id, m_roleCount - 1); // WHY -1? I have to do this if i hook it in a proxy. Why, i don't know.

@@ -61,7 +61,7 @@ public:
 signals:
     void entriesProcessed();
     void completed();
-    void entryDetailsLoaded(int id);
+    void entryDetailsChanged(int id);
     
 public slots:
     void slotEntries(KIO::Job *, const KIO::UDSEntryList &entries);

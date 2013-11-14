@@ -76,7 +76,7 @@ signals:
      *        know which KDirectory object spawned this signal.
      * @param int id is the id that you can use to get the KDirectoryEntry object (entry(id)).
      */
-    void entryDetailsLoaded(KDirectory* dir, int id);
+    void entryDetailsChanged(KDirectory* dir, int id);
 
 private:
     KDirectoryPrivate *const d;
