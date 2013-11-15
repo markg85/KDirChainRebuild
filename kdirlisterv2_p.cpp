@@ -69,10 +69,7 @@ void KDirListerV2Private::newUrl(KDirListerV2::DirectoryFetchDetails dirFetchDet
 
 bool KDirListerV2Private::isListing(const QString &url)
 {
-    if(m_cache.contains(url)) {
-        return true;
-    }
-    return false;
+    return m_cache.contains(url);
 }
 
 KDirectory *KDirListerV2Private::directory(const QString &url)
