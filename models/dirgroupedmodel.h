@@ -54,6 +54,7 @@ public:
     virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
     void slotDirectoryContentChanged(KDirectory* dir);
     void slotCompleted(KDirectory* dir);
+    void clearAdministrativeData();
 
     void processEntry(KDirectory *dir, int id);
     Q_INVOKABLE void regroup();

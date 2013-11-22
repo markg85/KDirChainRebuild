@@ -52,10 +52,7 @@ void DirGroupedModel::setPath(const QString &path)
 
         // Clean current administrative values.
         beginResetModel();
-        m_distinctGroupKey.clear();
-        m_groupList.clear();
-        m_currentRowCount = 0;
-        m_currentEntryRowCount = 0;
+        clearAdministrativeData();
         endResetModel();
 
         // if we where already listing this folder then we need to jumpstart this model.
@@ -141,6 +138,14 @@ void DirGroupedModel::slotCompleted(KDirectory *dir)
     }
 }
 
+void DirGroupedModel::clearAdministrativeData()
+{
+    m_distinctGroupKey.clear();
+    m_groupList.clear();
+    m_currentRowCount = 0;
+    m_currentEntryRowCount = 0;
+}
+
 void DirGroupedModel::processEntry(KDirectory *dir, int id)
 {
     QVariant potentialNewGroupKey;
@@ -214,10 +219,7 @@ void DirGroupedModel::regroup()
     qDebug() << "Regrouping dir:" << m_listModel->path() << m_listModel->m_dir->url();
 
     beginResetModel();
-    m_distinctGroupKey.clear();
-    m_groupList.clear();
-    m_currentRowCount = 0;
-    m_currentEntryRowCount = 0;
+    clearAdministrativeData();
     slotDirectoryContentChanged(m_listModel->m_dir);
     endResetModel();
 }
