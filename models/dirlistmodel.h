@@ -46,6 +46,7 @@ public:
         CreationTime,
         User,
         Group,
+        Hidden,
         None // None is used by other models. Do not include this in header names, data, etc...
     };
 

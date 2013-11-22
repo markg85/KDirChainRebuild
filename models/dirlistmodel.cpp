@@ -103,6 +103,9 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
             case Extension:
                 return QVariant(entry.extension());
                 break;
+            case Hidden:
+                return QVariant(entry.isHidden());
+                break;
             case MimeComment:
                 return QVariant(entry.mimeComment());
                 break;

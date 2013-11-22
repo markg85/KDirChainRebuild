@@ -26,6 +26,7 @@
 class DirGroupedProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
 
 public:
     DirGroupedProxyModel(QObject *parent = 0);
@@ -33,13 +34,19 @@ public:
     Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     Q_INVOKABLE void reload();
 
+    bool hidden();
+    void setHidden(bool hiddenFiles);
+
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+signals:
+    void hiddenChanged();
 
 private:
     DirListModel::Roles m_acceptedRole;
     QVariant m_filterValue;
-
+    bool m_hiddenFiles;
 };
 
 #endif
