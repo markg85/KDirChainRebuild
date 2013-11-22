@@ -146,7 +146,7 @@ bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
         return true;
     }
 
-    return false;
+    return true;
 }
 
 void KDirectoryPrivate::processSortFlags()
