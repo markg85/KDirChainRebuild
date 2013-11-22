@@ -111,7 +111,7 @@ bool KDirectoryPrivate::keepEntryAccordingToFilter(KDirectoryEntry entry)
     }
 
     // Hidden entries are just files/folders only starting with a "." (on *nix). If the QDir::Hidden flag is not set then it should not be shown!
-    if(entry.isHidden() && !(m_filterFlags & QDir::Hidden)) {
+    if(entry.isHidden() && (m_filterFlags & QDir::Hidden)) {
         return false;
     }
 
