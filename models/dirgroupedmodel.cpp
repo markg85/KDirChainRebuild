@@ -110,7 +110,6 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
 
     int currentEntryCount = dir->entries().count();
     for(int i = m_currentEntryRowCount; i < currentEntryCount; i++) {
-        const KDirectoryEntry& e = dir->entry(i);
         processEntry(dir, i);
     }
 
