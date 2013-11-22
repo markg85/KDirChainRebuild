@@ -56,7 +56,12 @@ void DirListModel::setPath(const QString &path)
     }
 
     if(!m_lister->isListing(m_path)) {
-        m_lister->openUrl(m_path);
+        KDirListerV2::DirectoryFetchDetails dirFetchDetails;
+        dirFetchDetails.url = m_path;
+        dirFetchDetails.details = "0";
+        dirFetchDetails.filters = QDir::NoDotAndDotDot;
+
+        m_lister->openUrl(dirFetchDetails);
     } else {
         beginResetModel();
         m_dir = m_lister->directory(m_path);
@@ -235,7 +240,9 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         });
     }
 
-    beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
+    qDebug() << m_currentRowCount << m_dir->count() - 1;
+    int tempCount = ((m_dir->count() - 1) < 0) ? 0 : m_dir->count();
+    beginInsertRows(QModelIndex(), m_currentRowCount, tempCount);
     m_currentRowCount = m_dir->count();
     endInsertRows();
 }
