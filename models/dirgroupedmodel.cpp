@@ -47,8 +47,25 @@ DirGroupedModel::~DirGroupedModel()
 
 void DirGroupedModel::setPath(const QString &path)
 {
-    m_listModel->setPath(path);
-    regroup();
+    qDebug() << "New path in C++ side:" << path << m_listModel->path();
+    if(path != m_listModel->path()) {
+
+        // Clean current administrative values.
+        beginResetModel();
+        m_distinctGroupKey.clear();
+        m_groupList.clear();
+        m_currentRowCount = 0;
+        m_currentEntryRowCount = 0;
+        endResetModel();
+
+        // if we where already listing this folder then we need to jumpstart this model.
+        if(m_lister->isListing(path)) {
+            slotDirectoryContentChanged(m_lister->directory(path));
+        }
+
+        // Now set the new path. From there on the slotDirectoryContentChanged should take over if more details flow in.
+        m_listModel->setPath(path);
+    }
 }
 
 const QString &DirGroupedModel::path()
@@ -175,7 +192,8 @@ void DirGroupedModel::processEntry(KDirectory *dir, int id)
     // Specially don't check for potentialNewGroupKey.isNull() because you might very group on something where empty would be valid.
     // For example, grouping on extension leaves out folders since they don't have an extension.
     if(!m_distinctGroupKey.contains(potentialNewGroupKey)) {
-        beginInsertRows(QModelIndex(), m_currentRowCount, m_currentRowCount);
+        qDebug() << "insert row." << m_currentRowCount << m_distinctGroupKey.count() << m_distinctGroupKey;
+        beginInsertRows(QModelIndex(), m_currentRowCount, m_distinctGroupKey.count());
         DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
         model->setRoleFilter(m_groupby, potentialNewGroupKey);
         model->setSourceModel(m_listModel);
@@ -193,6 +211,7 @@ void DirGroupedModel::regroup()
     }
 
     qDebug() << "Regroup called...";
+    qDebug() << "Regrouping dir:" << m_listModel->path() << m_listModel->m_dir->url();
 
     beginResetModel();
     m_distinctGroupKey.clear();
