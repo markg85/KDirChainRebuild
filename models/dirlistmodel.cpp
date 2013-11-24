@@ -243,11 +243,12 @@ void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
         });
     }
 
-    qDebug() << m_currentRowCount << m_dir->count() - 1;
-    int tempCount = ((m_dir->count() - 1) < 0) ? 0 : m_dir->count();
-    beginInsertRows(QModelIndex(), m_currentRowCount, tempCount);
-    m_currentRowCount = m_dir->count();
-    endInsertRows();
+    if(m_currentRowCount < m_dir->count()) {
+        qDebug() << "Inserting rows. begin =" << m_currentRowCount << "end =" << m_dir->count() - 1;
+        beginInsertRows(QModelIndex(), m_currentRowCount, m_dir->count() - 1);
+        m_currentRowCount = m_dir->count();
+        endInsertRows();
+    }
 }
 
 void DirListModel::slotCompleted(KDirectory *dir)
