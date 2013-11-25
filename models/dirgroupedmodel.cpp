@@ -51,9 +51,9 @@ void DirGroupedModel::setPath(const QString &path)
     if(path != m_listModel->path()) {
 
         // Clean current administrative values.
-        beginResetModel();
+        beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
         clearAdministrativeData();
-        endResetModel();
+        endRemoveRows();
 
         // if we where already listing this folder then we need to jumpstart this model.
         if(m_lister->isListing(path)) {
@@ -218,10 +218,10 @@ void DirGroupedModel::regroup()
     qDebug() << "Regroup called...";
     qDebug() << "Regrouping dir:" << m_listModel->path() << m_listModel->m_dir->url();
 
-    beginResetModel();
+    beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
     clearAdministrativeData();
     slotDirectoryContentChanged(m_listModel->m_dir);
-    endResetModel();
+    endRemoveRows();
 }
 
 DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)

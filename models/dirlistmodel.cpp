@@ -49,9 +49,9 @@ void DirListModel::setPath(const QString &path)
 {
     if(m_path != path) {
         m_path = path;
-        beginResetModel();
+        beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
         m_currentRowCount = 0;
-        endResetModel();
+        endRemoveRows();
         emit pathChanged();
     }
 
@@ -63,10 +63,7 @@ void DirListModel::setPath(const QString &path)
 
         m_lister->openUrl(dirFetchDetails);
     } else {
-        beginResetModel();
-        m_dir = m_lister->directory(m_path);
-        m_currentRowCount = m_dir->entries().count();
-        endResetModel();
+        slotCompleted(m_lister->directory(m_path));
     }
 }
 
