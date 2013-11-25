@@ -222,10 +222,10 @@ QVariant DirListModel::headerName(int role) const
 
 void DirListModel::reload()
 {
-    m_lister->openUrl(m_path, KDirListerV2::Reload);
-    beginResetModel();
+    beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
     m_currentRowCount = 0;
-    endResetModel();
+    endRemoveRows();
+    m_lister->openUrl(m_path, KDirListerV2::Reload);
 }
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)

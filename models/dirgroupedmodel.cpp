@@ -220,8 +220,8 @@ void DirGroupedModel::regroup()
 
     beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
     clearAdministrativeData();
-    slotDirectoryContentChanged(m_listModel->m_dir);
     endRemoveRows();
+    slotDirectoryContentChanged(m_listModel->m_dir);
 }
 
 DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
