@@ -16,9 +16,11 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 
-
 find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml Gui) # Needed for the kdirchainmodelplugin library
 find_package(KF5 CONFIG REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO KIconThemes)
+
+# Please KDE people. QUIT BREAKING THE INCLUDE PATHS! Manually add path to include/KDE.
+include_directories(${CMAKE_INSTALL_PREFIX}/include/KDE)
 
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
 add_definitions(${Qt5Widgets_DEFINITIONS} ${Qt5Quick_DEFINITIONS} ${Qt5Qml_DEFINITIONS})
