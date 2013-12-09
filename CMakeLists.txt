@@ -46,6 +46,7 @@ set(kdirchain_LIB_SRCS
   kdirlisterv2.cpp
   kdirlisterv2_p.cpp
   staticmimetype.cpp
+  kradix.cpp
 )
 
 set(kdirchainrebuild_SRCS

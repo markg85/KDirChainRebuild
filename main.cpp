@@ -8,6 +8,7 @@
 #include "kdirlisterv2.h"
 #include "kdirectory.h"
 #include "kdirectoryentry.h"
+#include "kradix.h"
 
 #include <QListView>
 #include <QTreeView>
@@ -45,18 +46,18 @@ int main(int argc, char *argv[])
 //    model.setRootPath(QDir::currentPath());
 
 //    DirListModel model;
-    DirGroupedModel model;
-    model.setPath(url);
-    model.setGroupby(DirListModel::MimeIcon);
+//    DirGroupedModel model;
+//    model.setPath(url);
+//    model.setGroupby(DirListModel::MimeIcon);
 
-    QObject::connect(&model, &QAbstractItemModel::rowsInserted, [&](QModelIndex index,int start,int end){
-        //qDebug() << "On rows inserted: " << index.isValid() << start << end;
-    });
+//    QObject::connect(&model, &QAbstractItemModel::rowsInserted, [&](QModelIndex index,int start,int end){
+//        //qDebug() << "On rows inserted: " << index.isValid() << start << end;
+//    });
 
 //    QListView* view = new QListView();
-    QTreeView* view = new QTreeView();
-    view->setModel(&model);
-    view->show();
+//    QTreeView* view = new QTreeView();
+//    view->setModel(&model);
+//    view->show();
 
 
 //    KDirListerV2::DirectoryFetchDetails dirFetchDetails;
@@ -69,6 +70,13 @@ int main(int argc, char *argv[])
 //    lister.openUrl("~");
 
 //    QObject::connect(&lister, SIGNAL(completed(KDirectory*)), qApp, SLOT(quit()));
+
+
+    KRadix radix;
+    radix.insert("test123", 0);
+    radix.insert("test123", 10);
+    radix.insert("test345", 20);
+
 
     return a.exec();
 }
