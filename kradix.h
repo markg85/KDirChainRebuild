@@ -37,8 +37,15 @@ public:
     explicit KRadix(QObject* parent = 0);
 
     void insert(const QString& key, const int value);
-    bool containsKey(const QString& key);
-    void findKey(const QString& key);
+    int value(const QString& key);
+    void printNodes();
+
+private:
+    void printNodes(QVector<Node> nodes, int level);
+    bool insertRootNodeIfNeeded(const QString &key, const int value);
+    void insert(QVector<Node>& nodes, const QString &key, const int value);
+    int value(QVector<Node> nodes, const QString& key);
+    QStringList removeTextMatchFromBegin(const QString& one, const QString& two);
 
 private:
     QVector<Node> m_nodes;
