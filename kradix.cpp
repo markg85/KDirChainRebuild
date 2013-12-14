@@ -30,9 +30,7 @@ KRadix::KRadix(QObject *parent)
 
 void KRadix::insert(const QString &key, const int value)
 {
-    if(!insertRootNodeIfNeeded(key, value)) {
-        insert(m_nodes, key, value);
-    }
+    insert(m_nodes, key, value);
 }
 
 int KRadix::value(const QString &key)
@@ -57,38 +55,24 @@ void KRadix::printNodes(QVector<Node> nodes, int level)
     }
 }
 
-bool KRadix::insertRootNodeIfNeeded(const QString &key, const int value)
-{
-    // This function simply checks if there is a root node matching the (start of) our current key. If there isn't it inserts a root node with this key.
-    QChar firstChar = key.at(0);
-    foreach(Node n, m_nodes) {
-        if(n.key == key || n.key.startsWith(firstChar)) {
-            return false;
-        }
-    }
-
-    Node n;
-    n.key = key;
-    n.value = value;
-    m_nodes << n;
-
-    return true;
-}
-
 void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
 {
     // This function is doing the real complicated work. It iterates over all given nodes till there is no more match with the key.
     // At that point it splits the node it has to add the remainder part of the current key.
 
     int nodeCount = nodes.count();
+    bool potentialMatchFound = false;
 
     // Iterate over all given nodes
     for(int i = 0; i < nodeCount; i++) {
         // Now iterate over all values to find the node that matches most.
         Node& n = nodes[i];
 
+//        qDebug() << "Testing first char:" << key.at(0) << "against key:" << n.key;
+
         // As a quick test to find a potential partial match we check the first character
         if(n.key.startsWith(key.at(0))) {
+            potentialMatchFound = true;
 
             // Exact key match? Return since it's a duplicate.
             if(n.key == key) {
@@ -131,22 +115,23 @@ void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
                     n.childNodes << two;
                     return;
                 } else if (startToDifferPosition == maxLength - 1) {
-
                     QStringList newKeys = removeTextMatchFromBegin(n.key, key);
-                    if(n.childNodes.isEmpty()) {
-                        // Just insert a new node since it's empty anyway.
-                        Node newNode;
-                        newNode.key = newKeys.at(2);
-                        newNode.value = value;
-                        n.childNodes << newNode;
-                    } else {
-                        insert(n.childNodes, newKeys.at(2), value);
-                    }
+//                    qDebug() << "startToDifferPosition == maxLength - 1" << n.key << key << newKeys;
+                    insert(n.childNodes, newKeys.at(2), value);
                     return;
                 }
             }
         }
     }
+
+    if(!potentialMatchFound) {
+//        qDebug() << "No potential node found, just add." << key;
+        Node newNode;
+        newNode.key = key;
+        newNode.value = value;
+        nodes << newNode;
+    }
+    return;
 }
 
 int KRadix::value(QVector<Node> nodes, const QString& key)

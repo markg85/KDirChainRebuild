@@ -42,7 +42,6 @@ public:
 
 private:
     void printNodes(QVector<Node> nodes, int level);
-    bool insertRootNodeIfNeeded(const QString &key, const int value);
     void insert(QVector<Node>& nodes, const QString &key, const int value);
     int value(QVector<Node> nodes, const QString& key);
     QStringList removeTextMatchFromBegin(const QString& one, const QString& two);
