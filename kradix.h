@@ -38,16 +38,18 @@ public:
 
     void insert(const QString& key, const int value);
     int value(const QString& key);
+    void matchPrefix(const QString& prefix);
     void printNodes();
 
 private:
     void printNodes(QVector<Node> nodes, int level);
+    bool insertRootNodeIfNeeded(const QString &key, const int value);
     void insert(QVector<Node>& nodes, const QString &key, const int value);
-    int value(QVector<Node> nodes, const QString& key);
-    QStringList removeTextMatchFromBegin(const QString& one, const QString& two);
+    int value(QVector<Node>& nodes, const QStringRef& key);
 
 private:
     QVector<Node> m_nodes;
+    QString m_filtered[3];
 };
 
 #endif // KRADIX_H

@@ -35,7 +35,12 @@ void KRadix::insert(const QString &key, const int value)
 
 int KRadix::value(const QString &key)
 {
-    return value(m_nodes, key);
+    return value(m_nodes, QStringRef(&key));
+}
+
+void KRadix::matchPrefix(const QString &prefix)
+{
+
 }
 
 void KRadix::printNodes()
@@ -68,58 +73,63 @@ void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
         // Now iterate over all values to find the node that matches most.
         Node& n = nodes[i];
 
-//        qDebug() << "Testing first char:" << key.at(0) << "against key:" << n.key;
+//        qDebug() << "Testing first char:" << key.at(0) << "of key:" << key << "against key:";
+
+        if(!n.key.startsWith(key.at(0))) {
+            continue; // To be clear, this intentionally breaks the current loop iteration!
+        }
 
         // As a quick test to find a potential partial match we check the first character
-        if(n.key.startsWith(key.at(0))) {
-            potentialMatchFound = true;
+        potentialMatchFound = true;
 
-            // Exact key match? Return since it's a duplicate.
-            if(n.key == key) {
-                return;
-            }
+        // Exact key match? Return since it's a duplicate.
+        if(n.key == key) {
+            return;
+        }
 
-            // Right, we have a node that matches the first character. So, how far does it match?
-            int maxLength = qMin(n.key.length(), key.length());
-            int startToDifferPosition = 0;
+        // Right, we have a node that matches the first character. So, how far does it match?
+        int maxLength = qMin(n.key.length(), key.length());
+        int startToDifferPosition = 0;
 
-            // In this loop we can encounter a few different situations:
-            // 1: There is a partial key match. In that case we need to split the current node
-            // 2: There is a full key match, but we have more chars left. In that case we need to look at the childnodes
-            for(; startToDifferPosition < maxLength; startToDifferPosition++) {
+        // In this loop we can encounter a few different situations:
+        // 1: There is a partial key match. In that case we need to split the current node
+        // 2: There is a full key match, but we have more chars left. In that case we need to look at the childnodes
+        for(; startToDifferPosition < maxLength; startToDifferPosition++) {
 
-                // This is the partial key match case
-                if(n.key.at(startToDifferPosition) != key.at(startToDifferPosition)) {
-                    // At this point we start to differ.
-                    QStringList newKeys = QStringList() << n.key.mid(0, startToDifferPosition) << n.key.mid(startToDifferPosition) << key.mid(startToDifferPosition);
+            // This is the partial key match case
+            if(n.key.at(startToDifferPosition) != key.at(startToDifferPosition)) {
+                // At this point we start to differ.
+                //QStringList newKeys = QStringList() << n.key.mid(0, startToDifferPosition) << n.key.mid(startToDifferPosition) << key.mid(startToDifferPosition);
 
-                    // Create a few new nodes.
-                    Node one = n;
-                    Node two;
+                m_filtered[0] = n.key.mid(0, startToDifferPosition);
+                m_filtered[1] = n.key.mid(startToDifferPosition);
+                m_filtered[2] = key.mid(startToDifferPosition);
 
-                    // Now update tempNode with it's new values. It's key is going to change and it's value is going to be reset unless this is the final length of the string and it's just splitted for another string
-                    n.key = newKeys.at(0);
-                    n.childNodes.clear();
-                    if(!newKeys.at(1).isEmpty()) {
-                        n.value = 0;
-                        one.key = newKeys.at(1);
-                        n.childNodes << one;
-                    }
+                // Create a few new nodes.
+                Node one = n;
+                Node two;
 
-
-                    // Next update node two with the new key and value
-                    two.key = newKeys.at(2);
-                    two.value = value;
-
-                    // Now insert the new nodes in our tempNode and we're done.
-                    n.childNodes << two;
-                    return;
-                } else if (startToDifferPosition == maxLength - 1) {
-                    QStringList newKeys = removeTextMatchFromBegin(n.key, key);
-//                    qDebug() << "startToDifferPosition == maxLength - 1" << n.key << key << newKeys;
-                    insert(n.childNodes, newKeys.at(2), value);
-                    return;
+                // Now update tempNode with it's new values. It's key is going to change and it's value is going to be reset unless this is the final length of the string and it's just splitted for another string
+                n.key = m_filtered[0];
+                n.childNodes.clear();
+                if(!m_filtered[1].isEmpty()) {
+                    n.value = 0;
+                    one.key = m_filtered[1];
+                    n.childNodes << one;
                 }
+
+
+                // Next update node two with the new key and value
+                two.key = m_filtered[2];
+                two.value = value;
+
+                // Now insert the new nodes in our tempNode and we're done.
+                n.childNodes << two;
+                return;
+            } else if (startToDifferPosition == maxLength - 1) {
+                //qDebug() << "startToDifferPosition == maxLength - 1" << n.key << key << "new key" << m_filtered[2].toString() << startToDifferPosition << key.mid(startToDifferPosition + 1);
+                insert(n.childNodes, key.mid(startToDifferPosition + 1), value); // Why the +1? I don't now... -_- Have to figure that out some day.
+                return;
             }
         }
     }
@@ -134,39 +144,34 @@ void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
     return;
 }
 
-int KRadix::value(QVector<Node> nodes, const QString& key)
+int KRadix::value(QVector<Node>& nodes, const QStringRef& key)
 {
     int nodeCount = nodes.count();
     for(int i = 0; i < nodeCount; i++) {
         Node& n = nodes[i];
 
-        if(n.key == key) {
-            return n.value;
+        if(n.key.at(0) != key.at(0)) {
+            continue;
         }
 
-        QStringList keys = removeTextMatchFromBegin(n.key, key);
+        // Figure out what does match
+        const int keyLength = key.length();
+        const int nodeKeyLength = n.key.length();
+        const int maxLength = qMin(nodeKeyLength, keyLength);
+        int startToDifferPosition = 1; // Start at 1 since the first char is already checked.
+        for(; startToDifferPosition < maxLength; startToDifferPosition++) {
+            if(n.key.at(startToDifferPosition) != key.at(startToDifferPosition)) {
+                break;
+            }
+        }
 
-        if(!keys.at(0).isEmpty()) {
-            return value(n.childNodes, keys.at(2));
+//        qDebug() << "Key:" << key << "matches with:" << startToDifferPosition << "from" << n.key;
+
+        if(keyLength == nodeKeyLength) {
+            return n.value;
+        } else if(startToDifferPosition == nodeKeyLength) {
+            return value(n.childNodes, key.right(startToDifferPosition));
         }
     }
     return 0;
-}
-
-QStringList KRadix::removeTextMatchFromBegin(const QString &one, const QString &two)
-{
-    // Figure out what does match
-    int maxLength = qMin(one.length(), two.length());
-    int startToDifferPosition = 0;
-    for(; startToDifferPosition < maxLength; startToDifferPosition++) {
-        if(one.at(startToDifferPosition) != two.at(startToDifferPosition)) {
-            break;
-        }
-    }
-
-    // This returns a list with 3 strings.
-    // 1: the part that matches
-    // 2: the part that didn't match from the "one" string
-    // 3: the part that didn't match from the "two" string
-    return QStringList() << one.mid(0, startToDifferPosition) << one.mid(startToDifferPosition) << two.mid(startToDifferPosition);
 }
