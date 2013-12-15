@@ -26,6 +26,7 @@
 
 struct Node {
     QString key;
+    QChar* data;
     int value;
     QVector<Node> childNodes;
 };
@@ -45,7 +46,7 @@ private:
     void printNodes(QVector<Node> nodes, int level);
     bool insertRootNodeIfNeeded(const QString &key, const int value);
     void insert(QVector<Node>& nodes, const QString &key, const int value);
-    int value(QVector<Node>& nodes, const QStringRef& key);
+    int value(QVector<Node>& nodes, const QChar* key);
 
 private:
     QVector<Node> m_nodes;

@@ -35,7 +35,7 @@ void KRadix::insert(const QString &key, const int value)
 
 int KRadix::value(const QString &key)
 {
-    return value(m_nodes, QStringRef(&key));
+    return value(m_nodes, key.constData());
 }
 
 void KRadix::matchPrefix(const QString &prefix)
@@ -111,16 +111,19 @@ void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
 
                 // Now update tempNode with it's new values. It's key is going to change and it's value is going to be reset unless this is the final length of the string and it's just splitted for another string
                 n.key = m_filtered[0];
+                n.data = n.key.data();
                 n.childNodes.clear();
                 if(!m_filtered[1].isEmpty()) {
                     n.value = 0;
                     one.key = m_filtered[1];
+                    one.data = one.key.data();
                     n.childNodes << one;
                 }
 
 
                 // Next update node two with the new key and value
                 two.key = m_filtered[2];
+                two.data = two.key.data();
                 two.value = value;
 
                 // Now insert the new nodes in our tempNode and we're done.
@@ -138,40 +141,41 @@ void KRadix::insert(QVector<Node> &nodes, const QString &key, const int value)
 //        qDebug() << "No potential node found, just add." << key;
         Node newNode;
         newNode.key = key;
+        newNode.data= newNode.key.data();
         newNode.value = value;
         nodes << newNode;
     }
     return;
 }
 
-int KRadix::value(QVector<Node>& nodes, const QStringRef& key)
+int KRadix::value(QVector<Node>& nodes, const QChar* key)
 {
-    int nodeCount = nodes.count();
+    const int nodeCount = nodes.count();
     for(int i = 0; i < nodeCount; i++) {
-        Node& n = nodes[i];
-
-        if(n.key.at(0) != key.at(0)) {
+        // Compare the first characters. Doing that first makes it easy to skip the current loop if it doesn't match.
+        if(*nodes.at(i).data != *key) {
             continue;
         }
 
-        // Figure out what does match
-        const int keyLength = key.length();
-        const int nodeKeyLength = n.key.length();
-        const int maxLength = qMin(nodeKeyLength, keyLength);
-        int startToDifferPosition = 1; // Start at 1 since the first char is already checked.
-        for(; startToDifferPosition < maxLength; startToDifferPosition++) {
-            if(n.key.at(startToDifferPosition) != key.at(startToDifferPosition)) {
-                break;
-            }
+        Node& n = nodes[i];
+        QChar* data = n.data;
+
+        key++;
+        data++;
+
+        // Figure out where the characters start to diverge.
+        while(*key != '\0' && *key == *data) {
+            key++;
+            data++;
         }
 
-//        qDebug() << "Key:" << key << "matches with:" << startToDifferPosition << "from" << n.key;
-
-        if(keyLength == nodeKeyLength) {
+        // If the key is at the end then we have a full match in the current node thus return the value.
+        if(*key == '\0') {
             return n.value;
-        } else if(startToDifferPosition == nodeKeyLength) {
-            return value(n.childNodes, key.right(startToDifferPosition));
+        } else if(!n.childNodes.isEmpty()) {
+            return value(n.childNodes, key);
         }
+
     }
     return 0;
 }
