@@ -45,11 +45,14 @@ public:
 private:
     void printNodes(QVector<Node> nodes, int level);
     bool insertRootNodeIfNeeded(const QString &key, const int value);
-    void insert(QVector<Node>& nodes, const QString &key, const int value);
-    int value(QVector<Node>& nodes, const QChar* key);
+    void insert(Node& node, const QString &key, const int value);
+    void insertV2(Node& node, const QChar* key, const int value);
+    int value(Node& node, const QChar* key);
+    Node& findBestNodeMatch(Node& node, const QChar* key);
+    Node& findNodeMatch(Node& node, const QChar* key);
 
 private:
-    QVector<Node> m_nodes;
+    Node m_root;
     QString m_filtered[3];
 };
 
