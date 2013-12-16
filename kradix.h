@@ -44,16 +44,14 @@ public:
 
 private:
     void printNodes(QVector<Node> nodes, int level);
-    bool insertRootNodeIfNeeded(const QString &key, const int value);
-    void insert(Node& node, const QString &key, const int value);
-    void insertV2(Node& node, QChar* key, const int value);
     int value(Node& node, const QChar* key);
-    Node& findBestNodeMatch(Node& node, const QChar* key, int* keyPrefixMatch);
+    Node& createNode(Node& node, const QChar* key);
+    Node& addNode(Node& node, const QChar* key);
+    Node& splitNode(Node& node, int pos);
     Node& findNodeMatch(Node& node, const QChar* key);
 
 private:
     Node m_root;
-    QString m_filtered[3];
 };
 
 #endif // KRADIX_H
