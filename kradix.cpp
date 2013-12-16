@@ -29,8 +29,8 @@ KRadix::KRadix(QObject *parent)
 
 void KRadix::insert(const QString &key, const int value)
 {
-//    insertV2(m_root, key.constData(), value);
-    insert(m_root, key, value);
+    insertV2(m_root, QString(key).data(), value);
+//    insert(m_root, key, value);
 }
 
 int KRadix::value(const QString &key)
@@ -148,12 +148,16 @@ void KRadix::insert(Node &node, const QString &key, const int value)
     return;
 }
 
-void KRadix::insertV2(Node &node, const QChar* key, const int value)
+void KRadix::insertV2(Node &node, QChar* key, const int value)
 {
-    Node& n = findBestNodeMatch(node, key);
+    int keyPrefixMatch = 0;
+    Node& n = findBestNodeMatch(node, key, &keyPrefixMatch);
     QChar* data = n.data;
+    key += keyPrefixMatch;
 
-    qDebug() << "Key:" << QString(key) << "node key:" << n.key;
+    //qDebug() << "Key:" << QString(key) << "node key:" << n.key << "prefixMatchblabla:" << keyPrefixMatch;
+
+    qDebug() << "Comparing key:" << n.key << "char:" << *key << "str key:" << QString(key) << "against data:" << *data << "str data:" << QString(data) << "prefixlength:" << keyPrefixMatch;
 
     // At this point we have the best matching node. All we need to figure out now is if we need to split our current node or can just simply insert to it;s childNodes
 
@@ -174,8 +178,8 @@ void KRadix::insertV2(Node &node, const QChar* key, const int value)
         // 2. No match where we can just add this node.
 
         // Case 1. If we have devergence but not an ending key then we have to split our current node.
-        if(startToDiverge > 0 && *key != '\0') {
-            qDebug() << "We have devergence!" << n.key << QString(n.data, startToDiverge) << QString(key) << QString(data);
+        if(startToDiverge > 0 && *key != '\0' && *data != '\0') {
+//            qDebug() << "We have devergence!" << n.key << QString(n.data, startToDiverge) << QString(key) << QString(data);
 
             // Create a few new nodes.
             Node one = n;
@@ -201,7 +205,7 @@ void KRadix::insertV2(Node &node, const QChar* key, const int value)
 
         } else {
             // Case 2. No match, new node should be inserted.
-            qDebug() << "Insert new node. Value:" << value << "diverge:" << startToDiverge << "key.p" << *key << QString(key) << n.key;
+            //qDebug() << "Insert new node. Value:" << value << "diverge:" << startToDiverge << "key.p" << *key << QString(key) << n.key;
             Node newNode;
             newNode.key = QString(key);
             newNode.data= newNode.key.data();
@@ -212,7 +216,7 @@ void KRadix::insertV2(Node &node, const QChar* key, const int value)
 }
 
 // Find node that should be used to either add a child or split the node. Use this for insertion.
-Node &KRadix::findBestNodeMatch(Node &node, const QChar *key)
+Node &KRadix::findBestNodeMatch(Node &node, const QChar *key, int* keyPrefixMatch)
 {
     const int nodeCount = node.childNodes.count();
     for(int i = 0; i < nodeCount; i++) {
@@ -230,18 +234,21 @@ Node &KRadix::findBestNodeMatch(Node &node, const QChar *key)
         key++;
         data++;
 
+        int numMatches = 0;
         // Figure out where the characters start to diverge.
         while(*key != '\0' && *key == *data) {
             key++;
             data++;
+            numMatches++;
         }
 
 //        qDebug() << "node key:" << n.key;
 
         // If the key is at the end then we have a full match in the current node thus return the value.
         if(*data == '\0' && !n.childNodes.isEmpty()) {
+            *keyPrefixMatch += numMatches + 1;
 //            qDebug() << "-- else if";
-            return findBestNodeMatch(n, key);
+            return findBestNodeMatch(n, key, keyPrefixMatch);
         } else {
 //            qDebug() << "-- else";
             return n;
@@ -277,7 +284,7 @@ Node &KRadix::findNodeMatch(Node &node, const QChar *key)
         if(*data != '\0') {
             return node;
         } else if(!n.childNodes.isEmpty()) {
-            return findBestNodeMatch(n, key);
+            return findNodeMatch(n, key);
         } else {
             return n;
         }
