@@ -26,7 +26,6 @@
 
 struct Node {
     QString key;
-    QChar* data;
     int value;
     QVector<Node> childNodes;
 };

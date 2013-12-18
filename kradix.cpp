@@ -21,6 +21,8 @@
 
 #include "kradix.h"
 
+const QChar cNull('\0');
+
 KRadix::KRadix(QObject *parent)
     : QObject(parent)
 {
@@ -54,7 +56,7 @@ void KRadix::printNodes()
 
 void KRadix::printNodes(QVector<Node> nodes, int level)
 {
-    foreach(Node n, nodes) {
+    for(Node& n : nodes) {
         qDebug() << QString("- ").repeated(level) << "Key:" << n.key << "Value:" << n.value << "Num of childnodes:" << n.childNodes.count();
         if(!n.childNodes.empty()) {
             printNodes(n.childNodes, level + 1);
@@ -65,20 +67,20 @@ void KRadix::printNodes(QVector<Node> nodes, int level)
 Node &KRadix::createNode(Node &node, const QChar *key)
 {
     for(Node& n : node.childNodes) {
+        const QChar* data = n.key.constData();
         // Find matching node
-        if(*n.data != *key) {
+        if(*data != *key) {
             continue;
         }
 
         //Node& n = node.childNodes[i];
-        QChar* data = n.data;
 
         for(int j = 1; ; j++){
-          if(key[j] == '\0' && data[j] == '\0')
+          if(key[j] == cNull && data[j] == cNull)
             return n; // key already exists
-          if(key[j] == '\0')
+          if(key[j] == cNull)
             return splitNode(n, j); // key smaller than node, split node
-          if(data[j] == '\0')
+          if(data[j] == cNull)
             return createNode(n, &key[j]); // go to child nodes
           if(key[j] != data[j])
             return addNode(splitNode(n, j), &key[j]); // key diverging from node, split node
@@ -91,16 +93,10 @@ Node &KRadix::createNode(Node &node, const QChar *key)
 // NOTE: Returns NEW node
 Node &KRadix::addNode(Node& node, const QChar* key)
 {
-  Node newNode;
-
-//  qDebug()<<"  New node: "<<node.key<<" -> "<<key;
-
-  newNode.key = QString(key);
-  newNode.data= newNode.key.data();
-
-  node.childNodes << newNode;
-
-  return node.childNodes.last();
+    Node newNode;
+    newNode.key = QString(key);
+    node.childNodes << newNode;
+    return node.childNodes.last();
 }
 
 // NOTE: Returns the parent node
@@ -108,20 +104,14 @@ Node &KRadix::splitNode(Node &node, int pos)
 {
     Node newNode = node;
 
-//    qDebug()<<"  Split node: "<<node.key;
-
     // Last part of node
     newNode.key = node.key.mid(pos);
-    newNode.data= newNode.key.data();
 
     // First part of node
     node.key = node.key.mid(0, pos);
     node.value = 0;
-    node.data= node.key.data();
     node.childNodes.clear();
     node.childNodes << newNode;
-
-//    qDebug()<<"   - new node: "<<node.key<<" -> "<<newNode.key;
 
     return node;
 }
@@ -129,28 +119,25 @@ Node &KRadix::splitNode(Node &node, int pos)
 // Find an exact key match.
 Node &KRadix::findNodeMatch(Node &node, const QChar *key)
 {
-    const int nodeCount = node.childNodes.count();
-    for(int i = 0; i < nodeCount; i++) {
+    for(Node& n : node.childNodes) {
         // Compare the first characters. Doing that first makes it easy to skip the current loop if it doesn't match.
+        const QChar* data = n.key.constData();
 
-        if(*node.childNodes.at(i).data != *key) {
+        if(*data != *key) {
             continue;
         }
-
-        Node& n = node.childNodes[i];
-        QChar* data = n.data;
 
         key++;
         data++;
 
         // Figure out where the characters start to diverge.
-        while(*key != '\0' && *key == *data) {
+        while(*key != cNull && *key == *data) {
             key++;
             data++;
         }
 
         // If the key is at the end then we have a full match in the current node thus return the value.
-        if(*data != '\0') {
+        if(*data != cNull) {
             return node;
         } else if(!n.childNodes.isEmpty()) {
             return findNodeMatch(n, key);
