@@ -26,24 +26,25 @@
 class Shortcut : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant key READ key WRITE setKey NOTIFY keyChanged)
+    Q_PROPERTY(QStringList keys READ keys WRITE setKeys NOTIFY keysChanged)
 public:
     explicit Shortcut(QObject *parent = 0);
 
-    void setKey(QVariant key);
-    QVariant key() { return m_keySequence; }
+    void setKeys(QStringList keys);
+    QStringList keys();
 
     bool eventFilter(QObject *obj, QEvent *e);
     
 signals:
     void keyChanged();
+    void keysChanged();
     void activated();
     void pressedAndHold();
     
 public slots:
 
 private:
-    QKeySequence m_keySequence;
+    QStringList m_keys;
     bool m_keypressAlreadySend;
 };
 
