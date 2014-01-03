@@ -22,6 +22,12 @@
 
 #include <QVariant>
 #include <QKeySequence>
+#include <QVector>
+
+struct Key {
+    QVector<Qt::MouseButton> mouseButtons;
+    QKeySequence keys;
+};
 
 class Shortcut : public QObject
 {
@@ -46,6 +52,9 @@ public slots:
 private:
     QStringList m_keys;
     bool m_keypressAlreadySend;
+    QHash<QString, Qt::MouseButton> m_mapFromString;
+    QVector<Key> m_keyPreCompute;
+    Key m_currentPressedKeys;
 };
 
 #endif // SHORTCUT_H
