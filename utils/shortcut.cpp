@@ -67,6 +67,10 @@ Shortcut::Shortcut(QObject *parent)
     m_mapFromString.insert("ExtraButton24",     Qt::ExtraButton24);
     m_mapFromString.insert("AllButtons",        Qt::AllButtons);
     m_mapFromString.insert("MaxMouseButton",    Qt::MaxMouseButton);
+    m_mapFromString.insert("WheelUp",           Qt::MaxMouseButton);    // TODO: Figure out right value.
+    m_mapFromString.insert("WheelDown",         Qt::MaxMouseButton);    // TODO: Figure out right value.
+    m_mapFromString.insert("WheelLeft",         Qt::MaxMouseButton);    // TODO: Figure out right value.
+    m_mapFromString.insert("WheelRight",        Qt::MaxMouseButton);    // TODO: Figure out right value.
 }
 
 void Shortcut::setKeys(QStringList keys)
@@ -113,6 +117,27 @@ QStringList Shortcut::keys()
 
 bool Shortcut::eventFilter(QObject *obj, QEvent *e)
 {
+    if(e->type() == QEvent::Wheel) {
+        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(e);
+        QPoint angle = wheelEvent->angleDelta() / 8;
+
+        if(angle.x() > 0) {
+//            qDebug() << "Wheel left";
+        } else if (angle.x() < 0) {
+//            qDebug() << "Wheel right";
+        }
+
+        if(angle.y() > 0) {
+//            qDebug() << "Wheel up";
+        } else if (angle.y() < 0) {
+//            qDebug() << "Wheel down";
+        }
+
+        // TODO
+        // insert wheel event in m_currentPressedKeys.mouseButtons
+    }
+
+
     if(e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease || e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
 
         // Construct the key sequence
@@ -138,6 +163,8 @@ bool Shortcut::eventFilter(QObject *obj, QEvent *e)
         // Fill the mouse keys..
         if(e->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+
+            qDebug() << "Mouse press event:" << mouseEvent->type();
 
             if(!m_currentPressedKeys.mouseButtons.contains(mouseEvent->button())) {
                 m_currentPressedKeys.mouseButtons.push_back(mouseEvent->button());
