@@ -49,6 +49,10 @@ public:
     const int length() const;
 
     const QString toString() const;
+    const ushort operator[] (const int index) const
+    {
+        return m_data[index];
+    }
 
 private:
     std::unique_ptr<ushort[]> m_data;
