@@ -17,7 +17,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 
 find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml Gui) # Needed for the kdirchainmodelplugin library
-find_package(KF5 CONFIG REQUIRED COMPONENTS KBookmarks XmlGui Solid KIO KIconThemes)
+find_package(KF5 CONFIG REQUIRED COMPONENTS Bookmarks XmlGui Solid KIO IconThemes)
 
 # Please KDE people. QUIT BREAKING THE INCLUDE PATHS! Manually add path to include/KDE.
 include_directories(${CMAKE_INSTALL_PREFIX}/include/KDE)
@@ -71,11 +71,12 @@ target_link_libraries(kdirchain
   Qt5::Gui # For QKeySequence
   Qt5::Quick # For QQuickImageProvider
   KF5::KIOCore
+  KF5::KIOWidgets
 )
 
 target_link_libraries(kdirchainmodelplugin
   Qt5::Qml
-  KF5::KIconThemes # For KIconLoader
+  KF5::IconThemes # For KIconLoader
   kdirchain
 )
 
