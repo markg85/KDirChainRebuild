@@ -34,6 +34,14 @@ KStringUnicode::KStringUnicode(QString data)
     m_data[length] = nullUnicode;
 }
 
+KStringUnicode &KStringUnicode::operator=(KStringUnicode&& other)
+{
+    if(m_data != other.m_data) {
+        m_data = std::move(other.m_data);
+    }
+    return *this;
+}
+
 // Move constructor
 KStringUnicode::KStringUnicode(KStringUnicode&& other)
     : m_data(std::move(other.m_data))

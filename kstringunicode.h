@@ -42,8 +42,11 @@ public:
     // Move constructor
     KStringUnicode(KStringUnicode&& other);
 
+    // Move assignment operator
+    KStringUnicode& operator=(KStringUnicode&& other);
+
     // Convenience function to get any part of the string as a new KStringUnicode object.
-    KStringUnicode mid(int position, int n) const;
+    KStringUnicode mid(int position, int n = -1) const;
 
     // Ruturns the length of the current string.
     const int length() const;
