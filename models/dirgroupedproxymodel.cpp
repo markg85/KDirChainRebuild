@@ -53,12 +53,12 @@ void DirGroupedProxyModel::reload()
     model->reload();
 }
 
-bool DirGroupedProxyModel::hidden()
+bool DirGroupedProxyModel::hiddenFilesVisible()
 {
     return m_hiddenFiles;
 }
 
-void DirGroupedProxyModel::setHidden(bool hiddenFiles)
+void DirGroupedProxyModel::setHiddenFilesVisible(bool hiddenFiles)
 {
     if(hiddenFiles != m_hiddenFiles) {
         m_hiddenFiles = hiddenFiles;
