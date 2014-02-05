@@ -28,15 +28,13 @@ DirGroupedProxyModel::DirGroupedProxyModel(QObject *parent)
     , m_filterValue()
     , m_hiddenFiles(true)
 {
-
 }
 
-void DirGroupedProxyModel::setRoleFilter(DirListModel::Roles acceptedRole, QVariant value)
+void DirGroupedProxyModel::setRoleValueMatch(QVariant value)
 {
-    if(m_acceptedRole != acceptedRole) {
-        m_acceptedRole = acceptedRole;
+    if(m_filterValue != value) {
+        m_filterValue = value;
     }
-    m_filterValue = value;
 }
 
 void DirGroupedProxyModel::sort(int column, Qt::SortOrder order)
@@ -68,7 +66,7 @@ void DirGroupedProxyModel::setHidden(bool hiddenFiles)
 
 bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    if(m_acceptedRole == DirListModel::None) {
+    if(filterRole() == DirListModel::None) {
         return true;
     } else {
         QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
@@ -81,7 +79,7 @@ bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &so
             }
         }
 
-        QVariant val = sourceModel()->data(index, m_acceptedRole);
+        QVariant val = sourceModel()->data(index, filterRole());
         if(val == m_filterValue) {
             return true;
         } else {

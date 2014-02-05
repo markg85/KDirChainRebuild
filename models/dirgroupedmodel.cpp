@@ -112,7 +112,7 @@ void DirGroupedModel::slotDirectoryContentChanged(KDirectory *dir)
         if(m_groupList.isEmpty()) {
             beginInsertRows(QModelIndex(), m_currentRowCount, m_currentRowCount);
             DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
-            model->setRoleFilter(m_groupby, QVariant());
+            model->setFilterRole(m_groupby);
             model->setSourceModel(m_listModel);
             m_groupList << model;
             m_distinctGroupKey << QVariant();
@@ -200,7 +200,8 @@ void DirGroupedModel::processEntry(KDirectory *dir, int id)
         qDebug() << "insert row." << m_currentRowCount << m_distinctGroupKey.count() << m_distinctGroupKey;
         beginInsertRows(QModelIndex(), m_currentRowCount, m_distinctGroupKey.count());
         DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
-        model->setRoleFilter(m_groupby, potentialNewGroupKey);
+        model->setFilterRole(m_groupby);
+        model->setRoleValueMatch(potentialNewGroupKey);
         model->setSourceModel(m_listModel);
         m_groupList << model;
         m_distinctGroupKey << potentialNewGroupKey;
@@ -228,7 +229,7 @@ DirGroupedProxyModel* DirGroupedModel::modelAtIndex(int index)
 {
     if(index == 0 && m_groupby == DirListModel::Roles::None && m_groupList.isEmpty()) {
         DirGroupedProxyModel* model = new DirGroupedProxyModel(this);
-        model->setRoleFilter(m_groupby, QVariant());
+        model->setFilterRole(m_groupby);
         model->setSourceModel(m_listModel);
         m_groupList << model;
     }
