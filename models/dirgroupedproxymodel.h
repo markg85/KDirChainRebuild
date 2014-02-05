@@ -36,6 +36,7 @@ public:
 
     bool hidden();
     void setHidden(bool hiddenFiles);
+    void setInputFilter(const QString& input);
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
@@ -44,8 +45,8 @@ signals:
     void hiddenChanged();
 
 private:
-    DirListModel::Roles m_acceptedRole;
     QVariant m_filterValue;
+    QString m_inputFilter; // This is what the user types to filter on.
     bool m_hiddenFiles;
 };
 

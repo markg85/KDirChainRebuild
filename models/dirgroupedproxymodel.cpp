@@ -24,10 +24,11 @@
 
 DirGroupedProxyModel::DirGroupedProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_acceptedRole()
     , m_filterValue()
+    , m_inputFilter()
     , m_hiddenFiles(true)
 {
+
 }
 
 void DirGroupedProxyModel::setRoleValueMatch(QVariant value)
@@ -64,6 +65,14 @@ void DirGroupedProxyModel::setHidden(bool hiddenFiles)
     }
 }
 
+void DirGroupedProxyModel::setInputFilter(const QString &input)
+{
+    if(m_inputFilter != input) {
+        m_inputFilter = input;
+        invalidateFilter();
+    }
+}
+
 bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     if(filterRole() == DirListModel::None) {
@@ -81,7 +90,12 @@ bool DirGroupedProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &so
 
         QVariant val = sourceModel()->data(index, filterRole());
         if(val == m_filterValue) {
-            return true;
+            if(m_inputFilter.isEmpty()) {
+                return true;
+            } else {
+                const QString& fileName = sourceModel()->data(index, DirListModel::Name).toString(); // filename + extension
+                return fileName.contains(QRegExp(m_inputFilter, Qt::CaseInsensitive));
+            }
         } else {
             return false;
         }

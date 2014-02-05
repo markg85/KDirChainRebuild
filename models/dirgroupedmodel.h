@@ -62,6 +62,9 @@ public:
     Q_INVOKABLE DirGroupedProxyModel* modelAtIndex(int index);
     Q_INVOKABLE void reload();
 
+    // This is what the user types when pressing CTRL + I.
+    Q_INVOKABLE void setInputFilter(const QString& input);
+
 signals:
     void pathChanged();
     void groupbyChanged();

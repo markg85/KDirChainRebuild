@@ -246,3 +246,10 @@ void DirGroupedModel::reload()
     regroup();
 }
 
+void DirGroupedModel::setInputFilter(const QString &input)
+{
+    for(DirGroupedProxyModel* l : m_groupList) {
+        l->setInputFilter(input);
+    }
+}
+
