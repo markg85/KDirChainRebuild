@@ -28,7 +28,9 @@ DirGroupedProxyModel::DirGroupedProxyModel(QObject *parent)
     , m_inputFilter()
     , m_hiddenFiles(true)
 {
-
+    connect(this, &QSortFilterProxyModel::layoutChanged, [&](){
+        qDebug() << "Layout changed...";
+    });
 }
 
 void DirGroupedProxyModel::setRoleValueMatch(QVariant value)
@@ -70,6 +72,13 @@ void DirGroupedProxyModel::setInputFilter(const QString &input)
     if(m_inputFilter != input) {
         m_inputFilter = input;
         invalidateFilter();
+
+        // Why do i need to reset it after an empty string is given?
+        // If i don't reset then the QML side somehow "forgets" to draw some items despite the rowCount being as it should be..
+        if(input == "") {
+            beginResetModel();
+            endResetModel();
+        }
     }
 }
 
