@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <QPixmap>
+#include <QPixmapCache>
 #include <QQuickImageProvider>
 #include <QDebug>
 
@@ -32,7 +33,15 @@ public:
             iconSize = qMin(size->width(), size->height());
         }
 
-        return QIcon::fromTheme(id).pixmap(iconSize);
+        const QString iconName = QString(QIcon::themeName() + "_" + id + "_" + QString::number(iconSize));
+
+        QPixmap pm;
+        if(!QPixmapCache::find(iconName, &pm)) {
+            pm = QIcon::fromTheme(id).pixmap(iconSize);
+            QPixmapCache::insert(iconName, pm);
+        }
+
+        return pm;
     }
 };
 
