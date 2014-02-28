@@ -1,8 +1,6 @@
 #ifndef MIMEIMAGEPROVIDER_H
 #define MIMEIMAGEPROVIDER_H
 
-#include <KIconLoader>
-
 #include <QIcon>
 #include <QPixmap>
 #include <QQuickImageProvider>
@@ -34,7 +32,7 @@ public:
             iconSize = qMin(size->width(), size->height());
         }
 
-        return KIconLoader::global()->loadMimeTypeIcon(id, KIconLoader::Desktop, iconSize);
+        return QIcon::fromTheme(id).pixmap(iconSize);
     }
 };
 
