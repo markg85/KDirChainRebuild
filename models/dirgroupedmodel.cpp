@@ -95,7 +95,7 @@ QVariant DirGroupedModel::data(const QModelIndex &index, int role) const
         qDebug() << index;
         return QVariant();
     } else {
-        if(role == Qt::DisplayRole && index.row() >= 0 && index.row() < m_distinctGroupKey.count()) {
+        if((index.column() + Qt::UserRole + 1) == GroupedName) {
             return m_distinctGroupKey.at(index.row());
         }
     }
@@ -251,5 +251,14 @@ void DirGroupedModel::setInputFilter(const QString &input)
     for(DirGroupedProxyModel* l : m_groupList) {
         l->setInputFilter(input);
     }
+}
+
+QHash<int, QByteArray> DirGroupedModel::roleNames() const
+{
+    static const QHash<int, QByteArray> roleNames {
+        {GroupedName,     "groupedName"},
+    };
+
+    return roleNames;
 }
 

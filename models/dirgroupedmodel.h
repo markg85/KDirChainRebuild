@@ -34,8 +34,12 @@ class DirGroupedModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(int groupby READ groupby WRITE setGroupby NOTIFY groupbyChanged)
+    Q_ENUMS(Roles)
 
 public:
+    enum Roles {
+        GroupedName = Qt::UserRole + 1,
+    };
 
     /**
      * @param parent parent qobject
@@ -64,6 +68,9 @@ public:
 
     // This is what the user types when pressing CTRL + I.
     Q_INVOKABLE void setInputFilter(const QString& input);
+
+protected:
+    virtual QHash<int, QByteArray> roleNames() const;
 
 signals:
     void pathChanged();
