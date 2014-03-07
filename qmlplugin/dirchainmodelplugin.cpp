@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2013 Mark Gaiser <markg85@gmail.com>
+    Copyright (C) 2014 Mark Gaiser <markg85@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <utils/urlundoredo.h>
 #include <utils/shortcut.h>
 #include <utils/mimeimageprovider.h>
+#include <utils/splitview.h>
 
 #include <QtQml>
 
@@ -39,6 +40,7 @@ void DirchainModelPlugin::registerTypes(const char *uri)
     qmlRegisterType<BreadcrumbUrlModel>(uri, 1,0, "BreadcrumbUrlModel");
     qmlRegisterType<UrlUndoRedo>(uri, 1,0, "UrlUndoRedo");
     qmlRegisterType<Shortcut>(uri, 1,0, "Shortcut");
+    qmlRegisterType<SplitView>(uri, 1,0, "SplitView");
     qmlRegisterType<DirGroupedProxyModel>();
 }
 

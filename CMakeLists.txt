@@ -40,6 +40,7 @@ set(kdirchain_LIB_SRCS
   utils/shortcut.cpp
   utils/urlundoredo.cpp
   utils/mimeimageprovider.h
+  utils/splitview.cpp
   kdirectory.cpp
   kdirectoryentry.cpp
   kdirectoryprivate_p.cpp
