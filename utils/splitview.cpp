@@ -23,18 +23,18 @@
 
 SplitView::SplitView(QQuickItem *parent)
     : QQuickItem(parent)
-    , m_delegate(0)
+    , m_resizeHandleDelegate(0)
     , m_doneInitialCreation(false)
 {
     connect(this, &QQuickItem::widthChanged, this, &SplitView::distributeWidth);
     connect(this, &QQuickItem::heightChanged, this, &SplitView::distributeHeight);
 }
 
-void SplitView::setDelegate(QQmlComponent *delegate)
+void SplitView::setresizeHandleDelegate(QQmlComponent *resizeHandleDelegate)
 {
-    if (delegate != m_delegate) {
-        m_delegate = delegate;
-        emit delegateChanged();
+    if (resizeHandleDelegate != m_resizeHandleDelegate) {
+        m_resizeHandleDelegate = resizeHandleDelegate;
+        emit resizeHandleDelegateChanged();
     }
 }
 
@@ -137,7 +137,7 @@ void SplitView::componentComplete()
     const int numOfSplitters = childItems().count() - 1;
     for(int i = 0; i < numOfSplitters; i++) {
         const int injectAfterId = i + i;
-        QObject *myObject = m_delegate->create();
+        QObject *myObject = m_resizeHandleDelegate->create();
         QQuickItem *temp = qobject_cast<QQuickItem*>(myObject);
         temp->setParentItem(this);
         temp->stackAfter(childItems().at(injectAfterId));

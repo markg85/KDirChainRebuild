@@ -26,26 +26,26 @@
 class SplitView : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QQmlComponent *delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
+    Q_PROPERTY(QQmlComponent *resizeHandleDelegate READ resizeHandleDelegate WRITE setresizeHandleDelegate NOTIFY resizeHandleDelegateChanged)
 public:
     explicit SplitView(QQuickItem *parent = 0);
 
-    QQmlComponent *delegate() const { return m_delegate; }
-    void setDelegate(QQmlComponent *delegate);
+    QQmlComponent *resizeHandleDelegate() const { return m_resizeHandleDelegate; }
+    void setresizeHandleDelegate(QQmlComponent *resizeHandleDelegate);
     void distributeWidth();
     void distributeHeight();
     void elementWidthChanged();
     void splitterXChanged();
 
 signals:
-    void delegateChanged();
+    void resizeHandleDelegateChanged();
 
 protected:
     void itemChange(ItemChange change, const ItemChangeData & value);
     void componentComplete();
 
 private:
-    QQmlComponent *m_delegate;
+    QQmlComponent *m_resizeHandleDelegate;
     bool m_doneInitialCreation;
 };
 
