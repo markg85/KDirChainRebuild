@@ -164,7 +164,7 @@ bool Shortcut::eventFilter(QObject *obj, QEvent *e)
         if(e->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
 
-            qDebug() << "Mouse press event:" << mouseEvent->type();
+            // qDebug() << "Mouse press event:" << mouseEvent->type();
 
             if(!m_currentPressedKeys.mouseButtons.contains(mouseEvent->button())) {
                 m_currentPressedKeys.mouseButtons.push_back(mouseEvent->button());
