@@ -34,6 +34,7 @@ public:
     void setDelegate(QQmlComponent *delegate);
     void distributeWidth();
     void distributeHeight();
+    void elementWidthChanged();
     void splitterXChanged();
 
 signals:

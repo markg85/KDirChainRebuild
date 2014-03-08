@@ -77,6 +77,22 @@ void SplitView::distributeHeight()
     }
 }
 
+void SplitView::elementWidthChanged()
+{
+    QQuickItem *item = qobject_cast<QQuickItem*>(sender());
+
+    const int index = childItems().indexOf(item);
+
+    // If we are the last item then just allow the resize.
+    if(index == childItems().count() - 1) {
+        return;
+    }
+
+    // The next item should be a splitter one. Get it and change it's X. splitterXChanged will then pick it up and do the rest.
+    QQuickItem* splitter = childItems().at(index + 1);
+    splitter->setX(item->x() + item->width());
+}
+
 void SplitView::splitterXChanged()
 {
     if(!m_doneInitialCreation) {
@@ -128,6 +144,11 @@ void SplitView::componentComplete()
         temp->setProperty("splitter", true);
 
         connect(temp, &QQuickItem::xChanged, this, &SplitView::splitterXChanged);
+    }
+
+    // Coonect widthChanged signal of all components
+    for(QQuickItem* item : childItems()) {
+        connect(item, &QQuickItem::widthChanged, this, &SplitView::elementWidthChanged);
     }
 
     distributeWidth();
