@@ -24,7 +24,7 @@
 SplitView::SplitView(QQuickItem *parent)
     : QQuickItem(parent)
     , m_resizeHandleDelegate(0)
-    , m_doneInitialCreation(false)
+    , m_insertSplitter(false)
 {
     connect(this, &QQuickItem::widthChanged, this, &SplitView::distributeWidth);
     connect(this, &QQuickItem::heightChanged, this, &SplitView::distributeHeight);
@@ -45,7 +45,6 @@ void SplitView::distributeWidth()
 
     // First pass, figure out the items that need resizing and how much width is fixed.
     for(QQuickItem* item : childItems()) {
-        item->blockSignals(true);
         if(item->property("dynamicWidth").isValid()) {
             numOfItemsFlexible++;
         } else {
@@ -59,14 +58,12 @@ void SplitView::distributeWidth()
     const qreal widthPerItem = (width() - fixedWidth) / numOfItemsFlexible;
     for(QQuickItem* item : childItems()) {
         if(item->property("dynamicWidth").isValid()) {
-            item->setImplicitWidth(widthPerItem);
+            item->setWidth(widthPerItem);
         }
 
         item->setX(xOffset);
         xOffset += item->width();
-        item->blockSignals(false);
     }
-
 }
 
 void SplitView::distributeHeight()
@@ -95,10 +92,6 @@ void SplitView::elementWidthChanged()
 
 void SplitView::splitterXChanged()
 {
-    if(!m_doneInitialCreation) {
-        return;
-    }
-
     QQuickItem *splitterItem = qobject_cast<QQuickItem*>(sender());
     const int index = childItems().indexOf(splitterItem);
 
@@ -120,39 +113,54 @@ void SplitView::splitterXChanged()
 
 void SplitView::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &value)
 {
-    QQuickItem::itemChange(change, value);
-}
+    if(change == ItemChildAddedChange) {
 
-void SplitView::componentComplete()
-{
-    QQuickItem::componentComplete();
+        QQuickItem* item = childItems().last();
+        connect(item, &QQuickItem::widthChanged, this, &SplitView::elementWidthChanged);
 
-    for(QQuickItem* item : childItems()) {
         if(item->width() == 0) {
             item->setProperty("dynamicWidth", true);
         }
+
+        if(!m_insertSplitter && childItems().count() > 1) {
+            m_insertSplitter = true;
+            QObject *myObject = m_resizeHandleDelegate->create();
+            QQuickItem *temp = qobject_cast<QQuickItem*>(myObject);
+            temp->setParentItem(this);
+            temp->stackBefore(item);
+            temp->setProperty("splitter", true);
+            connect(temp, &QQuickItem::xChanged, this, &SplitView::splitterXChanged);
+            m_insertSplitter = false;
+        }
+
+        distributeWidth();
+        distributeHeight();
+    } else if(change == ItemChildRemovedChange) {
+        if(childItems().count() > 1) {
+            QQuickItem* item = childItems().last();
+            if(item->property("splitter").isValid()) {
+                item->deleteLater();
+            } else {
+                // Ahh, crap.. We now might have two splitters next to eachother. Loop through the items and if we find two splitters next to each other, remove one.
+                bool lastItemWasSplitter = false;
+                for(QQuickItem* i : childItems()) {
+                    if(i->property("splitter").isValid()) {
+                        if(lastItemWasSplitter) {
+                            // Double splitter! Remove this one.
+                            i->deleteLater();
+                            break;
+                        } else {
+                            lastItemWasSplitter = true;
+                        }
+                    } else {
+                        lastItemWasSplitter = false;
+                    }
+                }
+            }
+        }
+        distributeWidth();
+        distributeHeight();
     }
 
-    // Inject splitters
-    const int numOfSplitters = childItems().count() - 1;
-    for(int i = 0; i < numOfSplitters; i++) {
-        const int injectAfterId = i + i;
-        QObject *myObject = m_resizeHandleDelegate->create();
-        QQuickItem *temp = qobject_cast<QQuickItem*>(myObject);
-        temp->setParentItem(this);
-        temp->stackAfter(childItems().at(injectAfterId));
-        temp->setProperty("splitter", true);
-
-        connect(temp, &QQuickItem::xChanged, this, &SplitView::splitterXChanged);
-    }
-
-    // Coonect widthChanged signal of all components
-    for(QQuickItem* item : childItems()) {
-        connect(item, &QQuickItem::widthChanged, this, &SplitView::elementWidthChanged);
-    }
-
-    distributeWidth();
-    distributeHeight();
-
-    m_doneInitialCreation = true;
+    QQuickItem::itemChange(change, value);
 }

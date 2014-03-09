@@ -42,11 +42,10 @@ signals:
 
 protected:
     void itemChange(ItemChange change, const ItemChangeData & value);
-    void componentComplete();
 
 private:
     QQmlComponent *m_resizeHandleDelegate;
-    bool m_doneInitialCreation;
+    bool m_insertSplitter;
 };
 
 #endif // SPLITVIEW_H
