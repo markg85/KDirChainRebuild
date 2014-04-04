@@ -172,7 +172,7 @@ void KDirectoryPrivate::processFilterFlags(const KIO::UDSEntryList &entries)
     // - for whatever reason - don't use move to m_unusedEntries.
 
     for(const KIO::UDSEntry entry : entries) {
-        KDirectoryEntry e(entry);
+        KDirectoryEntry e(entry, m_details);
         if(keepEntryAccordingToFilter(e)) {
             m_filteredEntries.append(e); // Move the item to m_usableEntries
         } else {

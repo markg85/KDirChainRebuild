@@ -70,6 +70,14 @@ const QString &DirGroupedModel::path()
     return m_listModel->path();
 }
 
+void DirGroupedModel::setDetails(const QString &details)
+{
+    if(m_listModel->details() != details) {
+        m_listModel->setDetails(details);
+        emit detailsChanged();
+    }
+}
+
 DirListModel::Roles DirGroupedModel::groupby()
 {
     return m_groupby;

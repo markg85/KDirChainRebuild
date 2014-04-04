@@ -47,7 +47,7 @@ void KDirListerV2Private::addUrl(KDirListerV2::DirectoryFetchDetails dirFetchDet
         m_cache.remove(dirFetchDetails.url);
     }
 
-    qDebug() << "Added new url:" << dirFetchDetails.url;
+    qDebug() << "Added new url:" << dirFetchDetails.url << "DETAILS:" << dirFetchDetails.details;
     newUrl(dirFetchDetails);
 }
 

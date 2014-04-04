@@ -29,6 +29,7 @@ DirListModel::DirListModel(QObject *parent)
     , m_dir()
     , m_emptyVariant()
     , m_path()
+    , m_details("0")
     , m_currentRowCount(0)
     , m_roleCount(0)
     , m_doneLoading(false)
@@ -57,7 +58,7 @@ void DirListModel::setPath(const QString &path)
     if(!m_lister.isListing(m_path)) {
         KDirListerV2::DirectoryFetchDetails dirFetchDetails;
         dirFetchDetails.url = m_path;
-        dirFetchDetails.details = "0";
+        dirFetchDetails.details = m_details;
         dirFetchDetails.filters = QDir::NoDotAndDotDot;
 
         m_lister.openUrl(dirFetchDetails);
@@ -69,6 +70,14 @@ void DirListModel::setPath(const QString &path)
 const QString &DirListModel::path()
 {
     return m_path;
+}
+
+void DirListModel::setDetails(const QString &details)
+{
+    if(m_details != details) {
+        m_details = details;
+        emit detailsChanged();
+    }
 }
 
 QVariant DirListModel::data(const QModelIndex &index, int role) const

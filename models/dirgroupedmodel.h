@@ -33,6 +33,7 @@ class DirGroupedModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(QString details READ details WRITE setDetails NOTIFY detailsChanged)
     Q_PROPERTY(int groupby READ groupby WRITE setGroupby NOTIFY groupbyChanged)
     Q_ENUMS(Roles)
 
@@ -49,6 +50,9 @@ public:
 
     void setPath(const QString& path);
     const QString& path();
+
+    void setDetails(const QString& details);
+    const QString& details() { return m_listModel->details(); }
 
     DirListModel::Roles groupby();
     void setGroupby(int role);
@@ -74,6 +78,7 @@ protected:
 
 signals:
     void pathChanged();
+    void detailsChanged();
     void groupbyChanged();
 
 private:

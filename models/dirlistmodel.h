@@ -29,6 +29,7 @@ class DirListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(QString details READ details WRITE setDetails NOTIFY detailsChanged)
     Q_ENUMS(Roles)
 
 public:
@@ -58,6 +59,9 @@ public:
     void setPath(const QString& path);
     const QString& path();
 
+    void setDetails(const QString& details);
+    const QString& details() { return m_details; }
+
     /// Reimplemented from QAbstractItemModel.
     virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
@@ -80,12 +84,14 @@ protected:
 
 signals:
     void pathChanged();
+    void detailsChanged();
 
 private:
     KDirListerV2 m_lister;
     KDirectory* m_dir;
     QVariant m_emptyVariant;
     QString m_path;
+    QString m_details;
     int m_currentRowCount;
     int m_roleCount; // Used for column count
     bool m_doneLoading;
