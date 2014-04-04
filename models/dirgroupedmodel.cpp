@@ -33,7 +33,7 @@ DirGroupedModel::DirGroupedModel(QObject *parent)
     , m_currentEntryRowCount(0)
 {
     m_listModel = new DirListModel(this);
-    m_lister = m_listModel->m_lister;
+    m_lister = &m_listModel->m_lister;
     connect(m_lister, &KDirListerV2::directoryContentChanged, this, &DirGroupedModel::slotDirectoryContentChanged);
     connect(m_lister, &KDirListerV2::completed, this, &DirGroupedModel::slotCompleted);
     connect(this, &DirGroupedModel::groupbyChanged, this, &DirGroupedModel::regroup);

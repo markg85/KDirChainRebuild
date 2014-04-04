@@ -1,4 +1,4 @@
-/*
+                                                                                        /*
     Copyright (C) 2013 Mark Gaiser <markg85@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 DirListModel::DirListModel(QObject *parent)
     : QAbstractListModel(parent)
-    , m_lister(0)
+    , m_lister()
     , m_dir()
     , m_emptyVariant()
     , m_path()
@@ -33,11 +33,10 @@ DirListModel::DirListModel(QObject *parent)
     , m_roleCount(0)
     , m_doneLoading(false)
 {
-    m_lister = new KDirListerV2();
     m_roleCount = roleNames().count(); // This initializes the roleNames hash and fills the m_roleCount.
 
-    connect(m_lister, &KDirListerV2::directoryContentChanged, this, &DirListModel::slotDirectoryContentChanged);
-    connect(m_lister, &KDirListerV2::completed, this, &DirListModel::slotCompleted);
+    connect(&m_lister, &KDirListerV2::directoryContentChanged, this, &DirListModel::slotDirectoryContentChanged);
+    connect(&m_lister, &KDirListerV2::completed, this, &DirListModel::slotCompleted);
 }
 
 DirListModel::~DirListModel()
@@ -55,15 +54,15 @@ void DirListModel::setPath(const QString &path)
         emit pathChanged();
     }
 
-    if(!m_lister->isListing(m_path)) {
+    if(!m_lister.isListing(m_path)) {
         KDirListerV2::DirectoryFetchDetails dirFetchDetails;
         dirFetchDetails.url = m_path;
         dirFetchDetails.details = "0";
         dirFetchDetails.filters = QDir::NoDotAndDotDot;
 
-        m_lister->openUrl(dirFetchDetails);
+        m_lister.openUrl(dirFetchDetails);
     } else {
-        slotCompleted(m_lister->directory(m_path));
+        slotCompleted(m_lister.directory(m_path));
     }
 }
 
@@ -225,7 +224,7 @@ void DirListModel::reload()
     beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
     m_currentRowCount = 0;
     endRemoveRows();
-    m_lister->openUrl(m_path, KDirListerV2::Reload);
+    m_lister.openUrl(m_path, KDirListerV2::Reload);
 }
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)

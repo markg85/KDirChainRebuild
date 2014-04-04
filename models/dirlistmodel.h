@@ -82,7 +82,7 @@ signals:
     void pathChanged();
 
 private:
-    KDirListerV2* m_lister;
+    KDirListerV2 m_lister;
     KDirectory* m_dir;
     QVariant m_emptyVariant;
     QString m_path;
