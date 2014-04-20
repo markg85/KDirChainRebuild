@@ -1,4 +1,4 @@
-                                                                                        /*
+/*
     Copyright (C) 2013 Mark Gaiser <markg85@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
@@ -45,21 +45,27 @@ DirListModel::~DirListModel()
     // Delete pointers...
 }
 
-void DirListModel::setPath(const QString &path)
+void DirListModel::setPath(const QString &path, bool reload)
 {
     if(m_path != path) {
         m_path = path;
-        beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
+        beginResetModel();
+//        beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
         m_currentRowCount = 0;
-        endRemoveRows();
+//        endRemoveRows();
+        endResetModel();
         emit pathChanged();
     }
 
-    if(!m_lister.isListing(m_path)) {
+    if(reload || !m_lister.isListing(m_path)) {
         KDirListerV2::DirectoryFetchDetails dirFetchDetails;
         dirFetchDetails.url = m_path;
         dirFetchDetails.details = m_details;
         dirFetchDetails.filters = QDir::NoDotAndDotDot;
+
+        if(reload) {
+            dirFetchDetails.openFlags = KDirListerV2::Reload;
+        }
 
         m_lister.openUrl(dirFetchDetails);
     } else {
@@ -82,6 +88,8 @@ void DirListModel::setDetails(const QString &details)
 
 QVariant DirListModel::data(const QModelIndex &index, int role) const
 {
+//    qDebug() << "Data call. Role:" << role << "row:" << index.row();
+
     if (!index.isValid()) {
         qDebug() << index;
         return QVariant();
@@ -233,7 +241,7 @@ void DirListModel::reload()
     beginRemoveRows(QModelIndex(), 0, m_currentRowCount);
     m_currentRowCount = 0;
     endRemoveRows();
-    m_lister.openUrl(m_path, KDirListerV2::Reload);
+    setPath(m_path, true);
 }
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)

@@ -36,6 +36,7 @@ set(kdirchain_LIB_SRCS
   models/dirtreemodel.cpp
   models/dirgroupedmodel.cpp
   models/dirgroupedproxymodel.cpp
+  models/flatdirgroupedsortmodel.cpp
   utils/breadcrumburlmodel.cpp
   utils/shortcut.cpp
   utils/urlundoredo.cpp

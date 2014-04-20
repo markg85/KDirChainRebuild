@@ -21,6 +21,7 @@
 #include <models/dirlistmodel.h>
 #include <models/dirgroupedmodel.h>
 #include <models/dirgroupedproxymodel.h>
+#include <models/flatdirgroupedsortmodel.h>
 
 #include <utils/breadcrumburlmodel.h>
 #include <utils/urlundoredo.h>
@@ -35,6 +36,7 @@ void DirchainModelPlugin::registerTypes(const char *uri)
     Q_ASSERT(uri == QLatin1String("kdirchainmodel"));
     qmlRegisterType<DirListModel>(uri, 1,0, "DirListModel");
     qmlRegisterType<DirGroupedModel>(uri, 1,0, "DirGroupedModel");
+    qmlRegisterType<FlatDirGroupedSortModel>(uri, 1,0, "FlatDirGroupedSortModel");
 
     // Utils. QML Helper components. These should go into their own QML plugin library.
     qmlRegisterType<BreadcrumbUrlModel>(uri, 1,0, "BreadcrumbUrlModel");

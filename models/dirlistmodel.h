@@ -56,7 +56,7 @@ public:
     explicit DirListModel(QObject* parent = 0);
     ~DirListModel();
 
-    void setPath(const QString& path);
+    void setPath(const QString& path, bool reload = false);
     const QString& path();
 
     void setDetails(const QString& details);
