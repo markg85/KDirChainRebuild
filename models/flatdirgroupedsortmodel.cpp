@@ -221,6 +221,8 @@ void FlatDirGroupedSortModel::modelRowsRemoved(const QModelIndex & parent, int s
     // This will do as a temporary workaround :)
     m_fromProxyToSource.clear();
     m_fromSourceToProxy.clear();
+    m_allSourceIndexes.clear();
+    m_itemsPerGroup.clear();
 
     endRemoveRows();
 }
@@ -238,6 +240,7 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
         return m_listModel->data(a, m_groupby).toString().compare(m_listModel->data(b, m_groupby).toString()) < 0;
     });
 
+
     // Update our bookkeeping vectors
     const int newSize = newEntries.size();
     for(int i = 0; i < newSize; i++) {
@@ -246,6 +249,14 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
 
         // New source to proxy index becomes:
         m_fromSourceToProxy[newEntries[i]] = i + start;
+
+        const QString& groupVal = m_listModel->data(i + start, m_groupby).toString();
+        if(m_itemsPerGroup.contains(groupVal)) {
+            const int curCount = m_itemsPerGroup.value(groupVal) + 1;
+            m_itemsPerGroup.insert(groupVal, curCount);
+        } else {
+            m_itemsPerGroup.insert(groupVal, 1);
+        }
     }
 }
 
@@ -299,6 +310,11 @@ void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId)
     // Emit data change signal for all rows that "might" have been changed due to this sort operation.
     // A view will pick this event up and update the visual. Here the user sees the re-sorting.
     emit dataChanged(createIndex(initStartId, 0), createIndex(initEndId, 0));
+}
+
+int FlatDirGroupedSortModel::numOfItemsForGroup(const QString &group)
+{
+    return m_itemsPerGroup.value(group);
 }
 
 bool FlatDirGroupedSortModel::variantLessThan(const QVariant &l, const QVariant &r)

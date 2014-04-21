@@ -63,6 +63,7 @@ public:
 
     Q_INVOKABLE void reload();
     Q_INVOKABLE void requestSortForItems(int startId, int endId);
+    Q_INVOKABLE int numOfItemsForGroup(const QString& group);
 
     inline bool variantLessThan(const QVariant& l, const QVariant& r);
 
@@ -80,6 +81,8 @@ private:
     QVector<int> m_fromProxyToSource;
     QVector<int> m_fromSourceToProxy;
     QVector<int> m_allSourceIndexes;
+
+    QHash<QString, int> m_itemsPerGroup;
 };
 
 
