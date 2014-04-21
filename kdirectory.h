@@ -35,6 +35,12 @@ public:
     explicit KDirectory(const QString& directory, QObject *parent = 0);
     
     virtual const QVector<KDirectoryEntry>& entries();
+
+    /**
+     * Entry returns the KDirectoryEntry object if it's index is in the filteredEntries.
+     * @param index
+     * @return
+     */
     virtual const KDirectoryEntry& entry(int index);
     virtual const QString& url();
     virtual int count();
