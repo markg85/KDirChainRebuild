@@ -65,6 +65,12 @@ public:
     /// Reimplemented from QAbstractItemModel.
     virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
+    /*
+     * This function is used to access the data without the need of making a QModelIndex.
+     * This is helpfull when using data in a sort function.
+     */
+    QVariant data(int index, int role = Qt::DisplayRole) const;
+
     /// Reimplemented from QAbstractItemModel.
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent) const;

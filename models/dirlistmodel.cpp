@@ -103,57 +103,8 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
         }
 
         if(role == Qt::DisplayRole || role > Qt::UserRole) {
+            return data(index.row(), switchVal);
 
-            const KDirectoryEntry& entry = m_dir->entry(index.row());
-
-            switch (switchVal) {
-            case Name:
-                return QVariant(entry.name());
-                break;
-            case BaseName:
-                return QVariant(entry.basename());
-                break;
-            case Extension:
-                return QVariant(entry.extension());
-                break;
-            case Hidden:
-                return QVariant(entry.isHidden());
-                break;
-            case MimeComment:
-                return QVariant(entry.mimeComment());
-                break;
-            case MimeIcon:
-                return QVariant(entry.iconName());
-                break;
-            case Thumbnail:
-                // Should return a thumbnail of the file.
-                return QVariant("TO_BE_IMPLEMENTED");
-                break;
-            case Size:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.size());
-                break;
-            case ModificationTime:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.time(KDirectoryEntry::ModificationTime));
-                break;
-            case AccessTime:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.time(KDirectoryEntry::AccessTime));
-                break;
-            case CreationTime:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.time(KDirectoryEntry::CreationTime));
-                break;
-            case User:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.user());
-                break;
-            case Group:
-                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
-                return QVariant(entry.group());
-                break;
-            }
 
         } else if (role == Qt::DecorationRole && index.column() == 0) {
             // display the file icon. This is to be implemented.
@@ -161,6 +112,60 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
     }
 
     return m_emptyVariant;
+}
+
+QVariant DirListModel::data(int index, int role) const
+{
+    const KDirectoryEntry& entry = m_dir->entry(index);
+
+    switch (role) {
+    case Name:
+        return QVariant(entry.name());
+        break;
+    case BaseName:
+        return QVariant(entry.basename());
+        break;
+    case Extension:
+        return QVariant(entry.extension());
+        break;
+    case Hidden:
+        return QVariant(entry.isHidden());
+        break;
+    case MimeComment:
+        return QVariant(entry.mimeComment());
+        break;
+    case MimeIcon:
+        return QVariant(entry.iconName());
+        break;
+    case Thumbnail:
+        // Should return a thumbnail of the file.
+        return QVariant("TO_BE_IMPLEMENTED");
+        break;
+    case Size:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.size());
+        break;
+    case ModificationTime:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.time(KDirectoryEntry::ModificationTime));
+        break;
+    case AccessTime:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.time(KDirectoryEntry::AccessTime));
+        break;
+    case CreationTime:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.time(KDirectoryEntry::CreationTime));
+        break;
+    case User:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.user());
+        break;
+    case Group:
+        if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
+        return QVariant(entry.group());
+        break;
+    }
 }
 
 int DirListModel::rowCount(const QModelIndex &) const
