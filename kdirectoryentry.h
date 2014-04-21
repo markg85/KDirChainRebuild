@@ -123,7 +123,7 @@ public:
      */
     bool isHidden() const;
 
-    bool entryDetailsChanged() const;
+    bool detailsLoaded() const;
 
 
 private:

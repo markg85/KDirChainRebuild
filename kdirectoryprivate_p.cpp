@@ -207,7 +207,7 @@ void KDirectoryPrivate::loadEntryDetails(int id)
 //                qDebug() << "Failed to stat the file:" << statJob->url() << "id:" << statJob->property("id").toInt();
                 int id = statJob->property("id").toInt();
                 m_filteredEntries[id].setUDSEntry(statJob->statResult(), "2");
-                if(m_filteredEntries[id].entryDetailsChanged()) {
+                if(m_filteredEntries[id].detailsLoaded()) {
                     emit entryDetailsChanged(id);
                 } else {
                     qDebug() << "Details where loaded, but failed to actually set in the KDirectoryEntry object.";

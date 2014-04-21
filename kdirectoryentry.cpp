@@ -341,7 +341,7 @@ bool KDirectoryEntry::isHidden() const
     return d->isHidden();
 }
 
-bool KDirectoryEntry::entryDetailsChanged() const
+bool KDirectoryEntry::detailsLoaded() const
 {
     return d->m_fullUDSEntryLoaded;
 }

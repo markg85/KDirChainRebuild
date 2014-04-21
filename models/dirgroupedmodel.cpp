@@ -177,27 +177,27 @@ void DirGroupedModel::processEntry(KDirectory *dir, int id)
     case DirListModel::Thumbnail:
         break;
     case DirListModel::Size:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.size();
         break;
     case DirListModel::ModificationTime:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::ModificationTime);
         break;
     case DirListModel::AccessTime:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::AccessTime);
         break;
     case DirListModel::CreationTime:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.time(KDirectoryEntry::FileTimes::CreationTime);
         break;
     case DirListModel::User:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.user();
         break;
     case DirListModel::Group:
-        if(!e.entryDetailsChanged()) dir->loadEntryDetails(id);
+        if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.group();
         break;
     }

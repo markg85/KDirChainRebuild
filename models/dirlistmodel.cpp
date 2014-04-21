@@ -130,27 +130,27 @@ QVariant DirListModel::data(const QModelIndex &index, int role) const
                 return QVariant("TO_BE_IMPLEMENTED");
                 break;
             case Size:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.size());
                 break;
             case ModificationTime:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::ModificationTime));
                 break;
             case AccessTime:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::AccessTime));
                 break;
             case CreationTime:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.time(KDirectoryEntry::CreationTime));
                 break;
             case User:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.user());
                 break;
             case Group:
-                if(!entry.entryDetailsChanged()) m_dir->loadEntryDetails(index.row());
+                if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index.row());
                 return QVariant(entry.group());
                 break;
             }
