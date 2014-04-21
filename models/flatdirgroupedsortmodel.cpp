@@ -165,14 +165,14 @@ QModelIndex FlatDirGroupedSortModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
-int FlatDirGroupedSortModel::rowCount(const QModelIndex &parent) const
+int FlatDirGroupedSortModel::rowCount(const QModelIndex &) const
 {
-    return sourceModel()->rowCount(parent);
+    return m_listModel->rowCount();
 }
 
 int FlatDirGroupedSortModel::columnCount(const QModelIndex &parent) const
 {
-    return sourceModel()->columnCount(parent);
+    return m_listModel->columnCount(parent);
 }
 
 QModelIndex FlatDirGroupedSortModel::mapFromSource(const QModelIndex &sourceIndex) const
@@ -199,6 +199,9 @@ void FlatDirGroupedSortModel::modelRowsInserted(const QModelIndex & parent, int 
 
     // We first simply add the new entries to our bookkeeping vectors. Ordering them will happen later.
     for(int i = start; i <= end; i++) {
+        m_allSourceIndexes.append(i);
+
+        // Should go..
         m_fromProxyToSource.append(i);
         m_fromSourceToProxy.append(i);
     }
@@ -226,21 +229,13 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
 {
     // Create a temporary vector containing our new indexes.
     QVector<int> newEntries;
-    QVector<QVariant> groupValues;
     for(int i = start; i <= end; i++) {
         newEntries.append(i);
-        groupValues << sourceModel()->data(createIndex(i, 0), m_groupby);
     }
-
-//    qDebug() << newEntries;
 
     // Sort based on grouping key
     std::sort(newEntries.begin(), newEntries.end(), [&](int a, int b) {
-
-        const QVariant& l = groupValues.at(a - start);
-        const QVariant& r = groupValues.at(b - start);
-
-        return l.toString().compare(r.toString()) < 0;
+        return m_listModel->data(a, m_groupby).toString().compare(m_listModel->data(b, m_groupby).toString()) < 0;
     });
 
     // Update our bookkeeping vectors
@@ -252,10 +247,6 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
         // New source to proxy index becomes:
         m_fromSourceToProxy[newEntries[i]] = i + start;
     }
-
-//    qDebug() << "After sorting...";
-
-    //    qDebug() << newEntries;
 }
 
 void FlatDirGroupedSortModel::reload()
@@ -265,7 +256,49 @@ void FlatDirGroupedSortModel::reload()
 
 void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId)
 {
-    qDebug() << "STUB! To be implemented." << startId << endId;
+    /* --------------------------------
+     * This function is the beginning of very efficient sorting whee it would only sort what you see
+     * and on demand. However, it still needs a LOT of work to work properly.
+     * --------------------------------
+     */
+    int initStartId = startId;
+    int initEndId = endId;
+
+    if((startId - 50) > 0) {
+        startId -= 50;
+    } else {
+        startId = 0;
+    }
+
+    if((endId + 50) < this->rowCount()) {
+        endId += 50;
+    } else {
+        endId = this->rowCount();
+    }
+
+    QVector<int> tempPtS = m_allSourceIndexes;
+    std::nth_element(tempPtS.begin(), tempPtS.begin() + startId, tempPtS.end(), [&](int a, int b) {
+        return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+    });
+
+    const int numOfItems = endId - startId;
+    std::partial_sort(tempPtS.begin() + startId, tempPtS.begin() + startId + numOfItems, tempPtS.end(), [&](int a, int b) {
+        return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+    });
+
+    // Now update the bookkeeping vectors. This applies the new sort order, but still doesn't make it visible yet.
+    for(int i = startId; i < startId + numOfItems; i++) {
+
+        // Update proxy -> source and source -> proxy mapping
+        if(m_fromProxyToSource[i] != tempPtS[i]) {
+            m_fromProxyToSource[i] = tempPtS[i];
+            m_fromSourceToProxy[tempPtS[i]] = i;
+        }
+    }
+
+    // Emit data change signal for all rows that "might" have been changed due to this sort operation.
+    // A view will pick this event up and update the visual. Here the user sees the re-sorting.
+    emit dataChanged(createIndex(initStartId, 0), createIndex(initEndId, 0));
 }
 
 bool FlatDirGroupedSortModel::variantLessThan(const QVariant &l, const QVariant &r)

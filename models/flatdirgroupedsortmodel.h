@@ -79,6 +79,7 @@ private:
     // Our bookkeeping vectors.
     QVector<int> m_fromProxyToSource;
     QVector<int> m_fromSourceToProxy;
+    QVector<int> m_allSourceIndexes;
 };
 
 
