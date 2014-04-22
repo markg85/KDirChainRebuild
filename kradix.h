@@ -23,11 +23,17 @@
 // Qt includes
 #include <QObject>
 #include <QVector>
+#include <vector>
 
 struct Node {
     QString key;
     int value;
-    QVector<Node> childNodes;
+    std::vector<Node> childNodes;
+
+    Node(QString data = "")
+        : key(data)
+    {
+    }
 };
 
 class KRadix : public QObject
@@ -42,12 +48,13 @@ public:
     void printNodes();
 
 private:
-    void printNodes(QVector<Node> nodes, int level);
+    void printNodes(std::vector<Node> nodes, int level);
     int value(Node& node, const QChar* key);
     Node& createNode(Node& node, const QChar* key);
     Node& addNode(Node& node, const QChar* key);
     Node& splitNode(Node& node, int pos);
     Node& findNodeMatch(Node& node, const QChar* key);
+    Node& findNodeMatchIterative(Node& node, const QChar* key);
 
 private:
     Node m_root;

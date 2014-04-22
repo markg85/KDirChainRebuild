@@ -39,7 +39,10 @@ void KRadix::insert(const QString &key, const int value)
 
 int KRadix::value(const QString &key)
 {
-    return findNodeMatch(m_root, key.constData()).value;
+    // Note: I tried kickstarting this by remebering the last ley and last returned parent node.
+    // That did work, but was far slower because you need to check if the strings start the same. Then the end needs to be cut of and passed
+    // as the key. It's ~10x slower then just walking down the nodes.
+    return findNodeMatchIterative(m_root, key.constData()).value;
 }
 
 void KRadix::matchPrefix(const QString &prefix)
@@ -54,10 +57,10 @@ void KRadix::printNodes()
     qDebug() << "--------------------------------------------------------";
 }
 
-void KRadix::printNodes(QVector<Node> nodes, int level)
+void KRadix::printNodes(std::vector<Node> nodes, int level)
 {
     for(Node& n : nodes) {
-        qDebug() << QString("- ").repeated(level) << "Key:" << n.key << "Value:" << n.value << "Num of childnodes:" << n.childNodes.count();
+        qDebug() << QString("- ").repeated(level) << "Key:" << n.key << "Value:" << n.value << "Num of childnodes:" << n.childNodes.size();
         if(!n.childNodes.empty()) {
             printNodes(n.childNodes, level + 1);
         }
@@ -93,10 +96,8 @@ Node &KRadix::createNode(Node &node, const QChar *key)
 // NOTE: Returns NEW node
 Node &KRadix::addNode(Node& node, const QChar* key)
 {
-    Node newNode;
-    newNode.key = QString(key);
-    node.childNodes << newNode;
-    return node.childNodes.last();
+    node.childNodes.emplace_back(QString(key));
+    return node.childNodes.back();
 }
 
 // NOTE: Returns the parent node
@@ -111,7 +112,8 @@ Node &KRadix::splitNode(Node &node, int pos)
     node.key = node.key.mid(0, pos);
     node.value = 0;
     node.childNodes.clear();
-    node.childNodes << newNode;
+//    node.childNodes << newNode;
+    node.childNodes.push_back(newNode);
 
     return node;
 }
@@ -139,11 +141,60 @@ Node &KRadix::findNodeMatch(Node &node, const QChar *key)
         // If the key is at the end then we have a full match in the current node thus return the value.
         if(*data != cNull) {
             return node;
-        } else if(!n.childNodes.isEmpty()) {
+        } else if(!n.childNodes.empty()) {
             return findNodeMatch(n, key);
         } else {
             return n;
         }
     }
     return node;
+}
+
+Node &KRadix::findNodeMatchIterative(Node &node, const QChar *key)
+{
+    int i = 0;
+    Node* currentNode = &node;
+    while(true) {
+
+//        const int size = currentNode->childNodes.size();
+//        if(size < 0 && i >= size) {
+//            return node;
+//        }
+
+        Node& n = currentNode->childNodes[i];
+        const QChar* data = n.key.constData();
+
+//        qDebug() << "Checking:" << *data << n.key << "against:" << *key << QString(key);
+
+        // Check the first chars. If they don't match, continue on to the next node.
+        if(*data != *key) {
+            i++;
+            continue;
+        }
+
+        // If we end up here, then the first chars are matching. Increase both.
+        data++;
+        key++;
+
+        // Now continue checking the characters till they start to diverge
+        while(*key != cNull && *key == *data) {
+//            qDebug() << "-- Checking:" << *data << n.key << "against:" << *key << QString(key);
+            key++;
+            data++;
+        }
+
+        // If data is not at the end then we don't have a matching node. Return the m_root node (which is node).
+        if(*data != cNull) {
+            return node;
+        } else if (*key != cNull) {
+            // If data is at the end, but our key isn't then we need to digg further. Do so regardless of the childnodes. The count for that is checked in the next iteration
+            i = 0;
+            currentNode = &n;
+            continue;
+        } else {
+            // Full match
+            return n;
+        }
+        i++;
+    }
 }

@@ -37,10 +37,21 @@ struct Node2 {
     // no assign
 //    Node2& operator=(const Node2&) = delete;
 
-    Node2(Node2&& n) : key(std::move(n.key)) {}
-    Node2(KStringUnicode&& n) : key(std::move(n)) {}
+    Node2(Node2&& n)
+        : key(std::move(n.key))
+        , value(n.value)
+        , childNodes(std::move(n.childNodes))
+    {}
 
-    Node2(QString data = "") : key(data) {}
+    Node2(KStringUnicode&& n)
+        : key(std::move(n))
+        , value(0)
+    {}
+
+    Node2(QString data = "")
+        : key(data)
+        , value(0)
+    {}
 };
 
 class KRadix2 : public QObject
@@ -50,14 +61,16 @@ public:
     explicit KRadix2(QObject* parent = 0);
 
     void insert(const QString& key, const int value);
+    int value(const QString& key);
     void printNodes();
 
 private:
     void printNodes(const std::vector<Node2>& nodes, int level);
     Node2& createNode(Node2& node, KStringUnicode key);
-    Node2& addNode(Node2& node, KStringUnicode& key);
+    Node2& addNode(Node2& node, KStringUnicode key);
     Node2& splitNode(Node2& node, int pos);
-
+    const Node2& findNodeMatch(const Node2& node, KStringUnicode key);
+    Node2* findNodeMatchIterative(Node2* node, KStringUnicode key) const;
 
 private:
     Node2 m_root;

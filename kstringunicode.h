@@ -37,7 +37,8 @@ public:
     KStringUnicode& operator=(const KStringUnicode&) = delete;
 
     // Constructor
-    KStringUnicode(QString data);
+    KStringUnicode(const QString& data);
+    KStringUnicode(const ushort data[], int length);
 
     // Move constructor
     KStringUnicode(KStringUnicode&& other);
@@ -45,8 +46,12 @@ public:
     // Move assignment operator
     KStringUnicode& operator=(KStringUnicode&& other);
 
+    // ushort assignment operator
+    KStringUnicode& operator=(std::unique_ptr<ushort[]> data);
+
     // Convenience function to get any part of the string as a new KStringUnicode object.
     KStringUnicode mid(int position, int n = -1) const;
+    void midInternal(int position, int n = -1);
 
     // Ruturns the length of the current string.
     const int length() const;
