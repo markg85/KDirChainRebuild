@@ -240,7 +240,6 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
         return m_listModel->data(a, m_groupby).toString().compare(m_listModel->data(b, m_groupby).toString()) < 0;
     });
 
-
     // Update our bookkeeping vectors
     const int newSize = newEntries.size();
     for(int i = 0; i < newSize; i++) {
