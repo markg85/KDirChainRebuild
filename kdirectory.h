@@ -34,18 +34,41 @@ class KDirectory : public QObject
 public:
     explicit KDirectory(const QString& directory, QObject *parent = 0);
     
+    /**
+     * Returns all entries that passed the filters and flags.
+     * @return QVector<KDirectoryEntry>
+     */
     virtual const QVector<KDirectoryEntry>& entries();
 
     /**
      * Entry returns the KDirectoryEntry object if it's index is in the filteredEntries.
      * @param index
-     * @return
+     * @return KDirectoryEntry at index
      */
     virtual const KDirectoryEntry& entry(int index);
+
+    /**
+     * String of the full path for this directory.
+     * @return QString
+     */
     virtual const QString& url();
+
+    /**
+     * Number of entries that passed the filters and flags
+     * @return int
+     */
     virtual int count();
+
+    /**
+     * Set the details for the current directory. It can be 0 (no details) or 2 (full details).
+     * If the value passed is different then the current details value (and valid) then the
+     * directory will be re-scanned according to the new details value.
+     * @param QString details. Either 0 or 2.
+     * @return KDirectoryEntry at index
+     */
     virtual void setDetails(const QString& details);
 
+    // For those, see QDir documentation.
     QDir::Filters filter();
     void setFilter(QDir::Filters filters);
     QDir::SortFlags sorting();

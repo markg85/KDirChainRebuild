@@ -48,26 +48,57 @@ public:
     KDirectoryEntry(const KIO::UDSEntry& entry, const QString& details = "0");
     virtual ~KDirectoryEntry(){}
 
+    /**
+     * Returns the raw file name with extension as it comes from UDSEntry.
+     * @return QString
+     */
     const QString name() const;
 
     /**
      * Returns the owner of the file.
-     * @return the file's owner
+     * @return QString
      */
     const QString user() const;
 
     /**
      * Returns the group of the file.
-     * @return the file's group
+     * @return QString
      */
     const QString group() const;
+
+    /**
+     * Returns the base name of a file. This is the name without extension.
+     * @return QString
+     */
     const QString basename() const;
+
+    /**
+     * Returns the extension of a file without leading dot.
+     * @return QString
+     */
     const QString extension() const;
+
+    /**
+     * Returns the icon name based on the output of QMimeType
+     * @return QString
+     */
     const QString iconName() const;
+
+    /**
+     * Returns the icon comment based on the output of QMimeType
+     * @return QString
+     */
     const QString mimeComment() const;
+
+    /**
+     * Returns the file size from UDSEntry if details where loaded. 0 for no details or if the current entry is a folder.
+     * @return QString
+     */
     const KIO::filesize_t size() const;
 
-    // Should be used when constructing without an USEEntry. If an UDSEntry is already present then the data will be overwritten!
+    /**
+     * This is used internally when constructing this object with an UDSEntry, or used externally to update this object. For example when a rename happens. Users using this class cannot use this object to get notified of changes. The KDirectory object containing this instance will notify you of changes.
+     */
     virtual void setUDSEntry(const KIO::UDSEntry& entry, const QString& details = "0");
 
     /**
@@ -95,6 +126,7 @@ public:
      * @return true if the file can be read - more precisely,
      *         false if we know for sure it can't
      */
+    // STUB! To be implemented
     bool isReadable() const;
 
     /**
@@ -103,17 +135,23 @@ public:
      * @return true if the file or directory can be written to - more precisely,
      *         false if we know for sure it can't
      */
+    // STUB! To be implemented
     bool isWritable() const;
 
+    // STUB! To be implemented
     bool isExecutable() const;
+
+    // STUB! To be implemented
     bool isModified() const;
+
+    // STUB! To be implemented
     bool isSystem() const;
 
     /**
      * Requests the modification, access or creation time, depending on @p which.
      * @param which the timestamp
      * @return the time asked for, QDateTime() if not available
-     * @see timeString()
+     * @see FileTimes
      */
     QDateTime time(FileTimes which) const;
 
@@ -123,12 +161,14 @@ public:
      */
     bool isHidden() const;
 
+    /**
+     * Checks whether the file details are loaded.
+     * @return true if details are loaded, false otherwise.
+     */
     bool detailsLoaded() const;
-
 
 private:
     KDirectoryEntryPrivate* d;
-
 };
 
 Q_DECLARE_TYPEINFO(KDirectoryEntry, Q_MOVABLE_TYPE);

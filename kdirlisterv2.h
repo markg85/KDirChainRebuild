@@ -59,26 +59,36 @@ public:
     explicit KDirListerV2(QObject *parent = 0);
 
     /**
-     * Run the directory lister on the given url.
+     * Open a new URL to be listed.
      *
-     * This method causes KDirLister to emit _all_ the items of @p _url, in any case.
-     * Depending on _flags, either clear() or clear(const QUrl &) will be
-     * emitted first.
-     *
-     * The newItems() signal may be emitted more than once to supply you
-     * with KFileItems, up until the signal completed() is emitted
-     * (and isFinished() returns true).
-     *
-     * @param _url     the directory URL.
-     * @param _flags   whether to keep previous directories, and whether to reload, see OpenUrlFlags
-     * @return true    if successful,
-     *         false   otherwise (e.g. invalid @p _url)
+     * @param url the directory URL.
+     * @param flags. Can be NoFlags, Keep or Reload
+     * @return true if successful, false otherwise.
      */
     virtual bool openUrl(const QString& url, OpenUrlFlags flags = NoFlags);
 
+    /**
+     * Open a new URL to be listed.
+     *
+     * @param dirFetchDetails
+     * @return true if successful, false otherwise.
+     * @see DirectoryFetchDetails
+     */
     virtual bool openUrl(DirectoryFetchDetails dirFetchDetails);
 
+    /**
+     * Test if a given URL is being listed.
+     *
+     * @return true if directory is listed, false otherwise
+     */
     virtual bool isListing(const QString& url);
+
+    /**
+     * Return a KDirectory pointer representing the given URL.
+     *
+     * @param url
+     * @return KDirectory pointer if url is known, nullptr otherwise.
+     */
     virtual KDirectory* directory(const QString& url);
     
 signals:
