@@ -64,6 +64,7 @@ public:
     Q_INVOKABLE void reload();
     Q_INVOKABLE void requestSortForItems(int startId, int endId);
     Q_INVOKABLE int numOfItemsForGroup(const QString& group);
+    Q_INVOKABLE QString stringRole(int role);
 
     inline bool variantLessThan(const QVariant& l, const QVariant& r);
 

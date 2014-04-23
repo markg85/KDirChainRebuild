@@ -316,6 +316,12 @@ int FlatDirGroupedSortModel::numOfItemsForGroup(const QString &group)
     return m_itemsPerGroup.value(group);
 }
 
+QString FlatDirGroupedSortModel::stringRole(int role)
+{
+//    DirListModel::Roles enumRole = static_cast<DirListModel::Roles>(role);
+    return roleNames().value(role);
+}
+
 bool FlatDirGroupedSortModel::variantLessThan(const QVariant &l, const QVariant &r)
 {
     switch (l.userType()) {
