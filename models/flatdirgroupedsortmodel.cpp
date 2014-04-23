@@ -267,8 +267,8 @@ void FlatDirGroupedSortModel::reload()
 void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId)
 {
     /* --------------------------------
-     * This function is the beginning of very efficient sorting whee it would only sort what you see
-     * and on demand. However, it still needs a LOT of work to work properly.
+     * This function is the beginning of very efficient sorting where it would only sort what you see
+     * which makes it on demand. However, it still needs a LOT of work to work properly.
      * --------------------------------
      */
     int initStartId = startId;
