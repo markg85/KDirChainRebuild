@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QSet>
 #include <QCollator>
 #include <QAbstractProxyModel>
 #include "dirlistmodel.h"
@@ -60,6 +61,7 @@ public:
     void modelRowsRemoved(const QModelIndex &, int, int);
 
     void orderNewEntries(int start, int end);
+    void regroup();
 
     Q_INVOKABLE void reload();
     Q_INVOKABLE void requestSortForItems(int startId, int endId);
@@ -82,6 +84,7 @@ private:
     QVector<int> m_fromProxyToSource;
     QVector<int> m_fromSourceToProxy;
     QVector<int> m_allSourceIndexes;
+    QSet<int> m_sortedProxyIds;
 
     QHash<QString, int> m_itemsPerGroup;
 };

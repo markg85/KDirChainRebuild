@@ -78,6 +78,7 @@ void FlatDirGroupedSortModel::setGroupby(int role)
     if(m_groupby != enumRole) {
         m_groupby = enumRole;
         emit groupbyChanged();
+        regroup();
     }
 }
 
@@ -197,6 +198,9 @@ void FlatDirGroupedSortModel::modelRowsInserted(const QModelIndex & parent, int 
 {
     beginInsertRows(parent, start, end);
 
+    // As soon as we insert new rows, we remove the cache to know which items we have sorted.
+    m_sortedProxyIds.clear();
+
     // We first simply add the new entries to our bookkeeping vectors. Ordering them will happen later.
     for(int i = start; i <= end; i++) {
         m_allSourceIndexes.append(i);
@@ -223,6 +227,7 @@ void FlatDirGroupedSortModel::modelRowsRemoved(const QModelIndex & parent, int s
     m_fromSourceToProxy.clear();
     m_allSourceIndexes.clear();
     m_itemsPerGroup.clear();
+    m_sortedProxyIds.clear();
 
     endRemoveRows();
 }
@@ -259,6 +264,19 @@ void FlatDirGroupedSortModel::orderNewEntries(int start, int end)
     }
 }
 
+void FlatDirGroupedSortModel::regroup()
+{
+    // Clean the current grouping counts
+    m_itemsPerGroup.clear();
+
+    // And do the actual regrouping
+    orderNewEntries(0, this->rowCount() - 1);
+
+    // Notify the model of the new changed data.
+    // For later: optimize here. Only emit dataChange for those rows in the current view.
+    emit dataChanged(createIndex(0, 0), createIndex(this->rowCount() - 1, 0));
+}
+
 void FlatDirGroupedSortModel::reload()
 {
     m_listModel->reload();
@@ -266,49 +284,73 @@ void FlatDirGroupedSortModel::reload()
 
 void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId)
 {
-    /* --------------------------------
-     * This function is the beginning of very efficient sorting where it would only sort what you see
-     * which makes it on demand. However, it still needs a LOT of work to work properly.
-     * --------------------------------
-     */
-    int initStartId = startId;
-    int initEndId = endId;
-
-    if((startId - 50) > 0) {
-        startId -= 50;
+    // Add some more items to sort. Just so the we fill up a bit of a sorted cache and prevent calling this function too often.
+    int modifiedEndId = endId;
+    if((modifiedEndId + 100) < this->rowCount()) {
+        modifiedEndId += 100;
     } else {
-        startId = 0;
+        modifiedEndId = this->rowCount();
     }
 
-    if((endId + 50) < this->rowCount()) {
-        endId += 50;
-    } else {
-        endId = this->rowCount();
+    // Return early. If both the start and end id are known in our sorted cache then everything in between is sorted
+    if(m_sortedProxyIds.contains(startId) && m_sortedProxyIds.contains(endId)) {
+//        qDebug() << "Return early. Everything in between is sorted already.";
+        return;
     }
 
-    QVector<int> tempPtS = m_allSourceIndexes;
-    std::nth_element(tempPtS.begin(), tempPtS.begin() + startId, tempPtS.end(), [&](int a, int b) {
-        return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
-    });
+    int modifiedStartId = endId;
 
-    const int numOfItems = endId - startId;
-    std::partial_sort(tempPtS.begin() + startId, tempPtS.begin() + startId + numOfItems, tempPtS.end(), [&](int a, int b) {
+    // We only need this temporary to fix out mapping back from source to proxy
+    bool needToRunNthElement = false;
+
+    if(startId > 0 && m_sortedProxyIds.contains(startId - 1)) {
+        // now loop through the id's from start to end and check which ones we've already sorted to shorten our list of elements to sort
+        for(int i = startId; i <= modifiedEndId; i++) {
+            if(!m_sortedProxyIds.contains(i)) {
+                modifiedStartId = i;
+                // We stop this loop as soon as we found an id that isn't in our list of items known to be sorted
+                break;
+            }
+        }
+    } else {
+        // This true is only half true. It should be false for startId == 0, but it's easier to check that down below.
+        needToRunNthElement = true;
+        modifiedStartId = startId;
+    }
+
+    // We could have no items to sort. Just because it's all sorted already.
+    if(modifiedStartId == modifiedEndId) {
+        return;
+    }
+
+    // Is the entry before our current entry sorted?
+    if(needToRunNthElement && startId > 0) {
+//        qDebug() << "running std::nth_element";
+        /*
+         * nth_element guarantees that the item at position m_fromProxyToSource.begin() + modifiedStartId should be at that position
+         * as if it where sorted. All items before m_fromProxyToSource.begin() + modifiedStartId are also guaranteed to be before it
+         * although not in a sorted order.
+         */
+        std::nth_element(m_fromProxyToSource.begin(), m_fromProxyToSource.begin() + modifiedStartId, m_fromProxyToSource.end(), [&](int a, int b) {
+            return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+        });
+    }
+
+//    qDebug() << "running std::partial_sort. Start =" << modifiedStartId << "end =" << modifiedEmdId;
+    const int numOfItems = modifiedEndId - modifiedStartId;
+    std::partial_sort(m_fromProxyToSource.begin() + modifiedStartId, m_fromProxyToSource.begin() + modifiedStartId + numOfItems, m_fromProxyToSource.end(), [&](int a, int b) {
         return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
     });
 
     // Now update the bookkeeping vectors. This applies the new sort order, but still doesn't make it visible yet.
-    for(int i = startId; i < startId + numOfItems; i++) {
-
-        // Update proxy -> source and source -> proxy mapping
-        if(m_fromProxyToSource[i] != tempPtS[i]) {
-            m_fromProxyToSource[i] = tempPtS[i];
-            m_fromSourceToProxy[tempPtS[i]] = i;
-        }
+    for(int i = modifiedStartId; i < modifiedStartId + numOfItems; i++) {
+        m_sortedProxyIds.insert(i);
+        m_fromSourceToProxy[m_fromProxyToSource[i]] = i;
     }
 
     // Emit data change signal for all rows that "might" have been changed due to this sort operation.
     // A view will pick this event up and update the visual. Here the user sees the re-sorting.
-    emit dataChanged(createIndex(initStartId, 0), createIndex(initEndId, 0));
+    emit dataChanged(createIndex(modifiedStartId, 0), createIndex(modifiedEndId, 0));
 }
 
 int FlatDirGroupedSortModel::numOfItemsForGroup(const QString &group)
