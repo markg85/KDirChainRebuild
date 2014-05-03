@@ -282,7 +282,7 @@ void FlatDirGroupedSortModel::reload()
     m_listModel->reload();
 }
 
-void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId)
+void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId, bool isMovingDown)
 {
     // Add some more items to sort. Just so the we fill up a bit of a sorted cache and prevent calling this function too often.
     int modifiedEndId = endId;

@@ -64,7 +64,7 @@ public:
     void regroup();
 
     Q_INVOKABLE void reload();
-    Q_INVOKABLE void requestSortForItems(int startId, int endId);
+    Q_INVOKABLE void requestSortForItems(int startId, int endId, bool isMovingDown);
     Q_INVOKABLE int numOfItemsForGroup(const QString& group);
     Q_INVOKABLE QString stringRole(int role);
 
