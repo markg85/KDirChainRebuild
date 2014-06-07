@@ -12,7 +12,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
-find_package( OpenMP REQUIRED)
+find_package(OpenMP)
 if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     add_definitions(-D_GLIBCXX_PARALLEL)
@@ -54,9 +54,9 @@ set(kdirchain_LIB_SRCS
   kdirlisterv2.cpp
   kdirlisterv2_p.cpp
   staticmimetype.cpp
-  kstringunicode.cpp
-  kradix.cpp
-  kradix2.cpp
+#  kstringunicode.cpp
+#  kradix.cpp
+#  kradix2.cpp
 )
 
 set(kdirchainrebuild_SRCS
