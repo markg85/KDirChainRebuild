@@ -165,6 +165,8 @@ QVariant DirListModel::data(int index, int role) const
         if(!entry.detailsLoaded()) m_dir->loadEntryDetails(index);
         return QVariant(entry.group());
         break;
+    default:
+        return QVariant();
     }
 }
 
@@ -251,7 +253,7 @@ void DirListModel::reload()
 
 void DirListModel::slotDirectoryContentChanged(KDirectory *dir)
 {
-    if(!m_dir && dir || dir != m_dir) {
+    if((!m_dir && dir) || dir != m_dir) {
         m_dir = dir;
         connect(m_dir, &KDirectory::entryDetailsChanged, [&](KDirectory*, int id){
             // notify the view that the entry with "id" has changed data.
