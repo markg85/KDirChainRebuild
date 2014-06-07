@@ -200,6 +200,9 @@ void DirGroupedModel::processEntry(KDirectory *dir, int id)
         if(!e.detailsLoaded()) dir->loadEntryDetails(id);
         potentialNewGroupKey = e.group();
         break;
+    case DirListModel::Hidden:
+    case DirListModel::None:
+        return; // Hidden and none do nothing here. Return if we encounter them.
     }
 
     // Specially don't check for potentialNewGroupKey.isNull() because you might very group on something where empty would be valid.
