@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <algorithm>
 #include <iostream>
+#include <valgrind/callgrind.h>
 
 
 FlatDirGroupedSortModel::FlatDirGroupedSortModel(QObject *parent)
@@ -198,17 +199,17 @@ void FlatDirGroupedSortModel::modelRowsInserted(const QModelIndex & parent, int 
 {
     beginInsertRows(parent, start, end);
 
-    // As soon as we insert new rows, we remove the cache to know which items we have sorted.
-    m_sortedProxyIds.clear();
 
     // We first simply add the new entries to our bookkeeping vectors. Ordering them will happen later.
     for(int i = start; i <= end; i++) {
-        m_allSourceIndexes.append(i);
-
-        // Should go..
         m_fromProxyToSource.append(i);
         m_fromSourceToProxy.append(i);
+        m_nameCache.append(m_collator.sortKey(m_listModel->data(i, DirListModel::Name).toString()));
     }
+
+    // As soon as we insert new rows, we remove the cache to know which items we have sorted.
+    m_sortedProxyIds.reserve(m_fromProxyToSource.size());
+    m_sortedProxyIds.fill(false);
 
     if(m_groupby != DirListModel::None) {
         orderNewEntries(start, end);
@@ -225,9 +226,8 @@ void FlatDirGroupedSortModel::modelRowsRemoved(const QModelIndex & parent, int s
     // This will do as a temporary workaround :)
     m_fromProxyToSource.clear();
     m_fromSourceToProxy.clear();
-    m_allSourceIndexes.clear();
     m_itemsPerGroup.clear();
-    m_sortedProxyIds.clear();
+    m_sortedProxyIds.fill(false);
 
     endRemoveRows();
 }
@@ -293,7 +293,7 @@ void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId, bool i
     }
 
     // Return early. If both the start and end id are known in our sorted cache then everything in between is sorted
-    if(m_sortedProxyIds.contains(startId) && m_sortedProxyIds.contains(endId)) {
+    if(m_sortedProxyIds.at(startId) && m_sortedProxyIds.at(endId)) {
 //        qDebug() << "Return early. Everything in between is sorted already.";
         return;
     }
@@ -303,10 +303,10 @@ void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId, bool i
     // We only need this temporary to fix out mapping back from source to proxy
     bool needToRunNthElement = false;
 
-    if(startId > 0 && m_sortedProxyIds.contains(startId - 1)) {
+    if(startId > 0 && m_sortedProxyIds.at(startId - 1)) {
         // now loop through the id's from start to end and check which ones we've already sorted to shorten our list of elements to sort
         for(int i = startId; i <= modifiedEndId; i++) {
-            if(!m_sortedProxyIds.contains(i)) {
+            if(!m_sortedProxyIds.at(i)) {
                 modifiedStartId = i;
                 // We stop this loop as soon as we found an id that isn't in our list of items known to be sorted
                 break;
@@ -323,28 +323,41 @@ void FlatDirGroupedSortModel::requestSortForItems(int startId, int endId, bool i
         return;
     }
 
+    CALLGRIND_START_INSTRUMENTATION;
+
     // Is the entry before our current entry sorted?
+    QTime t;
     if(needToRunNthElement && startId > 0) {
-//        qDebug() << "running std::nth_element";
+        qDebug() << "running std::nth_element";
+        t.restart();
         /*
          * nth_element guarantees that the item at position m_fromProxyToSource.begin() + modifiedStartId should be at that position
          * as if it where sorted. All items before m_fromProxyToSource.begin() + modifiedStartId are also guaranteed to be before it
          * although not in a sorted order.
          */
         std::nth_element(m_fromProxyToSource.begin(), m_fromProxyToSource.begin() + modifiedStartId, m_fromProxyToSource.end(), [&](int a, int b) {
-            return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+//            return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+            return m_nameCache.at(a) < m_nameCache.at(b);
         });
+
+        qDebug() << "nth element took:" << QString("%1 ms").arg(QString::number(t.elapsed()));
     }
 
-//    qDebug() << "running std::partial_sort. Start =" << modifiedStartId << "end =" << modifiedEmdId;
+    t.restart();
+    qDebug() << "running std::partial_sort. Start =" << modifiedStartId << "end =" << modifiedEndId;
     const int numOfItems = modifiedEndId - modifiedStartId;
     std::partial_sort(m_fromProxyToSource.begin() + modifiedStartId, m_fromProxyToSource.begin() + modifiedStartId + numOfItems, m_fromProxyToSource.end(), [&](int a, int b) {
-        return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+//        return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+        return m_nameCache.at(a) < m_nameCache.at(b);
     });
+    qDebug() << "partial sort took:" << QString("%1 ms").arg(QString::number(t.elapsed()));
+
+    CALLGRIND_STOP_INSTRUMENTATION;
+
 
     // Now update the bookkeeping vectors. This applies the new sort order, but still doesn't make it visible yet.
     for(int i = modifiedStartId; i < modifiedStartId + numOfItems; i++) {
-        m_sortedProxyIds.insert(i);
+        m_sortedProxyIds[i] = true;
         m_fromSourceToProxy[m_fromProxyToSource[i]] = i;
     }
 

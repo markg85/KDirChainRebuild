@@ -22,7 +22,6 @@
 
 #include <QObject>
 #include <QVector>
-#include <QSet>
 #include <QCollator>
 #include <QAbstractProxyModel>
 #include "dirlistmodel.h"
@@ -83,8 +82,8 @@ private:
     // Our bookkeeping vectors.
     QVector<int> m_fromProxyToSource;
     QVector<int> m_fromSourceToProxy;
-    QVector<int> m_allSourceIndexes;
-    QSet<int> m_sortedProxyIds;
+    QVector<bool> m_sortedProxyIds;
+    QList<QCollatorSortKey> m_nameCache;
 
     QHash<QString, int> m_itemsPerGroup;
 };
