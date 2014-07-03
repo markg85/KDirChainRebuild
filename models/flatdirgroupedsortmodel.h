@@ -45,7 +45,8 @@ public:
     void setGroupby(int role);
     DirListModel::Roles groupby() { return m_groupby; }
 
-    Q_INVOKABLE void sort(int column, const QString& groupValue, Qt::SortOrder order = Qt::AscendingOrder);
+    Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    Q_INVOKABLE void sortGroup(int column, const QString& groupValue, Qt::SortOrder order = Qt::AscendingOrder);
 
     virtual QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex & index) const;

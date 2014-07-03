@@ -83,78 +83,98 @@ void FlatDirGroupedSortModel::setGroupby(int role)
     }
 }
 
-void FlatDirGroupedSortModel::sort(int column, const QString &groupValue, Qt::SortOrder order)
+void FlatDirGroupedSortModel::sort(int column, Qt::SortOrder order)
 {
-    // First: get all proxy row id's for those rows where the value of m_groupBy = groupValue.
-    const int allRows = m_fromProxyToSource.size();
-    QVector<int> filteredRows;
-    QHash<int, QVariant> filteredRowsDataCache;
-    for(int i = 0; i < allRows; i++) {
-        // Now get the row value for m_groupBy
-        const QModelIndex idx = createIndex(m_fromProxyToSource[i], 0);
-        const QString& groupByValue = sourceModel()->data(idx, m_groupby).toString();
-        if(groupByValue == groupValue) {
-            filteredRows.append(i);
-            filteredRowsDataCache.insert(i, sourceModel()->data(idx, column));
-        }
-    }
-
-    // We make a copy of the current filteredRows because we need to know the order it has _now_ after it has been sorted.
-    const QVector<int> origFilteredRows = filteredRows;
-
     // Actual sort the list we just composed. This just prepares the proxy id's in the right order.
-    // After thisstep we still need to update the actual positions in m_fromProxyToSource and m_fromSourceToProxy to apply the new order.
     if(order == Qt::AscendingOrder) {
         if(column == DirListModel::Name) {
             // Special case for DirListModel::Name since it's using a natural string compare.
-//            std::partial_sort(filteredRows.begin(), filteredRows.begin() + 100, filteredRows.end(), [&](int a, int b) {
-            std::sort(filteredRows.begin(), filteredRows.end(), [&](int a, int b) {
-                return m_collator.compare(filteredRowsDataCache.value(a).toString(), filteredRowsDataCache.value(b).toString()) < 0;
+            std::sort(m_fromProxyToSource.begin(), m_fromProxyToSource.end(), [&](int a, int b) {
+                return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
             });
         } else {
-            std::sort(filteredRows.begin(), filteredRows.end(), [&](int a, int b) {
-                return variantLessThan(filteredRowsDataCache.value(a), filteredRowsDataCache.value(b));
+            std::sort(m_fromProxyToSource.begin(), m_fromProxyToSource.end(), [&](int a, int b) {
+                return variantLessThan(m_listModel->data(a, column), m_listModel->data(b, column));
             });
         }
     } else {
         if(column == DirListModel::Name) {
             // Special case for DirListModel::Name since it's using a natural string compare.
-//            std::partial_sort(filteredRows.begin(), filteredRows.begin() + 100, filteredRows.end(), [&](int a, int b) {
-            std::sort(filteredRows.begin(), filteredRows.end(), [&](int a, int b) {
-                return m_collator.compare(filteredRowsDataCache.value(b).toString(), filteredRowsDataCache.value(a).toString()) < 0;
+            std::sort(m_fromProxyToSource.begin(), m_fromProxyToSource.end(), [&](int a, int b) {
+                return m_collator.compare(m_listModel->data(b, DirListModel::Name).toString(), m_listModel->data(a, DirListModel::Name).toString()) < 0;
             });
         } else {
-            std::sort(filteredRows.begin(), filteredRows.end(), [&](int a, int b) {
-                return variantLessThan(filteredRowsDataCache.value(b), filteredRowsDataCache.value(a));
+            std::sort(m_fromProxyToSource.begin(), m_fromProxyToSource.end(), [&](int a, int b) {
+                return variantLessThan(m_listModel->data(b, column), m_listModel->data(a, column));
             });
         }
     }
 
-    // A temporary vector to hold m_fromProxyToSource since we're going to swap values in m_fromProxyToSource.
-    const QVector<int> tempPtS = m_fromProxyToSource;
-
     // Now update the bookkeeping vectors. This applies the new sort order, but still doesn't make it visible yet.
-    const int numOfChangedItems = filteredRows.size();
-    for(int i = 0; i < numOfChangedItems; i++) {
-
-        const int origProxyKey = origFilteredRows[i];
-        const int destProxyKey = filteredRows[i];
-
-        const int origSourceKey = tempPtS[origProxyKey];
-        const int destSourceKey = tempPtS[destProxyKey];
-
-        // The actual swapping.. This keeps bookkeeping in order.
-        m_fromProxyToSource[origProxyKey] = destSourceKey;
-        m_fromSourceToProxy[origSourceKey] = destProxyKey;
+    for(const int i : m_fromProxyToSource) {
+        m_sortedProxyIds[i] = true;
+        m_fromSourceToProxy[m_fromProxyToSource[i]] = i;
     }
 
-    // Nice C++11 :)
-    // We could directly use origFilteredRows to get the first and last element?... Don't know if that will always work.
-    const auto result = std::minmax_element(origFilteredRows.begin(), origFilteredRows.end());
+    // Emit data change signal for all rows.
+    emit dataChanged(createIndex(0, 0), createIndex(m_fromProxyToSource.size(), 0));
+}
 
-    // Emit data change signal for all rows that "might" have been changed due to this sort operation.
-    // A view will pick this event up and update the visual. Here the user sees the re-sorting.
-    emit dataChanged(createIndex(*result.first, 0), createIndex(*result.second, 0));
+void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Qt::SortOrder order)
+{
+    // First create (and fill) a new vector that only contains the indexes for the current group
+    QVector<int> indexesInThisGroup;
+    for(const int i : m_fromProxyToSource) {
+        const QString& groupByValue = m_listModel->data(i, m_groupby).toString();
+        if(groupByValue == groupValue) {
+            indexesInThisGroup.append(i);
+        }
+    }
+
+    // We need to update the mapping, but we lose mapping order if we sort. So we copy the vector.
+    // Then - once sorted - we can map the new id's back to the old id's and update the proxy <> source mapping.
+    const QVector<int> oldIndexesInThisGroup = indexesInThisGroup;
+
+    // Sort!
+    if(order == Qt::AscendingOrder) {
+        if(column == DirListModel::Name) {
+            // Special case for DirListModel::Name since it's using a natural string compare.
+            std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
+                return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+            });
+        } else {
+            std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
+                return variantLessThan(m_listModel->data(a, column), m_listModel->data(b, column));
+            });
+        }
+    } else {
+        if(column == DirListModel::Name) {
+            // Special case for DirListModel::Name since it's using a natural string compare.
+            std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
+                return m_collator.compare(m_listModel->data(b, DirListModel::Name).toString(), m_listModel->data(a, DirListModel::Name).toString()) < 0;
+            });
+        } else {
+            std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
+                return variantLessThan(m_listModel->data(b, column), m_listModel->data(a, column));
+            });
+        }
+    }
+
+    // Update proxy -> source mapping
+    const int numOfItems = indexesInThisGroup.size();
+    for(int i = 0; i < numOfItems; i++) {
+        m_fromProxyToSource[m_fromSourceToProxy[oldIndexesInThisGroup[i]]] = indexesInThisGroup[i];
+    }
+
+    // This is just updating _all_ source -> proxy id's. It's very fast and saves annoying temporary copies
+    // that would be needed to narrow this loop down to just the ones that changed.
+    for(const int i : m_fromProxyToSource) {
+        m_fromSourceToProxy[m_fromProxyToSource[i]] = i;
+    }
+
+    // This is wrong! It works, yes, but it should be narrowed down more
+    // TODO: Figure out for later...
+    emit dataChanged(createIndex(0, 0), createIndex(m_fromProxyToSource.size(), 0));
 }
 
 QModelIndex FlatDirGroupedSortModel::index(int row, int column, const QModelIndex &parent) const
