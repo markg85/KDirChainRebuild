@@ -124,10 +124,18 @@ void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Q
 {
     // First create (and fill) a new vector that only contains the indexes for the current group
     QVector<int> indexesInThisGroup;
+
+    // We only need to know the proxy id's for updating m_fromSourceToProxy later on to tell the view which elements have changed.
+    QVector<int> proxyIndexesInThisGroup;
+
+    // We use m_fromProxyToSource instead of m_fromSourceToProxy for one reason. In the sort functions below we need the source indexes.
+    // If we would have used m_fromSourceToProxy then we would have to translate those proxy id's back to source id's. Which is easy and
+    // fast, but this is probably (not tested) faster because i leave out the additional translation.
     for(const int i : m_fromProxyToSource) {
         const QString& groupByValue = m_listModel->data(i, m_groupby).toString();
         if(groupByValue == groupValue) {
             indexesInThisGroup.append(i);
+            proxyIndexesInThisGroup.append(m_fromSourceToProxy[i]);
         }
     }
 
@@ -166,15 +174,14 @@ void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Q
         m_fromProxyToSource[m_fromSourceToProxy[oldIndexesInThisGroup[i]]] = indexesInThisGroup[i];
     }
 
-    // This is just updating _all_ source -> proxy id's. It's very fast and saves annoying temporary copies
-    // that would be needed to narrow this loop down to just the ones that changed.
-    for(const int i : m_fromProxyToSource) {
+    // Update source -> proxy mapping
+    for(const int i : proxyIndexesInThisGroup) {
         m_fromSourceToProxy[m_fromProxyToSource[i]] = i;
     }
 
-    // This is wrong! It works, yes, but it should be narrowed down more
-    // TODO: Figure out for later...
-    emit dataChanged(createIndex(0, 0), createIndex(m_fromProxyToSource.size(), 0));
+    // Notify the view about the changed rows.
+    const auto result = std::minmax_element(proxyIndexesInThisGroup.begin(), proxyIndexesInThisGroup.end());
+    emit dataChanged(createIndex(*result.first, 0), createIndex(*result.second, 0));
 }
 
 QModelIndex FlatDirGroupedSortModel::index(int row, int column, const QModelIndex &parent) const
@@ -291,6 +298,10 @@ void FlatDirGroupedSortModel::regroup()
 
     // And do the actual regrouping
     orderNewEntries(0, this->rowCount() - 1);
+
+    for(const int i : m_fromSourceToProxy) {
+        qDebug() << i << m_listModel->data(i, DirListModel::Name).toString();
+    }
 
     // Notify the model of the new changed data.
     // For later: optimize here. Only emit dataChange for those rows in the current view.
