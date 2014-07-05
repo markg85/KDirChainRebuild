@@ -18,11 +18,13 @@ if(OPENMP_FOUND)
     add_definitions(-D_GLIBCXX_PARALLEL)
 endif()
 
+add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS)
+
 # required for QML_INSTALL_DIR (among others)
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 
-find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml Gui) # Needed for the kdirchainmodelplugin library
+find_package(Qt5 5.2.0 REQUIRED COMPONENTS Core Quick Qml Gui Concurrent) # Needed for the kdirchainmodelplugin library
 find_package(KF5 CONFIG REQUIRED COMPONENTS Bookmarks XmlGui Solid KIO)
 
 # Please KDE people. QUIT BREAKING THE INCLUDE PATHS! Manually add path to include/KDE.
@@ -54,6 +56,7 @@ set(kdirchain_LIB_SRCS
   kdirlisterv2.cpp
   kdirlisterv2_p.cpp
   staticmimetype.cpp
+  ThreadPool.h
 #  kstringunicode.cpp
 #  kradix.cpp
 #  kradix2.cpp
@@ -78,6 +81,7 @@ install(FILES
 target_link_libraries(kdirchain
   Qt5::Gui # For QKeySequence
   Qt5::Quick # For QQuickImageProvider
+  Qt5::Concurrent # For sorting offloading out of the main thread.
   KF5::KIOCore
   KF5::KIOWidgets
 )

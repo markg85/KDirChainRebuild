@@ -26,6 +26,8 @@
 #include <QAbstractProxyModel>
 #include "dirlistmodel.h"
 
+#include "ThreadPool.h"
+
 class FlatDirGroupedSortModel : public QAbstractProxyModel
 {
     Q_OBJECT
@@ -47,6 +49,7 @@ public:
 
     Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     Q_INVOKABLE void sortGroup(int column, const QString& groupValue, Qt::SortOrder order = Qt::AscendingOrder);
+    void sortGroup_Thread(int column, const QString& groupValue, Qt::SortOrder order = Qt::AscendingOrder);
 
     virtual QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex & index) const;
@@ -87,6 +90,8 @@ private:
     QList<QCollatorSortKey> m_nameCache;
 
     QHash<QString, int> m_itemsPerGroup;
+
+    ThreadPool m_threadPool;
 };
 
 

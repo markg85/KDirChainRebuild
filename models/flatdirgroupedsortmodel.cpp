@@ -20,6 +20,7 @@
 
 #include "flatdirgroupedsortmodel.h"
 #include <QCollator>
+#include <QElapsedTimer>
 #include <QDebug>
 #include <algorithm>
 #include <iostream>
@@ -33,6 +34,7 @@ FlatDirGroupedSortModel::FlatDirGroupedSortModel(QObject *parent)
     , m_collator()
     , m_fromProxyToSource()
     , m_fromSourceToProxy()
+    , m_threadPool(2) // a thread pool with two threads waiting for your command.
 {
     // This makes sure sorting is done in a natural way. Aka, 1, 2, 3, ... 9, 10 instead of 1, 10, ...
     m_collator.setNumericMode(true);
@@ -122,6 +124,16 @@ void FlatDirGroupedSortModel::sort(int column, Qt::SortOrder order)
 
 void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Qt::SortOrder order)
 {
+    std::cout << "Main thread id: " << std::this_thread::get_id() << std::endl;
+    m_threadPool.enqueue(&FlatDirGroupedSortModel::sortGroup_Thread, this, column, groupValue, order);
+}
+
+void FlatDirGroupedSortModel::sortGroup_Thread(int column, const QString &groupValue, Qt::SortOrder order)
+{
+    std::cout << "Worker thread id: " << std::this_thread::get_id() << std::endl;
+    QElapsedTimer t;
+    t.restart();
+
     // First create (and fill) a new vector that only contains the indexes for the current group
     QVector<int> indexesInThisGroup;
 
@@ -148,7 +160,8 @@ void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Q
         if(column == DirListModel::Name) {
             // Special case for DirListModel::Name since it's using a natural string compare.
             std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
-                return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
+                return m_nameCache.at(a) < m_nameCache.at(b);
+                //return m_collator.compare(m_listModel->data(a, DirListModel::Name).toString(), m_listModel->data(b, DirListModel::Name).toString()) < 0;
             });
         } else {
             std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
@@ -159,7 +172,8 @@ void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Q
         if(column == DirListModel::Name) {
             // Special case for DirListModel::Name since it's using a natural string compare.
             std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
-                return m_collator.compare(m_listModel->data(b, DirListModel::Name).toString(), m_listModel->data(a, DirListModel::Name).toString()) < 0;
+                return m_nameCache.at(b) < m_nameCache.at(a);
+                //return m_collator.compare(m_listModel->data(b, DirListModel::Name).toString(), m_listModel->data(a, DirListModel::Name).toString()) < 0;
             });
         } else {
             std::sort(indexesInThisGroup.begin(), indexesInThisGroup.end(), [&](int a, int b) {
@@ -182,6 +196,7 @@ void FlatDirGroupedSortModel::sortGroup(int column, const QString &groupValue, Q
     // Notify the view about the changed rows.
     const auto result = std::minmax_element(proxyIndexesInThisGroup.begin(), proxyIndexesInThisGroup.end());
     emit dataChanged(createIndex(*result.first, 0), createIndex(*result.second, 0));
+    qDebug() << QString("Done sorting. It took: %1 ms").arg(t.elapsed());
 }
 
 QModelIndex FlatDirGroupedSortModel::index(int row, int column, const QModelIndex &parent) const
@@ -254,6 +269,7 @@ void FlatDirGroupedSortModel::modelRowsRemoved(const QModelIndex & parent, int s
     m_fromProxyToSource.clear();
     m_fromSourceToProxy.clear();
     m_itemsPerGroup.clear();
+    m_nameCache.clear();
     m_sortedProxyIds.fill(false);
 
     endRemoveRows();
