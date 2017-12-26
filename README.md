@@ -14,6 +14,7 @@ It might become material for a hypothetical "KDE Frameworks 6.xx", but don't bet
 The main differences is use of modern C++ features:
 - Move semantics
 - Rule-of-zero (let the compiler do the hard work)
+  - As i try to follow the rule of zero, i don't intent to implement the classes with the pimpl idiom from the start. The technical reason behind it is the pimpl object itself. The correct way of having that would be via a std::unique_ptr, but that breaks move semantics because a destructor has to be implemented (even an empty one, but it has to be there). Also, copying should be allowed which is again not possible with std::unique_ptr. This could be solved by using a std::shared_ptr and "telling" the compiler to generate the copy and move functions, but that "telling" part is what i'm bothered with. I might instead go with [the rule of zero as five defaults](http://blog.florianwolters.de/educational/2015/01/31/The_Rule_of_Zero/) which would make the intention (very) explicit and also solve the issues.
 - Use of std algorithms
  
 But also still the initial ideas of making it as performant as i can possible make it without making the code unbearable to read.
@@ -23,6 +24,7 @@ Last time i had spend a whole lot time on getting sorting working performant. I 
 - No 'overhead' for creating the sort key as the visible string and sort key are one and the same.
 - Much improved sorting performance on large folders, again because there is only one string.
 - It prevents extra bookkeeping (sort key -> visible string mapping) thus another place where memory is saved and performance is gained.
+A potential way to implement this with QCollatorSortKey is by making a own QStringView subclass that can be used to return "string data" from the QCollatorSortKey, that could work.
  
 It remains to be seen if i can do this as you can't just print the sort key as string.
 
